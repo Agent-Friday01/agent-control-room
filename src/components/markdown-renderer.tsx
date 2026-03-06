@@ -34,10 +34,10 @@ export function MarkdownRenderer({ content, preview = false }: MarkdownRendererP
           code: ({ children, className }) => {
             const isInline = !className
             if (isInline) {
-              return <code className="bg-surface-2 text-primary px-1 py-0.5 rounded text-[0.85em]">{children}</code>
+              return <code className="bg-surface-2 text-violet-500 dark:text-violet-400 px-1 py-0.5 rounded font-mono text-[0.85em]">{children}</code>
             }
             return (
-              <code className="block bg-surface-2 border border-border rounded p-2 overflow-x-auto text-[0.85em]">
+              <code className="block bg-surface-2 border border-border rounded-lg p-2 overflow-x-auto font-mono text-[0.85em]">
                 {children}
               </code>
             )
@@ -48,7 +48,7 @@ export function MarkdownRenderer({ content, preview = false }: MarkdownRendererP
             </blockquote>
           ),
           a: ({ href, children }) => (
-            <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline">
+            <a href={href} target="_blank" rel="noopener noreferrer" className="text-violet-500 dark:text-violet-400 hover:text-violet-600 dark:hover:text-violet-300 underline">
               {children}
             </a>
           ),

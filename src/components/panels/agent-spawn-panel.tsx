@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 import { createClientLogger } from '@/lib/client-logger'
 
 const log = createClientLogger('AgentSpawnPanel')
@@ -14,12 +14,12 @@ interface SpawnFormData {
 }
 
 export function AgentSpawnPanel() {
-  const { 
-    availableModels, 
-    spawnRequests, 
-    addSpawnRequest, 
-    updateSpawnRequest 
-  } = useMissionControl()
+  const {
+    availableModels,
+    spawnRequests,
+    addSpawnRequest,
+    updateSpawnRequest
+  } = useAgentControlRoom()
 
   const [formData, setFormData] = useState<SpawnFormData>({
     task: '',
@@ -34,7 +34,7 @@ export function AgentSpawnPanel() {
   useEffect(() => {
     // Load spawn history on mount
     fetch('/api/spawn')
-      .then(res => res.json())
+      .then(res => res.ok ? res.json() : { history: [] })
       .then(data => setSpawnHistory(data.history || []))
       .catch(err => log.error('Failed to load spawn history:', err))
   }, [])
@@ -48,7 +48,7 @@ export function AgentSpawnPanel() {
     setIsSpawning(true)
 
     const spawnId = `spawn-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
-    
+
     // Add to store immediately
     addSpawnRequest({
       id: spawnId,
@@ -111,19 +111,22 @@ export function AgentSpawnPanel() {
   const selectedModel = availableModels.find(m => m.alias === formData.model)
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="border-b border-border pb-4">
-        <h1 className="text-3xl font-bold text-foreground">Agent Spawn Control</h1>
-        <p className="text-muted-foreground mt-2">
-          Launch new sub-agents for specific tasks with custom parameters
-        </p>
+    <div className="p-4 md:p-6 space-y-6">
+      <div className="max-w-7xl mx-auto w-full space-y-6">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-lg font-semibold text-foreground">Agent Spawn Control</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Launch new sub-agents for specific tasks with custom parameters
+          </p>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Spawn Form */}
-        <div className="bg-card border border-border rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Spawn New Agent</h2>
-          
+        <div className="bg-card border border-border rounded-xl p-6">
+          <h2 className="text-sm font-semibold text-foreground mb-4">Spawn New Agent</h2>
+
           <div className="space-y-4">
             {/* Task Input */}
             <div>
@@ -157,7 +160,7 @@ export function AgentSpawnPanel() {
                 ))}
               </select>
               {selectedModel && (
-                <div className="mt-2 text-sm text-muted-foreground">
+                <div className="mt-2 text-sm text-muted-foreground font-mono">
                   <div>Provider: {selectedModel.provider}</div>
                   <div>Cost: ${selectedModel.costPer1k}/1k tokens</div>
                 </div>
@@ -193,7 +196,7 @@ export function AgentSpawnPanel() {
                 className="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
                 disabled={isSpawning}
               />
-              <div className="mt-1 text-sm text-muted-foreground">
+              <div className="mt-1 text-sm text-muted-foreground font-mono">
                 {Math.floor(formData.timeoutSeconds / 60)} minutes, {formData.timeoutSeconds % 60} seconds
               </div>
             </div>
@@ -202,7 +205,7 @@ export function AgentSpawnPanel() {
             <button
               onClick={handleSpawn}
               disabled={isSpawning || !formData.task.trim() || !formData.label.trim()}
-              className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full px-4 py-2 bg-violet-500 text-primary-foreground rounded-md font-medium hover:bg-violet-500/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {isSpawning ? 'Spawning Agent...' : 'Spawn Agent'}
             </button>
@@ -210,9 +213,9 @@ export function AgentSpawnPanel() {
         </div>
 
         {/* Active Spawn Requests */}
-        <div className="bg-card border border-border rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Active Requests</h2>
-          
+        <div className="bg-card border border-border rounded-xl p-6">
+          <h2 className="text-sm font-semibold text-foreground mb-4">Active Requests</h2>
+
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {spawnRequests.length === 0 ? (
               <div className="text-center text-muted-foreground py-8">
@@ -220,21 +223,21 @@ export function AgentSpawnPanel() {
               </div>
             ) : (
               spawnRequests.slice(0, 10).map((request) => (
-                <div key={request.id} className="border border-border rounded-lg p-4">
+                <div key={request.id} className="border border-border rounded-xl p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center space-x-2">
                         <span className="font-medium text-foreground">{request.label}</span>
-                        <span className={`px-2 py-1 text-xs rounded-full ${
+                        <span className={`px-2 py-1 text-xs rounded-full font-mono ${
                           request.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
-                          request.status === 'running' ? 'bg-blue-500/20 text-blue-400' :
-                          request.status === 'completed' ? 'bg-green-500/20 text-green-400' :
+                          request.status === 'running' ? 'bg-cyan-500/20 text-cyan-400' :
+                          request.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400' :
                           'bg-red-500/20 text-red-400'
                         }`}>
                           {request.status}
                         </span>
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">
+                      <div className="text-sm text-muted-foreground mt-1 font-mono">
                         Model: {request.model} • Timeout: {request.timeoutSeconds}s
                       </div>
                       <div className="text-sm text-muted-foreground mt-1 truncate">
@@ -246,7 +249,7 @@ export function AgentSpawnPanel() {
                         </div>
                       )}
                     </div>
-                    <div className="text-xs text-muted-foreground ml-4">
+                    <div className="text-xs text-muted-foreground ml-4 font-mono">
                       {new Date(request.createdAt).toLocaleTimeString()}
                     </div>
                   </div>
@@ -259,22 +262,22 @@ export function AgentSpawnPanel() {
 
       {/* Spawn History */}
       {spawnHistory.length > 0 && (
-        <div className="bg-card border border-border rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Recent Spawn History</h2>
-          
+        <div className="bg-card border border-border rounded-xl p-6">
+          <h2 className="text-sm font-semibold text-foreground mb-4">Recent Spawn History</h2>
+
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {spawnHistory.map((item, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border border-border rounded">
+              <div key={index} className="flex items-center justify-between p-3 border border-border rounded-xl">
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-foreground">
                     {item.model} - {item.task.substring(0, 50)}
                     {item.task.length > 50 && '...'}
                   </div>
-                  <div className="text-xs text-muted-foreground">
+                  <div className="text-xs text-muted-foreground font-mono">
                     {new Date(item.timestamp).toLocaleString()}
                   </div>
                 </div>
-                <div className="text-xs text-green-400 ml-4">
+                <div className="text-xs text-emerald-400 ml-4 font-mono">
                   {item.status}
                 </div>
               </div>
@@ -282,6 +285,7 @@ export function AgentSpawnPanel() {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

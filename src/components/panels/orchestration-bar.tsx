@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { Pencil, Copy, X, ChevronDown } from 'lucide-react'
 import { PipelineTab } from './pipeline-tab'
 
 interface Agent {
@@ -61,8 +62,8 @@ export function OrchestrationBar() {
 
   const fetchData = useCallback(async () => {
     const [agentRes, templateRes] = await Promise.all([
-      fetch('/api/agents').then(r => r.json()).catch(() => ({ agents: [] })),
-      fetch('/api/workflows').then(r => r.json()).catch(() => ({ templates: [] })),
+      fetch('/api/agents').then(r => r.ok ? r.json() : { agents: [] }).catch(() => ({ agents: [] })),
+      fetch('/api/workflows').then(r => r.ok ? r.json() : { templates: [] }).catch(() => ({ templates: [] })),
     ])
     setAgents(agentRes.agents || [])
     setTemplates(templateRes.templates || [])
@@ -223,7 +224,7 @@ export function OrchestrationBar() {
   const errorCount = agents.filter(a => a.status === 'error').length
 
   return (
-    <div className="border-b border-border bg-card/50">
+    <div className="border-b border-border bg-card">
       {/* Tab bar */}
       <div className="flex items-center gap-1 px-4 pt-2">
         {(['command', 'templates', 'pipelines', 'fleet'] as const).map(tab => (
@@ -238,7 +239,7 @@ export function OrchestrationBar() {
           >
             {tab === 'command' ? 'Command' : tab === 'templates' ? 'Workflows' : tab === 'pipelines' ? 'Pipelines' : 'Fleet'}
             {tab === 'fleet' && (
-              <span className={`ml-1.5 text-2xs ${errorCount > 0 ? 'text-red-400' : 'text-green-400'}`}>
+              <span className={`ml-1.5 text-2xs ${errorCount > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
                 {onlineCount}/{agents.length}
               </span>
             )}
@@ -247,7 +248,7 @@ export function OrchestrationBar() {
 
         {/* Result toast inline */}
         {commandResult && (
-          <span className={`ml-auto text-xs ${commandResult.ok ? 'text-green-400' : 'text-red-400'}`}>
+          <span className={`ml-auto text-xs ${commandResult.ok ? 'text-emerald-400' : 'text-red-400'}`}>
             {commandResult.text}
           </span>
         )}
@@ -279,7 +280,7 @@ export function OrchestrationBar() {
             <button
               onClick={sendCommand}
               disabled={!selectedAgent || !message.trim() || sending}
-              className="h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50 hover:bg-primary/90 transition-smooth"
+              className="h-9 px-4 rounded-md bg-violet-500 text-primary-foreground text-sm font-medium disabled:opacity-50 hover:bg-violet-500/90 transition-smooth"
             >
               {sending ? '...' : 'Send'}
             </button>
@@ -295,7 +296,7 @@ export function OrchestrationBar() {
               <p className="text-sm text-muted-foreground mb-2">No workflow templates yet</p>
               <button
                 onClick={() => { setFormMode('create'); setEditingId(null); setTemplateForm({ ...emptyForm }) }}
-                className="text-sm text-primary hover:underline"
+                className="text-sm text-violet-600 dark:text-violet-400 hover:underline"
               >
                 Create your first template
               </button>
@@ -313,7 +314,7 @@ export function OrchestrationBar() {
                       {filterTag && (
                         <button
                           onClick={() => setFilterTag(null)}
-                          className="text-2xs px-1.5 py-0.5 rounded bg-primary/20 text-primary hover:bg-primary/30"
+                          className="text-2xs px-1.5 py-0.5 rounded bg-violet-500/20 text-violet-600 dark:text-violet-400 hover:bg-violet-500/30"
                         >
                           {filterTag} x
                         </button>
@@ -335,7 +336,7 @@ export function OrchestrationBar() {
                     if (formMode !== 'hidden') closeForm()
                     else { setFormMode('create'); setTemplateForm({ ...emptyForm }) }
                   }}
-                  className="text-xs text-primary hover:underline"
+                  className="text-xs text-violet-600 dark:text-violet-400 hover:underline"
                 >
                   {formMode !== 'hidden' ? 'Cancel' : '+ New'}
                 </button>
@@ -343,7 +344,7 @@ export function OrchestrationBar() {
 
               {/* Create/Edit Form */}
               {formMode !== 'hidden' && (
-                <div className="mb-3 p-3 rounded-lg bg-secondary/50 border border-border space-y-2">
+                <div className="mb-3 p-4 bg-card border border-border rounded-xl space-y-2">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs font-medium text-foreground">
                       {formMode === 'edit' ? 'Edit Template' : 'New Template'}
@@ -383,9 +384,9 @@ export function OrchestrationBar() {
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1 flex-wrap flex-1">
                       {templateForm.tags.map(tag => (
-                        <span key={tag} className="inline-flex items-center gap-0.5 text-2xs px-1.5 py-0.5 rounded bg-primary/20 text-primary">
+                        <span key={tag} className="inline-flex items-center gap-0.5 text-2xs px-1.5 py-0.5 rounded bg-violet-500/20 text-violet-600 dark:text-violet-400">
                           {tag}
-                          <button onClick={() => removeTag(tag)} className="hover:text-primary/70">x</button>
+                          <button onClick={() => removeTag(tag)} className="hover:text-violet-400/70">x</button>
                         </span>
                       ))}
                       <input
@@ -417,7 +418,7 @@ export function OrchestrationBar() {
                     <button
                       onClick={saveTemplate}
                       disabled={!templateForm.name || !templateForm.task_prompt}
-                      className="h-7 px-3 rounded-md bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50"
+                      className="h-7 px-3 rounded-md bg-violet-500 text-primary-foreground text-xs font-medium disabled:opacity-50"
                     >
                       {formMode === 'edit' ? 'Update' : 'Save'}
                     </button>
@@ -450,7 +451,7 @@ export function OrchestrationBar() {
                         <button
                           onClick={() => executeTemplate(t)}
                           disabled={spawning === t.id}
-                          className="h-7 px-2 rounded-md bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50"
+                          className="h-7 px-2 rounded-md bg-violet-500 text-primary-foreground text-xs font-medium disabled:opacity-50"
                           title="Run"
                         >
                           {spawning === t.id ? '...' : 'Run'}
@@ -460,28 +461,21 @@ export function OrchestrationBar() {
                           className="h-7 px-1.5 rounded-md bg-secondary text-foreground text-xs hover:bg-secondary/80"
                           title="Edit"
                         >
-                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5">
-                            <path d="M11.5 1.5l3 3-9 9H2.5v-3z" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
+                          <Pencil className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => duplicateTemplate(t)}
                           className="h-7 px-1.5 rounded-md bg-secondary text-foreground text-xs hover:bg-secondary/80"
                           title="Duplicate"
                         >
-                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5">
-                            <rect x="5" y="5" width="9" height="9" rx="1" strokeLinecap="round" strokeLinejoin="round" />
-                            <path d="M3 11V3a1 1 0 011-1h8" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
+                          <Copy className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => deleteTemplate(t.id)}
                           className="h-7 px-1.5 rounded-md bg-destructive/20 text-destructive text-xs hover:bg-destructive/30"
                           title="Delete"
                         >
-                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5">
-                            <path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" />
-                          </svg>
+                          <X className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>
@@ -519,7 +513,7 @@ export function OrchestrationBar() {
       {/* Fleet Tab */}
       {activeTab === 'fleet' && (
         <div className="p-4 pt-3">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <FleetCard label="Total Agents" value={agents.length} />
             <FleetCard label="Online" value={onlineCount} color="green" />
             <FleetCard label="Busy" value={busyCount} color="amber" />
@@ -535,8 +529,8 @@ export function OrchestrationBar() {
                 >
                   <span className={`w-1.5 h-1.5 rounded-full ${
                     a.status === 'busy' ? 'bg-amber-500' :
-                    a.status === 'idle' ? 'bg-green-500' :
-                    a.status === 'error' ? 'bg-red-500' : 'bg-gray-500'
+                    a.status === 'idle' ? 'bg-emerald-500' :
+                    a.status === 'error' ? 'bg-red-500' : 'bg-slate-500'
                   }`} />
                   <span className="text-foreground font-medium">{a.name}</span>
                   <span className="text-muted-foreground">{a.role}</span>
@@ -551,14 +545,14 @@ export function OrchestrationBar() {
 }
 
 function FleetCard({ label, value, color }: { label: string; value: number; color?: string }) {
-  const colorClass = color === 'green' ? 'text-green-400' :
+  const colorClass = color === 'green' ? 'text-emerald-400' :
     color === 'amber' ? 'text-amber-400' :
     color === 'red' ? 'text-red-400' : 'text-foreground'
 
   return (
-    <div className="p-2.5 rounded-lg bg-secondary/50 border border-border">
+    <div className="bg-card border border-border rounded-xl p-4">
       <div className="text-xs text-muted-foreground">{label}</div>
-      <div className={`text-lg font-semibold font-mono-tight ${colorClass}`}>{value}</div>
+      <div className={`text-2xl font-semibold font-mono ${colorClass}`}>{value}</div>
     </div>
   )
 }

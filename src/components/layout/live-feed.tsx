@@ -1,14 +1,14 @@
 'use client'
 
-import { useMissionControl } from '@/store'
-import { useEffect, useState } from 'react'
+import { useAgentControlRoom } from '@/store'
+import { useState } from 'react'
+import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 export function LiveFeed() {
-  const { logs, sessions, activities, connection, dashboardMode, toggleLiveFeed } = useMissionControl()
+  const { logs, sessions, activities, connection, dashboardMode, toggleLiveFeed } = useAgentControlRoom()
   const isLocal = dashboardMode === 'local'
   const [expanded, setExpanded] = useState(true)
 
-  // Combine logs, activities, and (in local mode) session events into a unified feed
   const sessionItems = isLocal
     ? sessions.slice(0, 10).map(s => ({
         id: `sess-${s.id}`,
@@ -45,14 +45,11 @@ export function LiveFeed() {
       <div className="w-10 bg-card border-l border-border flex flex-col items-center py-3 shrink-0">
         <button
           onClick={() => setExpanded(true)}
-          className="w-8 h-8 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-smooth flex items-center justify-center"
+          className="w-8 h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-150 flex items-center justify-center"
           title="Show live feed"
         >
-          <svg className="w-4 h-4" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M10 3l-5 5 5 5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          <ChevronLeft size={16} />
         </button>
-        {/* Mini indicators */}
         <div className="mt-4 flex flex-col gap-2 items-center">
           {feedItems.slice(0, 5).map((item) => (
             <div
@@ -60,7 +57,7 @@ export function LiveFeed() {
               className={`w-1.5 h-1.5 rounded-full ${
                 item.level === 'error' ? 'bg-red-500' :
                 item.level === 'warn' ? 'bg-amber-500' :
-                'bg-blue-500/40'
+                'bg-cyan-500/40'
               }`}
             />
           ))}
@@ -74,28 +71,24 @@ export function LiveFeed() {
       {/* Header */}
       <div className="h-10 px-3 flex items-center justify-between border-b border-border shrink-0">
         <div className="flex items-center gap-2">
-          <div className="w-1.5 h-1.5 rounded-full bg-green-500 pulse-dot" />
+          <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot" />
           <span className="text-xs font-semibold text-foreground">Live Feed</span>
-          <span className="text-2xs text-muted-foreground font-mono-tight">{feedItems.length}</span>
+          <span className="text-2xs text-muted-foreground font-mono">{feedItems.length}</span>
         </div>
         <div className="flex items-center gap-0.5">
           <button
             onClick={() => setExpanded(false)}
-            className="w-6 h-6 rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-smooth flex items-center justify-center"
+            className="w-6 h-6 rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-150 flex items-center justify-center"
             title="Collapse feed"
           >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M6 3l5 5-5 5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <ChevronRight size={14} />
           </button>
           <button
             onClick={toggleLiveFeed}
-            className="w-6 h-6 rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-smooth flex items-center justify-center"
+            className="w-6 h-6 rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-150 flex items-center justify-center"
             title="Close feed"
           >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <X size={14} />
           </button>
         </div>
       </div>
@@ -120,14 +113,14 @@ export function LiveFeed() {
         )}
       </div>
 
-      {/* Active sessions mini-list */}
+      {/* Active sessions */}
       <div className="border-t border-border px-3 py-2 shrink-0">
         <div className="text-2xs font-medium text-muted-foreground mb-1.5">Active Sessions</div>
         <div className="space-y-1">
           {sessions.filter(s => s.active).slice(0, 4).map(session => (
             <div key={session.id} className="flex items-center gap-1.5 text-2xs">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-              <span className="text-foreground truncate flex-1 font-mono-tight">{session.key || session.id}</span>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span className="text-foreground truncate flex-1 font-mono">{session.key || session.id}</span>
               <span className="text-muted-foreground">{session.model?.split('/').pop()?.slice(0, 8)}</span>
             </div>
           ))}
@@ -146,13 +139,13 @@ function FeedItem({ item }: { item: { id: string; type: string; level: string; m
     : item.level === 'warn'
     ? 'bg-amber-500'
     : item.level === 'debug'
-    ? 'bg-gray-500'
-    : 'bg-blue-500/50'
+    ? 'bg-slate-500'
+    : 'bg-cyan-500/50'
 
   const timeStr = formatRelativeTime(item.timestamp)
 
   return (
-    <div className="px-3 py-2 hover:bg-secondary/50 transition-smooth group">
+    <div className="px-3 py-2 hover:bg-secondary/50 transition-all duration-150 group">
       <div className="flex items-start gap-2">
         <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${levelIndicator}`} />
         <div className="flex-1 min-w-0">
@@ -160,7 +153,7 @@ function FeedItem({ item }: { item: { id: string; type: string; level: string; m
             {item.message.length > 120 ? item.message.slice(0, 120) + '...' : item.message}
           </p>
           <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="text-2xs text-muted-foreground font-mono-tight">{item.source}</span>
+            <span className="text-2xs text-muted-foreground font-mono">{item.source}</span>
             <span className="text-2xs text-muted-foreground/50">·</span>
             <span className="text-2xs text-muted-foreground">{timeStr}</span>
           </div>

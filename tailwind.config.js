@@ -8,14 +8,24 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-geist-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-geist-mono)', 'ui-monospace', 'monospace'],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
+        surface: 'hsl(var(--surface))',
+        elevated: 'hsl(var(--elevated))',
+        raised: 'hsl(var(--raised))',
         primary: {
           DEFAULT: 'hsl(var(--primary))',
+          hover: 'hsl(var(--primary-hover))',
+          active: 'hsl(var(--primary-active))',
+          subtle: 'hsl(var(--primary-subtle))',
           foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
@@ -32,6 +42,7 @@ module.exports = {
         },
         accent: {
           DEFAULT: 'hsl(var(--accent))',
+          subtle: 'hsl(var(--accent-subtle))',
           foreground: 'hsl(var(--accent-foreground))',
         },
         popover: {
@@ -42,7 +53,6 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
-        // Semantic status colors
         success: {
           DEFAULT: 'hsl(var(--success))',
           foreground: 'hsl(var(--success-foreground))',
@@ -51,24 +61,34 @@ module.exports = {
           DEFAULT: 'hsl(var(--warning))',
           foreground: 'hsl(var(--warning-foreground))',
         },
+        error: {
+          DEFAULT: 'hsl(var(--error))',
+          foreground: 'hsl(var(--error-foreground))',
+        },
         info: {
           DEFAULT: 'hsl(var(--info))',
           foreground: 'hsl(var(--info-foreground))',
         },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        sm: '4px',
+        DEFAULT: '8px',
+        md: '6px',
+        lg: '12px',
+        xl: '16px',
+        '2xl': '24px',
       },
       fontSize: {
-        '2xs': ['0.625rem', { lineHeight: '0.875rem' }],
+        '2xs': ['0.6875rem', { lineHeight: '1rem' }],
       },
       spacing: {
         '18': '4.5rem',
         '88': '22rem',
         '112': '28rem',
         '128': '32rem',
+      },
+      maxWidth: {
+        dashboard: '1280px',
       },
       animation: {
         'fade-in': 'fadeIn 0.15s ease-out',

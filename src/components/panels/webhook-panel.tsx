@@ -149,18 +149,18 @@ export function WebhookPanel() {
   }
 
   return (
-    <div className="p-5 space-y-4">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-base font-semibold text-foreground">Webhooks</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <h2 className="text-lg font-semibold text-foreground">Webhooks</h2>
+          <p className="text-sm text-muted-foreground">
             {webhooks.length} webhook{webhooks.length !== 1 ? 's' : ''} configured
           </p>
         </div>
         <button
           onClick={() => setShowCreate(true)}
-          className="h-8 px-3 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-smooth"
+          className="h-8 px-3 rounded-md text-xs font-medium bg-violet-500 text-primary-foreground hover:bg-violet-500/90 transition-smooth"
         >
           + Add Webhook
         </button>
@@ -174,7 +174,7 @@ export function WebhookPanel() {
 
       {/* Secret reveal (after creation) */}
       {newSecret && (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 space-y-2">
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-4 space-y-2">
           <p className="text-xs font-semibold text-amber-400">Webhook Secret (save now - shown only once)</p>
           <code className="block text-xs font-mono bg-secondary rounded px-2 py-1.5 text-foreground break-all select-all">
             {newSecret}
@@ -190,13 +190,13 @@ export function WebhookPanel() {
 
       {/* Test result */}
       {testResult && (
-        <div className={`rounded-lg border p-3 space-y-1 ${
-          testResult.success ? 'border-green-500/30 bg-green-500/5' : 'border-red-500/30 bg-red-500/5'
+        <div className={`rounded-xl border p-3 space-y-1 ${
+          testResult.success ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-red-500/30 bg-red-500/5'
         }`}>
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold">
               {testResult.success ? (
-                <span className="text-green-400">Test successful</span>
+                <span className="text-emerald-400">Test successful</span>
               ) : (
                 <span className="text-red-400">Test failed</span>
               )}
@@ -225,7 +225,7 @@ export function WebhookPanel() {
       <div className="space-y-2">
         {loading && webhooks.length === 0 ? (
           <div className="space-y-2">
-            {[...Array(3)].map((_, i) => <div key={i} className="h-16 rounded-lg shimmer" />)}
+            {[...Array(3)].map((_, i) => <div key={i} className="h-16 rounded-xl shimmer" />)}
           </div>
         ) : webhooks.length === 0 ? (
           <div className="py-12 text-center">
@@ -238,8 +238,8 @@ export function WebhookPanel() {
           webhooks.map((wh) => (
             <div
               key={wh.id}
-              className={`rounded-lg border p-3 transition-smooth ${
-                selectedWebhook === wh.id ? 'border-primary/40 bg-primary/5' : 'border-border'
+              className={`bg-card rounded-xl border p-4 transition-smooth ${
+                selectedWebhook === wh.id ? 'border-violet-500/40 bg-violet-500/5' : 'border-border'
               }`}
             >
               <div className="flex items-start justify-between gap-3">
@@ -248,12 +248,12 @@ export function WebhookPanel() {
                   onClick={() => setSelectedWebhook(selectedWebhook === wh.id ? null : wh.id)}
                 >
                   <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${wh.enabled ? 'bg-green-500' : 'bg-muted-foreground/30'}`} />
+                    <span className={`w-2 h-2 rounded-full ${wh.enabled ? 'bg-emerald-500' : 'bg-muted-foreground/30'}`} />
                     <span className="text-sm font-medium text-foreground">{wh.name}</span>
                     {wh.last_status !== null && (
                       <span className={`text-2xs font-mono px-1.5 py-0.5 rounded ${
                         wh.last_status >= 200 && wh.last_status < 300
-                          ? 'bg-green-500/10 text-green-400'
+                          ? 'bg-emerald-500/10 text-emerald-400'
                           : 'bg-red-500/10 text-red-400'
                       }`}>
                         {wh.last_status}
@@ -287,7 +287,7 @@ export function WebhookPanel() {
                     className={`h-7 px-2 text-2xs font-medium rounded transition-smooth ${
                       wh.enabled
                         ? 'text-amber-400 hover:bg-amber-500/10'
-                        : 'text-green-400 hover:bg-green-500/10'
+                        : 'text-emerald-400 hover:bg-emerald-500/10'
                     }`}
                   >
                     {wh.enabled ? 'Disable' : 'Enable'}
@@ -313,7 +313,7 @@ export function WebhookPanel() {
                         <div key={d.id} className="flex items-center gap-2 text-2xs py-1 px-2 rounded hover:bg-secondary/50">
                           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                             d.status_code && d.status_code >= 200 && d.status_code < 300
-                              ? 'bg-green-500'
+                              ? 'bg-emerald-500'
                               : 'bg-red-500'
                           }`} />
                           <span className="font-mono text-muted-foreground w-16 shrink-0">
@@ -321,7 +321,7 @@ export function WebhookPanel() {
                           </span>
                           <span className={`font-mono w-8 shrink-0 ${
                             d.status_code && d.status_code >= 200 && d.status_code < 300
-                              ? 'text-green-400'
+                              ? 'text-emerald-400'
                               : 'text-red-400'
                           }`}>
                             {d.status_code ?? 'ERR'}
@@ -373,7 +373,7 @@ function CreateWebhookForm({
   }
 
   return (
-    <div className="rounded-lg border border-border p-4 space-y-3">
+    <div className="rounded-xl border border-border p-4 space-y-3">
       <h3 className="text-sm font-semibold text-foreground">New Webhook</h3>
 
       <div>
@@ -407,7 +407,7 @@ function CreateWebhookForm({
               title={ev.description}
               className={`h-6 px-2 rounded text-2xs font-medium transition-smooth ${
                 selectedEvents.includes(ev.value)
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'bg-violet-500 text-primary-foreground'
                   : 'bg-secondary text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -427,7 +427,7 @@ function CreateWebhookForm({
         <button
           onClick={() => onSubmit({ name, url, events: selectedEvents })}
           disabled={!name || !url}
-          className="flex-1 h-8 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-smooth disabled:opacity-50"
+          className="flex-1 h-8 rounded-md text-xs font-medium bg-violet-500 text-primary-foreground hover:bg-violet-500/90 transition-smooth disabled:opacity-50"
         >
           Create Webhook
         </button>

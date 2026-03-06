@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClientLogger } from '@/lib/client-logger'
 import Link from 'next/link'
+import { X, Check, ClipboardList, List } from 'lucide-react'
 
 const log = createClientLogger('AgentDetailTabs')
 
@@ -48,8 +49,8 @@ interface SoulTemplate {
 }
 
 const statusColors: Record<string, string> = {
-  offline: 'bg-gray-500',
-  idle: 'bg-green-500',
+  offline: 'bg-slate-500',
+  idle: 'bg-emerald-500',
   busy: 'bg-yellow-500',
   error: 'bg-red-500',
 }
@@ -119,7 +120,7 @@ export function OverviewTab({
   return (
     <div className="p-6 space-y-6">
       {/* Status Controls */}
-      <div className="p-4 bg-surface-1/50 rounded-lg">
+      <div className="p-4 bg-surface-1/50 rounded-xl">
         <h4 className="text-sm font-medium text-foreground mb-3">Status Control</h4>
         <div className="flex gap-2 mb-3">
           {(['idle', 'busy', 'offline'] as const).map(status => (
@@ -128,7 +129,7 @@ export function OverviewTab({
               onClick={() => onStatusUpdate(agent.name, status)}
               className={`px-3 py-1 text-sm rounded transition-smooth ${
                 agent.status === status
-                  ? 'bg-primary text-primary-foreground'
+                  ? 'bg-violet-500 text-primary-foreground'
                   : 'bg-secondary text-muted-foreground hover:bg-surface-2'
               }`}
             >
@@ -149,7 +150,7 @@ export function OverviewTab({
       </div>
 
       {/* Direct Message */}
-      <div className="p-4 bg-surface-1/50 rounded-lg">
+      <div className="p-4 bg-surface-1/50 rounded-xl">
         <h4 className="text-sm font-medium text-foreground mb-3">Direct Message</h4>
         {messageStatus && (
           <div className="text-xs text-foreground/80 mb-2">{messageStatus}</div>
@@ -176,7 +177,7 @@ export function OverviewTab({
           <div className="flex justify-end">
             <button
               type="submit"
-              className="px-3 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-smooth text-xs"
+              className="px-3 py-2 bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 transition-smooth text-xs"
             >
               Send Message
             </button>
@@ -185,27 +186,27 @@ export function OverviewTab({
       </div>
 
       {/* Heartbeat Check */}
-      <div className="p-4 bg-surface-1/50 rounded-lg">
+      <div className="p-4 bg-surface-1/50 rounded-xl">
         <div className="flex justify-between items-center mb-3">
           <h4 className="text-sm font-medium text-foreground">Heartbeat Check</h4>
           <button
             onClick={onPerformHeartbeat}
             disabled={loadingHeartbeat}
-            className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 transition-smooth"
+            className="px-3 py-1 text-sm bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 disabled:opacity-50 transition-smooth"
           >
             {loadingHeartbeat ? 'Checking...' : 'Check Now'}
           </button>
         </div>
-        
+
         {heartbeatData && (
           <div className="space-y-2">
             <div className="text-sm text-foreground/80">
-              <strong>Status:</strong> {heartbeatData.status}
+              <strong>Status:</strong> <span className="font-mono">{heartbeatData.status}</span>
             </div>
             <div className="text-sm text-foreground/80">
-              <strong>Checked:</strong> {new Date(heartbeatData.checked_at * 1000).toLocaleString()}
+              <strong>Checked:</strong> <span className="font-mono">{new Date(heartbeatData.checked_at * 1000).toLocaleString()}</span>
             </div>
-            
+
             {heartbeatData.work_items && heartbeatData.work_items.length > 0 && (
               <div className="mt-3">
                 <div className="text-sm font-medium text-yellow-400 mb-2">
@@ -218,7 +219,7 @@ export function OverviewTab({
                 ))}
               </div>
             )}
-            
+
             {heartbeatData.message && (
               <div className="text-sm text-foreground/80">
                 <strong>Message:</strong> {heartbeatData.message}
@@ -258,9 +259,9 @@ export function OverviewTab({
             <div className="flex items-center gap-2">
               <p className="text-foreground font-mono">{agent.session_key || 'Not set'}</p>
               {agent.session_key && (
-                <div className="flex items-center gap-1 text-xs text-green-400">
-                  <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                  <span>Bound</span>
+                <div className="flex items-center gap-1 text-xs text-emerald-400">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
+                  <span className="font-mono">Bound</span>
                 </div>
               )}
             </div>
@@ -272,20 +273,20 @@ export function OverviewTab({
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-1">Task Statistics</label>
             <div className="grid grid-cols-4 gap-2">
-              <div className="bg-surface-1/50 rounded p-3 text-center">
+              <div className="bg-surface-1/50 rounded-xl p-3 text-center">
                 <div className="text-lg font-semibold text-foreground">{agent.taskStats.total}</div>
                 <div className="text-xs text-muted-foreground">Total</div>
               </div>
-              <div className="bg-surface-1/50 rounded p-3 text-center">
-                <div className="text-lg font-semibold text-blue-400">{agent.taskStats.assigned}</div>
+              <div className="bg-surface-1/50 rounded-xl p-3 text-center">
+                <div className="text-lg font-semibold text-cyan-400">{agent.taskStats.assigned}</div>
                 <div className="text-xs text-muted-foreground">Assigned</div>
               </div>
-              <div className="bg-surface-1/50 rounded p-3 text-center">
+              <div className="bg-surface-1/50 rounded-xl p-3 text-center">
                 <div className="text-lg font-semibold text-yellow-400">{agent.taskStats.in_progress}</div>
                 <div className="text-xs text-muted-foreground">In Progress</div>
               </div>
-              <div className="bg-surface-1/50 rounded p-3 text-center">
-                <div className="text-lg font-semibold text-green-400">{agent.taskStats.completed}</div>
+              <div className="bg-surface-1/50 rounded-xl p-3 text-center">
+                <div className="text-lg font-semibold text-emerald-400">{agent.taskStats.completed}</div>
                 <div className="text-xs text-muted-foreground">Done</div>
               </div>
             </div>
@@ -296,16 +297,16 @@ export function OverviewTab({
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-muted-foreground">Created:</span>
-            <span className="text-foreground ml-2">{new Date(agent.created_at * 1000).toLocaleDateString()}</span>
+            <span className="text-foreground ml-2 font-mono">{new Date(agent.created_at * 1000).toLocaleDateString()}</span>
           </div>
           <div>
             <span className="text-muted-foreground">Last Updated:</span>
-            <span className="text-foreground ml-2">{new Date(agent.updated_at * 1000).toLocaleDateString()}</span>
+            <span className="text-foreground ml-2 font-mono">{new Date(agent.updated_at * 1000).toLocaleDateString()}</span>
           </div>
           {agent.last_seen && (
             <div className="col-span-2">
               <span className="text-muted-foreground">Last Seen:</span>
-              <span className="text-foreground ml-2">{new Date(agent.last_seen * 1000).toLocaleString()}</span>
+              <span className="text-foreground ml-2 font-mono">{new Date(agent.last_seen * 1000).toLocaleString()}</span>
             </div>
           )}
         </div>
@@ -317,7 +318,7 @@ export function OverviewTab({
           <>
             <button
               onClick={onSave}
-              className="flex-1 bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90 transition-smooth"
+              className="flex-1 bg-violet-500 text-primary-foreground py-2 rounded-md hover:bg-violet-500/90 transition-smooth"
             >
               Save Changes
             </button>
@@ -331,7 +332,7 @@ export function OverviewTab({
         ) : (
           <button
             onClick={onEdit}
-            className="flex-1 bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90 transition-smooth"
+            className="flex-1 bg-violet-500 text-primary-foreground py-2 rounded-md hover:bg-violet-500/90 transition-smooth"
           >
             Edit Agent
           </button>
@@ -389,7 +390,7 @@ export function SoulTab({
           {!editing && (
             <button
               onClick={() => setEditing(true)}
-              className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-smooth"
+              className="px-3 py-1 text-sm bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 transition-smooth"
             >
               Edit SOUL
             </button>
@@ -399,7 +400,7 @@ export function SoulTab({
 
       {/* Template Selector */}
       {editing && templates.length > 0 && (
-        <div className="p-4 bg-surface-1/50 rounded-lg">
+        <div className="p-4 bg-surface-1/50 rounded-xl">
           <h5 className="text-sm font-medium text-foreground mb-2">Load Template</h5>
           <div className="flex gap-2">
             <select
@@ -417,7 +418,7 @@ export function SoulTab({
             <button
               onClick={() => selectedTemplate && handleLoadTemplate(selectedTemplate)}
               disabled={!selectedTemplate}
-              className="px-4 py-2 bg-green-500/20 text-green-400 border border-green-500/30 rounded-md hover:bg-green-500/30 disabled:opacity-50 transition-smooth"
+              className="px-4 py-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-md hover:bg-emerald-500/30 disabled:opacity-50 transition-smooth"
             >
               Load
             </button>
@@ -428,7 +429,7 @@ export function SoulTab({
       {/* SOUL Editor */}
       <div>
         <label className="block text-sm font-medium text-muted-foreground mb-1">
-          SOUL Content ({content.length} characters)
+          SOUL Content (<span className="font-mono">{content.length}</span> characters)
         </label>
         {editing ? (
           <textarea
@@ -439,9 +440,9 @@ export function SoulTab({
             placeholder="Define the agent's personality, instructions, and behavior patterns..."
           />
         ) : (
-          <div className="bg-surface-1/30 rounded p-4 max-h-96 overflow-y-auto">
+          <div className="bg-surface-1/30 rounded-xl p-4 max-h-96 overflow-y-auto">
             {content ? (
-              <pre className="text-foreground whitespace-pre-wrap text-sm">{content}</pre>
+              <pre className="text-foreground whitespace-pre-wrap text-sm font-mono">{content}</pre>
             ) : (
               <p className="text-muted-foreground italic">No SOUL content defined</p>
             )}
@@ -454,7 +455,7 @@ export function SoulTab({
         <div className="flex gap-3">
           <button
             onClick={handleSave}
-            className="flex-1 bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90 transition-smooth"
+            className="flex-1 bg-violet-500 text-primary-foreground py-2 rounded-md hover:bg-violet-500/90 transition-smooth"
           >
             Save SOUL
           </button>
@@ -528,13 +529,13 @@ export function MemoryTab({
                   setAppendMode(true)
                   setEditing(true)
                 }}
-                className="px-3 py-1 text-sm bg-green-500/20 text-green-400 border border-green-500/30 rounded-md hover:bg-green-500/30 transition-smooth"
+                className="px-3 py-1 text-sm bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-md hover:bg-emerald-500/30 transition-smooth"
               >
                 Add Entry
               </button>
               <button
                 onClick={() => setEditing(true)}
-                className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-smooth"
+                className="px-3 py-1 text-sm bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 transition-smooth"
               >
                 Edit Memory
               </button>
@@ -546,13 +547,13 @@ export function MemoryTab({
       {/* Memory Content */}
       <div>
         <label className="block text-sm font-medium text-muted-foreground mb-1">
-          Memory Content ({content.length} characters)
+          Memory Content (<span className="font-mono">{content.length}</span> characters)
         </label>
-        
+
         {editing && appendMode ? (
           <div className="space-y-2">
-            <div className="bg-surface-1/30 rounded p-4 max-h-40 overflow-y-auto">
-              <pre className="text-foreground whitespace-pre-wrap text-sm">{content}</pre>
+            <div className="bg-surface-1/30 rounded-xl p-4 max-h-40 overflow-y-auto">
+              <pre className="text-foreground whitespace-pre-wrap text-sm font-mono">{content}</pre>
             </div>
             <textarea
               value={newEntry}
@@ -571,9 +572,9 @@ export function MemoryTab({
             placeholder="Working memory for temporary notes, current tasks, and session data..."
           />
         ) : (
-          <div className="bg-surface-1/30 rounded p-4 max-h-96 overflow-y-auto">
+          <div className="bg-surface-1/30 rounded-xl p-4 max-h-96 overflow-y-auto">
             {content ? (
-              <pre className="text-foreground whitespace-pre-wrap text-sm">{content}</pre>
+              <pre className="text-foreground whitespace-pre-wrap text-sm font-mono">{content}</pre>
             ) : (
               <p className="text-muted-foreground italic">No working memory content</p>
             )}
@@ -586,7 +587,7 @@ export function MemoryTab({
         <div className="flex gap-3">
           <button
             onClick={handleSave}
-            className="flex-1 bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90 transition-smooth"
+            className="flex-1 bg-violet-500 text-primary-foreground py-2 rounded-md hover:bg-violet-500/90 transition-smooth"
           >
             {appendMode ? 'Add Entry' : 'Save Memory'}
           </button>
@@ -652,27 +653,24 @@ export function TasksTab({ agent }: { agent: Agent }) {
   return (
     <div className="p-6 space-y-4">
       <h4 className="text-lg font-medium text-foreground">Assigned Tasks</h4>
-      
+
       {tasks.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-muted-foreground/50">
-          <div className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center mb-2">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-              <rect x="3" y="2" width="10" height="12" rx="1" />
-              <path d="M6 6h4M6 9h3" />
-            </svg>
+          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-2">
+            <ClipboardList className="w-5 h-5 text-muted-foreground" />
           </div>
-          <p className="text-sm">No tasks assigned</p>
+          <p className="text-sm font-medium">No tasks assigned</p>
         </div>
       ) : (
         <div className="space-y-3">
           {tasks.map(task => (
-            <div key={task.id} className="bg-surface-1/50 rounded-lg p-4">
+            <div key={task.id} className="bg-surface-1/50 rounded-xl p-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <Link href={`/tasks?taskId=${task.id}`} className="font-medium text-foreground hover:text-primary transition-colors">
+                  <Link href={`/tasks?taskId=${task.id}`} className="font-medium text-foreground hover:text-violet-600 dark:hover:text-violet-400 transition-colors">
                     {task.title}
                   </Link>
-                  <div className="text-xs text-muted-foreground mt-1">
+                  <div className="text-xs text-muted-foreground mt-1 font-mono">
                     {task.ticket_ref || `Task #${task.id}`}
                     {task.project_name ? ` · ${task.project_name}` : ''}
                   </div>
@@ -681,16 +679,16 @@ export function TasksTab({ agent }: { agent: Agent }) {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className={`px-2 py-1 text-xs rounded-md font-medium ${
+                  <span className={`px-2 py-1 text-xs rounded-md font-medium font-mono ${
                     task.status === 'in_progress' ? 'bg-yellow-500/20 text-yellow-400' :
-                    task.status === 'done' ? 'bg-green-500/20 text-green-400' :
-                    task.status === 'review' ? 'bg-blue-500/20 text-blue-400' :
+                    task.status === 'done' ? 'bg-emerald-500/20 text-emerald-400' :
+                    task.status === 'review' ? 'bg-cyan-500/20 text-cyan-400' :
                     task.status === 'quality_review' ? 'bg-indigo-500/20 text-indigo-400' :
                     'bg-secondary text-muted-foreground'
                   }`}>
                     {task.status}
                   </span>
-                  <span className={`px-2 py-1 text-xs rounded-md font-medium ${
+                  <span className={`px-2 py-1 text-xs rounded-md font-medium font-mono ${
                     task.priority === 'urgent' ? 'bg-red-500/20 text-red-400' :
                     task.priority === 'high' ? 'bg-orange-500/20 text-orange-400' :
                     task.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
@@ -700,9 +698,9 @@ export function TasksTab({ agent }: { agent: Agent }) {
                   </span>
                 </div>
               </div>
-              
+
               {task.due_date && (
-                <div className="text-xs text-muted-foreground mt-2">
+                <div className="text-xs text-muted-foreground mt-2 font-mono">
                   Due: {new Date(task.due_date * 1000).toLocaleDateString()}
                 </div>
               )}
@@ -764,28 +762,26 @@ export function ActivityTab({ agent }: { agent: Agent }) {
   return (
     <div className="p-6 space-y-4">
       <h4 className="text-lg font-medium text-foreground">Recent Activity</h4>
-      
+
       {activities.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-8 text-muted-foreground/50">
-          <div className="w-10 h-10 rounded-full bg-surface-2 flex items-center justify-center mb-2">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-              <path d="M2 4h12M2 8h8M2 12h10" />
-            </svg>
+          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center mb-2">
+            <List className="w-4 h-4 text-muted-foreground" />
           </div>
-          <p className="text-sm">No recent activity</p>
+          <p className="text-sm font-medium">No recent activity</p>
         </div>
       ) : (
         <div className="space-y-3">
           {activities.map(activity => (
-            <div key={activity.id} className="bg-surface-1/50 rounded-lg p-4">
+            <div key={activity.id} className="bg-surface-1/50 rounded-xl p-4">
               <div className="flex items-start gap-3">
                 <div className="text-2xl">{getActivityIcon(activity.type)}</div>
                 <div className="flex-1">
                   <p className="text-foreground">{activity.description}</p>
                   <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                    <span>{activity.type}</span>
+                    <span className="font-mono">{activity.type}</span>
                     <span>•</span>
-                    <span>{new Date(activity.created_at * 1000).toLocaleString()}</span>
+                    <span className="font-mono">{new Date(activity.created_at * 1000).toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -812,9 +808,9 @@ const TEMPLATES = [
 ]
 
 const MODEL_TIER_COLORS: Record<string, string> = {
-  opus: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  sonnet: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  haiku: 'bg-green-500/20 text-green-400 border-green-500/30',
+  opus: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
+  sonnet: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
+  haiku: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
 }
 
 const MODEL_TIER_LABELS: Record<string, string> = {
@@ -948,7 +944,7 @@ export function CreateAgentModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[85vh] flex flex-col">
+      <div className="bg-card border border-border rounded-xl max-w-2xl w-full max-h-[85vh] flex flex-col">
         {/* Header */}
         <div className="p-6 border-b border-border flex-shrink-0">
           <div className="flex justify-between items-center">
@@ -958,11 +954,11 @@ export function CreateAgentModal({
                 {[1, 2, 3].map(s => (
                   <div key={s} className="flex items-center gap-1.5">
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium ${
-                      step === s ? 'bg-primary text-primary-foreground' :
-                      step > s ? 'bg-green-500/20 text-green-400' :
+                      step === s ? 'bg-violet-500 text-primary-foreground' :
+                      step > s ? 'bg-emerald-500/20 text-emerald-400' :
                       'bg-surface-2 text-muted-foreground'
                     }`}>
-                      {step > s ? '\u2713' : s}
+                      {step > s ? <Check className="w-3 h-3" /> : s}
                     </div>
                     <span className={`text-xs ${step === s ? 'text-foreground' : 'text-muted-foreground'}`}>
                       {s === 1 ? 'Template' : s === 2 ? 'Configure' : 'Review'}
@@ -971,14 +967,16 @@ export function CreateAgentModal({
                 ))}
               </div>
             </div>
-            <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-2xl">x</button>
+            <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+              <X className="w-5 h-5" />
+            </button>
           </div>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 mb-4 rounded-lg text-sm">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 mb-4 rounded-xl text-sm">
               {error}
             </div>
           )}
@@ -990,7 +988,7 @@ export function CreateAgentModal({
                 <button
                   key={tmpl.type}
                   onClick={() => { selectTemplate(tmpl.type); setStep(2) }}
-                  className={`p-4 rounded-lg border text-left transition-smooth hover:bg-surface-1 ${
+                  className={`p-4 rounded-xl border text-left transition-smooth hover:bg-surface-1 ${
                     selectedTemplate === tmpl.type ? 'border-primary bg-primary/5' : 'border-border'
                   }`}
                 >
@@ -1000,10 +998,10 @@ export function CreateAgentModal({
                   </div>
                   <p className="text-xs text-muted-foreground mb-2">{tmpl.description}</p>
                   <div className="flex gap-2">
-                    <span className={`px-2 py-0.5 text-xs rounded border ${MODEL_TIER_COLORS[tmpl.modelTier]}`}>
+                    <span className={`px-2 py-0.5 text-xs rounded border font-mono ${MODEL_TIER_COLORS[tmpl.modelTier]}`}>
                       {MODEL_TIER_LABELS[tmpl.modelTier]}
                     </span>
-                    <span className="px-2 py-0.5 text-xs rounded bg-surface-2 text-muted-foreground">
+                    <span className="px-2 py-0.5 text-xs rounded bg-surface-2 text-muted-foreground font-mono">
                       {tmpl.toolCount} tools
                     </span>
                   </div>
@@ -1012,7 +1010,7 @@ export function CreateAgentModal({
               {/* Custom option */}
               <button
                 onClick={() => { selectTemplate(null); setStep(2) }}
-                className={`p-4 rounded-lg border text-left transition-smooth hover:bg-surface-1 border-dashed ${
+                className={`p-4 rounded-xl border text-left transition-smooth hover:bg-surface-1 border-dashed ${
                   selectedTemplate === null ? 'border-primary' : 'border-border'
                 }`}
               >
@@ -1166,7 +1164,7 @@ export function CreateAgentModal({
           {/* Step 3: Review */}
           {step === 3 && (
             <div className="space-y-4">
-              <div className="bg-surface-1/50 rounded-lg p-4 space-y-3">
+              <div className="bg-surface-1/50 rounded-xl p-4 space-y-3">
                 <div className="flex items-center gap-3">
                   <span className="text-3xl">{formData.emoji || (selectedTemplateData?.emoji || '?')}</span>
                   <div>
@@ -1178,12 +1176,12 @@ export function CreateAgentModal({
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div><span className="text-muted-foreground">ID:</span> <span className="text-foreground font-mono">{formData.id}</span></div>
                   <div><span className="text-muted-foreground">Template:</span> <span className="text-foreground">{selectedTemplateData?.label || 'Custom'}</span></div>
-                  <div><span className="text-muted-foreground">Model:</span> <span className={`px-2 py-0.5 rounded text-xs ${MODEL_TIER_COLORS[formData.modelTier]}`}>{MODEL_TIER_LABELS[formData.modelTier]}</span></div>
-                  <div><span className="text-muted-foreground">Tools:</span> <span className="text-foreground">{selectedTemplateData?.toolCount || 'Custom'}</span></div>
+                  <div><span className="text-muted-foreground">Model:</span> <span className={`px-2 py-0.5 rounded text-xs font-mono ${MODEL_TIER_COLORS[formData.modelTier]}`}>{MODEL_TIER_LABELS[formData.modelTier]}</span></div>
+                  <div><span className="text-muted-foreground">Tools:</span> <span className="text-foreground font-mono">{selectedTemplateData?.toolCount || 'Custom'}</span></div>
                   <div className="col-span-2"><span className="text-muted-foreground">Primary Model:</span> <span className="text-foreground font-mono">{formData.modelPrimary || DEFAULT_MODEL_BY_TIER[formData.modelTier]}</span></div>
-                  <div><span className="text-muted-foreground">Workspace:</span> <span className="text-foreground">{formData.workspaceAccess}</span></div>
-                  <div><span className="text-muted-foreground">Sandbox:</span> <span className="text-foreground">{formData.sandboxMode}</span></div>
-                  <div><span className="text-muted-foreground">Network:</span> <span className="text-foreground">{formData.dockerNetwork}</span></div>
+                  <div><span className="text-muted-foreground">Workspace:</span> <span className="text-foreground font-mono">{formData.workspaceAccess}</span></div>
+                  <div><span className="text-muted-foreground">Sandbox:</span> <span className="text-foreground font-mono">{formData.sandboxMode}</span></div>
+                  <div><span className="text-muted-foreground">Network:</span> <span className="text-foreground font-mono">{formData.dockerNetwork}</span></div>
                   {formData.session_key && (
                     <div><span className="text-muted-foreground">Session:</span> <span className="text-foreground font-mono">{formData.session_key}</span></div>
                   )}
@@ -1218,7 +1216,7 @@ export function CreateAgentModal({
             <button
               onClick={() => setStep((step + 1) as 2 | 3)}
               disabled={step === 2 && !formData.name.trim()}
-              className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 transition-smooth"
+              className="px-6 py-2 bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 disabled:opacity-50 transition-smooth"
             >
               Next
             </button>
@@ -1226,7 +1224,7 @@ export function CreateAgentModal({
             <button
               onClick={handleCreate}
               disabled={isCreating || !formData.name.trim()}
-              className="px-6 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 transition-smooth"
+              className="px-6 py-2 bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 disabled:opacity-50 transition-smooth"
             >
               {isCreating ? 'Creating...' : 'Create Agent'}
             </button>
@@ -1402,7 +1400,7 @@ export function ConfigTab({
           {!editing && (
             <button
               onClick={() => setEditing(true)}
-              className="px-3 py-1 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-smooth"
+              className="px-3 py-1 text-sm bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 transition-smooth"
             >
               Edit
             </button>
@@ -1411,7 +1409,7 @@ export function ConfigTab({
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm">
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl text-sm">
           {error}
         </div>
       )}
@@ -1419,7 +1417,7 @@ export function ConfigTab({
       {config.openclawId && (
         <div className="text-xs text-muted-foreground">
           OpenClaw ID: <span className="font-mono text-foreground">{config.openclawId}</span>
-          {config.isDefault && <span className="ml-2 px-1.5 py-0.5 bg-primary/20 text-primary rounded text-xs">Default</span>}
+          {config.isDefault && <span className="ml-2 px-1.5 py-0.5 bg-primary/20 text-violet-600 dark:text-violet-400 rounded text-xs font-mono">Default</span>}
         </div>
       )}
 
@@ -1434,7 +1432,7 @@ export function ConfigTab({
               className="w-full bg-surface-1 text-foreground border border-border rounded-md px-3 py-2 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-primary/50"
             />
           ) : (
-            <pre className="bg-surface-1/30 rounded p-4 text-xs text-foreground/90 overflow-auto max-h-96 font-mono">
+            <pre className="bg-surface-1/30 rounded-xl p-4 text-xs text-foreground/90 overflow-auto max-h-96 font-mono">
               {JSON.stringify(config, null, 2)}
             </pre>
           )}
@@ -1443,7 +1441,7 @@ export function ConfigTab({
         /* Structured view */
         <div className="space-y-4">
           {/* Model */}
-          <div className="bg-surface-1/50 rounded-lg p-4">
+          <div className="bg-surface-1/50 rounded-xl p-4">
             <h5 className="text-sm font-medium text-foreground mb-2">Model</h5>
             {editing ? (
               <div className="space-y-3">
@@ -1524,7 +1522,7 @@ export function ConfigTab({
           </div>
 
           {/* Identity */}
-          <div className="bg-surface-1/50 rounded-lg p-4">
+          <div className="bg-surface-1/50 rounded-xl p-4">
             <h5 className="text-sm font-medium text-foreground mb-2">Identity</h5>
             {editing ? (
               <div className="space-y-3">
@@ -1578,7 +1576,7 @@ export function ConfigTab({
                   </div>
                 </div>
                 {identityPreview && (
-                  <pre className="mt-3 text-xs text-muted-foreground bg-surface-1 rounded p-2 overflow-auto whitespace-pre-wrap">
+                  <pre className="mt-3 text-xs text-muted-foreground bg-surface-1 rounded-xl p-2 overflow-auto whitespace-pre-wrap font-mono">
                     {identityPreview}
                   </pre>
                 )}
@@ -1587,7 +1585,7 @@ export function ConfigTab({
           </div>
 
           {/* Sandbox */}
-          <div className="bg-surface-1/50 rounded-lg p-4">
+          <div className="bg-surface-1/50 rounded-xl p-4">
             <h5 className="text-sm font-medium text-foreground mb-2">Sandbox</h5>
             {editing ? (
               <div className="grid grid-cols-3 gap-3">
@@ -1629,25 +1627,25 @@ export function ConfigTab({
               </div>
             ) : (
               <div className="grid grid-cols-3 gap-2 text-sm">
-                <div><span className="text-muted-foreground">Mode:</span> <span className="text-foreground">{sandboxMode}</span></div>
-                <div><span className="text-muted-foreground">Workspace:</span> <span className="text-foreground">{sandboxWorkspace}</span></div>
-                <div><span className="text-muted-foreground">Network:</span> <span className="text-foreground">{sandboxNetwork}</span></div>
+                <div><span className="text-muted-foreground">Mode:</span> <span className="text-foreground font-mono">{sandboxMode}</span></div>
+                <div><span className="text-muted-foreground">Workspace:</span> <span className="text-foreground font-mono">{sandboxWorkspace}</span></div>
+                <div><span className="text-muted-foreground">Network:</span> <span className="text-foreground font-mono">{sandboxNetwork}</span></div>
               </div>
             )}
           </div>
 
           {/* Tools */}
-          <div className="bg-surface-1/50 rounded-lg p-4">
+          <div className="bg-surface-1/50 rounded-xl p-4">
             <h5 className="text-sm font-medium text-foreground mb-2">Tools</h5>
             {editing ? (
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs text-green-400 font-medium mb-1">Allow list</label>
+                  <label className="block text-xs text-emerald-400 font-medium mb-1">Allow list</label>
                   <div className="flex flex-wrap gap-1 mb-2">
                     {toolAllow.map((tool: string, i: number) => (
-                      <span key={`${tool}-${i}`} className="px-2 py-0.5 text-xs bg-green-500/10 text-green-400 rounded border border-green-500/20 flex items-center gap-1">
+                      <span key={`${tool}-${i}`} className="px-2 py-0.5 text-xs bg-emerald-500/10 text-emerald-400 rounded border border-emerald-500/20 flex items-center gap-1 font-mono">
                         {tool}
-                        <button onClick={() => removeTool('allow', i)} className="text-green-400/60 hover:text-green-400 ml-1">&times;</button>
+                        <button onClick={() => removeTool('allow', i)} className="text-emerald-400/60 hover:text-emerald-400 ml-1">&times;</button>
                       </span>
                     ))}
                   </div>
@@ -1661,7 +1659,7 @@ export function ConfigTab({
                     />
                     <button
                       onClick={() => { addTool('allow', newAllowTool); setNewAllowTool('') }}
-                      className="px-3 py-2 text-xs bg-green-500/20 text-green-400 border border-green-500/30 rounded hover:bg-green-500/30 transition-smooth"
+                      className="px-3 py-2 text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded hover:bg-emerald-500/30 transition-smooth"
                     >
                       Add
                     </button>
@@ -1671,7 +1669,7 @@ export function ConfigTab({
                   <label className="block text-xs text-red-400 font-medium mb-1">Deny list</label>
                   <div className="flex flex-wrap gap-1 mb-2">
                     {toolDeny.map((tool: string, i: number) => (
-                      <span key={`${tool}-${i}`} className="px-2 py-0.5 text-xs bg-red-500/10 text-red-400 rounded border border-red-500/20 flex items-center gap-1">
+                      <span key={`${tool}-${i}`} className="px-2 py-0.5 text-xs bg-red-500/10 text-red-400 rounded border border-red-500/20 flex items-center gap-1 font-mono">
                         {tool}
                         <button onClick={() => removeTool('deny', i)} className="text-red-400/60 hover:text-red-400 ml-1">&times;</button>
                       </span>
@@ -1698,10 +1696,10 @@ export function ConfigTab({
               <>
                 {toolAllow.length > 0 && (
                   <div className="mb-2">
-                    <span className="text-xs text-green-400 font-medium">Allow ({toolAllow.length}):</span>
+                    <span className="text-xs text-emerald-400 font-medium">Allow ({toolAllow.length}):</span>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {toolAllow.map((tool: string) => (
-                        <span key={tool} className="px-2 py-0.5 text-xs bg-green-500/10 text-green-400 rounded border border-green-500/20">{tool}</span>
+                        <span key={tool} className="px-2 py-0.5 text-xs bg-emerald-500/10 text-emerald-400 rounded border border-emerald-500/20 font-mono">{tool}</span>
                       ))}
                     </div>
                   </div>
@@ -1711,7 +1709,7 @@ export function ConfigTab({
                     <span className="text-xs text-red-400 font-medium">Deny ({toolDeny.length}):</span>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {toolDeny.map((tool: string) => (
-                        <span key={tool} className="px-2 py-0.5 text-xs bg-red-500/10 text-red-400 rounded border border-red-500/20">{tool}</span>
+                        <span key={tool} className="px-2 py-0.5 text-xs bg-red-500/10 text-red-400 rounded border border-red-500/20 font-mono">{tool}</span>
                       ))}
                     </div>
                   </div>
@@ -1720,7 +1718,7 @@ export function ConfigTab({
                   <div className="text-xs text-muted-foreground">No tools configured</div>
                 )}
                 {toolRawPreview && (
-                  <pre className="mt-3 text-xs text-muted-foreground bg-surface-1 rounded p-2 overflow-auto whitespace-pre-wrap">
+                  <pre className="mt-3 text-xs text-muted-foreground bg-surface-1 rounded-xl p-2 overflow-auto whitespace-pre-wrap font-mono">
                     {toolRawPreview}
                   </pre>
                 )}
@@ -1730,26 +1728,26 @@ export function ConfigTab({
 
           {/* Subagents */}
           {subagents.allowAgents && subagents.allowAgents.length > 0 && (
-            <div className="bg-surface-1/50 rounded-lg p-4">
+            <div className="bg-surface-1/50 rounded-xl p-4">
               <h5 className="text-sm font-medium text-foreground mb-2">Subagents</h5>
               <div className="flex flex-wrap gap-1">
                 {subagents.allowAgents.map((a: string) => (
-                  <span key={a} className="px-2 py-0.5 text-xs bg-blue-500/10 text-blue-400 rounded border border-blue-500/20">{a}</span>
+                  <span key={a} className="px-2 py-0.5 text-xs bg-cyan-500/10 text-cyan-400 rounded border border-cyan-500/20 font-mono">{a}</span>
                 ))}
               </div>
               {subagents.model && (
-                <div className="text-xs text-muted-foreground mt-1">Model: {subagents.model}</div>
+                <div className="text-xs text-muted-foreground mt-1 font-mono">Model: {subagents.model}</div>
               )}
             </div>
           )}
 
           {/* Memory Search */}
           {memorySearch.sources && (
-            <div className="bg-surface-1/50 rounded-lg p-4">
+            <div className="bg-surface-1/50 rounded-xl p-4">
               <h5 className="text-sm font-medium text-foreground mb-2">Memory Search</h5>
               <div className="flex gap-1">
                 {memorySearch.sources.map((s: string) => (
-                  <span key={s} className="px-2 py-0.5 text-xs bg-cyan-500/10 text-cyan-400 rounded">{s}</span>
+                  <span key={s} className="px-2 py-0.5 text-xs bg-cyan-500/10 text-cyan-400 rounded font-mono">{s}</span>
                 ))}
               </div>
             </div>
@@ -1763,7 +1761,7 @@ export function ConfigTab({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90 disabled:opacity-50 transition-smooth"
+            className="flex-1 bg-violet-500 text-primary-foreground py-2 rounded-md hover:bg-violet-500/90 disabled:opacity-50 transition-smooth"
           >
             {saving ? 'Saving...' : 'Save'}
           </button>

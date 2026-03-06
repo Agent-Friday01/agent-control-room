@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useSmartPoll } from '@/lib/use-smart-poll'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
+import { ArrowRight } from 'lucide-react'
 
 const COORDINATOR_AGENT = (process.env.NEXT_PUBLIC_COORDINATOR_AGENT || 'coordinator').toLowerCase()
 
@@ -111,7 +112,7 @@ export function AgentCommsPanel() {
   const [sending, setSending] = useState(false)
   const [sendError, setSendError] = useState<string | null>(null)
   const [composerMode, setComposerMode] = useState<'coordinator' | 'agent'>('coordinator')
-  const { currentUser } = useMissionControl()
+  const { currentUser } = useAgentControlRoom()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const fetchComms = useCallback(async () => {
@@ -228,17 +229,16 @@ export function AgentCommsPanel() {
   return (
     <div className="flex flex-col h-full">
       {/* Header bar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border/50 flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <span className="text-base">💬</span>
-            <h2 className="text-sm font-semibold text-foreground"># agent-comms</h2>
+            <h2 className="text-lg font-semibold text-foreground"># agent-comms</h2>
           </div>
-          <span className="text-xs text-muted-foreground/60">
+          <span className="text-xs text-muted-foreground/60 font-mono">
             {data?.total || 0} messages
           </span>
           <span
-            className={`text-[10px] px-2 py-0.5 rounded-full border ${
+            className={`text-[10px] px-2 py-0.5 rounded-full border font-mono ${
               sourceMode === "live"
                 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
                 : sourceMode === "mixed"
@@ -263,11 +263,11 @@ export function AgentCommsPanel() {
 
         <div className="flex items-center gap-2">
           {/* View toggle */}
-          <div className="flex bg-surface-1 rounded-lg p-0.5 border border-border/50">
+          <div className="flex bg-card rounded-xl p-0.5 border border-border">
             <button
               onClick={() => setView('chat')}
               className={`px-2.5 py-1 text-[11px] rounded-md transition-smooth ${
-                view === 'chat' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground'
+                view === 'chat' ? 'bg-primary/15 text-violet-600 dark:text-violet-400' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Chat
@@ -275,7 +275,7 @@ export function AgentCommsPanel() {
             <button
               onClick={() => setView('graph')}
               className={`px-2.5 py-1 text-[11px] rounded-md transition-smooth ${
-                view === 'graph' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground'
+                view === 'graph' ? 'bg-primary/15 text-violet-600 dark:text-violet-400' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Graph
@@ -285,7 +285,7 @@ export function AgentCommsPanel() {
           <select
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            className="bg-surface-1 border border-border/50 rounded-lg px-2 py-1 text-[11px] text-foreground"
+            className="bg-card border border-border rounded-xl px-2 py-1 text-[11px] text-foreground"
           >
             <option value="all">All</option>
             {agents.map(a => {
@@ -297,7 +297,7 @@ export function AgentCommsPanel() {
       </div>
 
       {error && (
-        <div className="mx-4 mt-2 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2 text-xs text-red-400">
+        <div className="mx-4 mt-2 bg-red-500/10 border border-red-500/20 rounded-xl px-3 py-2 text-xs text-red-400">
           {error}
         </div>
       )}
@@ -325,8 +325,8 @@ export function AgentCommsPanel() {
                 onClick={() => setFilter(filter === a ? 'all' : a)}
                 className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] transition-smooth whitespace-nowrap ${
                   filter === a
-                    ? 'bg-primary/15 text-primary'
-                    : 'text-muted-foreground/60 hover:text-muted-foreground hover:bg-surface-1'
+                    ? 'bg-primary/15 text-violet-600 dark:text-violet-400'
+                    : 'text-muted-foreground/60 hover:text-muted-foreground hover:bg-card'
                 }`}
               >
                 <span className="text-xs">{id.emoji}</span>
@@ -338,13 +338,13 @@ export function AgentCommsPanel() {
       )}
 
       {/* Interactive composer */}
-      <div className="border-t border-border/40 p-3 md:p-4 bg-surface-1/60 flex-shrink-0">
+      <div className="border-t border-border p-3 md:p-4 bg-card flex-shrink-0">
         <div className="flex items-center gap-2 mb-2">
-          <div className="flex bg-surface-1 rounded-lg p-0.5 border border-border/50">
+          <div className="flex bg-card rounded-xl p-0.5 border border-border">
             <button
               onClick={() => setComposerMode('coordinator')}
               className={`px-2.5 py-1 text-[11px] rounded-md transition-smooth ${
-                composerMode === 'coordinator' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground'
+                composerMode === 'coordinator' ? 'bg-primary/15 text-violet-600 dark:text-violet-400' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Coordinator
@@ -352,7 +352,7 @@ export function AgentCommsPanel() {
             <button
               onClick={() => setComposerMode('agent')}
               className={`px-2.5 py-1 text-[11px] rounded-md transition-smooth ${
-                composerMode === 'agent' ? 'bg-primary/15 text-primary' : 'text-muted-foreground hover:text-foreground'
+                composerMode === 'agent' ? 'bg-primary/15 text-violet-600 dark:text-violet-400' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Agent↔Agent
@@ -366,7 +366,7 @@ export function AgentCommsPanel() {
             <select
               value={fromAgent}
               onChange={(e) => setFromAgent(e.target.value)}
-              className="bg-card border border-border/50 rounded-md px-2 py-1 text-xs text-foreground"
+              className="bg-card border border-border rounded-md px-2 py-1 text-xs text-foreground"
             >
               <option value="">from...</option>
               {allAgents.map(a => <option key={`from-${a}`} value={a}>{getIdentity(a).emoji} {getIdentity(a).label}</option>)}
@@ -375,7 +375,7 @@ export function AgentCommsPanel() {
             <select
               value={toAgent}
               onChange={(e) => setToAgent(e.target.value)}
-              className="bg-card border border-border/50 rounded-md px-2 py-1 text-xs text-foreground"
+              className="bg-card border border-border rounded-md px-2 py-1 text-xs text-foreground"
             >
               <option value="">to...</option>
               {allAgents.filter(a => a !== fromAgent).map(a => (
@@ -402,7 +402,7 @@ export function AgentCommsPanel() {
             placeholder={composerMode === 'coordinator'
               ? 'Write to the coordinator. It will coordinate downstream agents...'
               : 'Type agent-to-agent message... (Enter to send, Shift+Enter newline)'}
-            className="flex-1 resize-none bg-card border border-border/50 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
+            className="flex-1 resize-none bg-card border border-border rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50"
             rows={2}
           />
           <button
@@ -412,7 +412,7 @@ export function AgentCommsPanel() {
               !draft.trim() ||
               (composerMode === 'agent' && (!fromAgent || !toAgent || fromAgent === toAgent))
             }
-            className="h-9 px-3 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="h-9 px-3 rounded-md bg-violet-500 text-primary-foreground text-xs font-medium hover:bg-violet-500/90 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {sending ? 'Sending...' : 'Send'}
           </button>
@@ -498,7 +498,7 @@ function ChatMessage({ message, collapsed }: { message: CommsMessage; collapsed:
   const mentionPrefix = message.to_agent ? `@${message.to_agent}` : null
 
   return (
-    <div className={`group flex gap-2.5 px-2 py-0.5 rounded-lg hover:bg-surface-1/50 transition-smooth ${collapsed ? '' : 'mt-3'}`}>
+    <div className={`group flex gap-2.5 px-2 py-0.5 rounded-xl hover:bg-card/50 transition-smooth ${collapsed ? '' : 'mt-3'}`}>
       {/* Avatar or spacer */}
       <div className="w-9 flex-shrink-0">
         {!collapsed && (
@@ -522,13 +522,13 @@ function ChatMessage({ message, collapsed }: { message: CommsMessage; collapsed:
               {identity.label}
             </span>
             {isHandoff && (
-              <span className="text-[9px] px-1.5 py-px rounded-full font-medium"
+              <span className="text-[9px] px-1.5 py-px rounded-full font-medium font-mono"
                 style={{ backgroundColor: '#f59e0b20', color: '#f59e0b' }}
               >
                 handoff
               </span>
             )}
-            <span className="text-[10px] text-muted-foreground/40 tabular-nums">
+            <span className="text-[10px] text-muted-foreground/40 tabular-nums font-mono">
               {formatTime(message.created_at)}
             </span>
           </div>
@@ -553,7 +553,7 @@ function ChatMessage({ message, collapsed }: { message: CommsMessage; collapsed:
         {message.metadata && Object.keys(message.metadata).length > 0 && (
           <div className="mt-1.5 flex flex-wrap gap-1">
             {Object.entries(message.metadata).map(([k, v]) => (
-              <span key={k} className="text-[10px] px-1.5 py-0.5 rounded bg-surface-1 border border-border/50 text-muted-foreground/60">
+              <span key={k} className="text-[10px] px-1.5 py-0.5 rounded bg-card border border-border text-muted-foreground/60 font-mono">
                 {k}: {String(v)}
               </span>
             ))}
@@ -563,7 +563,7 @@ function ChatMessage({ message, collapsed }: { message: CommsMessage; collapsed:
 
       {/* Hover timestamp for collapsed messages */}
       {collapsed && (
-        <span className="text-[10px] text-muted-foreground/0 group-hover:text-muted-foreground/40 tabular-nums self-center transition-smooth flex-shrink-0">
+        <span className="text-[10px] text-muted-foreground/0 group-hover:text-muted-foreground/40 tabular-nums self-center transition-smooth flex-shrink-0 font-mono">
           {formatTime(message.created_at)}
         </span>
       )}
@@ -587,12 +587,12 @@ function CommGraph({ edges, agentStats }: { edges: GraphEdge[]; agentStats: Agen
           const pct = Math.max((total / maxMessages) * 100, 8)
 
           return (
-            <div key={stat.agent} className="rounded-lg p-3 space-y-2 bg-surface-1 border border-border/50">
+            <div key={stat.agent} className="rounded-xl p-3 space-y-2 bg-card border border-border">
               <div className="flex items-center gap-2">
                 <span className="text-base">{id.emoji}</span>
                 <span className="text-xs font-medium" style={{ color: id.color }}>{id.label}</span>
               </div>
-              <div className="flex items-center gap-3 text-[11px] text-muted-foreground/60">
+              <div className="flex items-center gap-3 text-[11px] text-muted-foreground/60 font-mono">
                 <span>{stat.sent} sent</span>
                 <span>{stat.received} recv</span>
               </div>
@@ -611,16 +611,14 @@ function CommGraph({ edges, agentStats }: { edges: GraphEdge[]; agentStats: Agen
             const from = getIdentity(edge.from_agent)
             const to = getIdentity(edge.to_agent)
             return (
-              <div key={i} className="flex items-center gap-2 py-1.5 px-3 rounded-lg hover:bg-surface-1 transition-smooth">
+              <div key={i} className="flex items-center gap-2 py-1.5 px-3 rounded-xl hover:bg-card transition-smooth">
                 <span className="text-sm">{from.emoji}</span>
                 <span className="text-xs font-medium" style={{ color: from.color }}>{from.label}</span>
-                <svg className="w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                  <path d="M3 8h10M10 5l3 3-3 3" />
-                </svg>
+                <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/30 flex-shrink-0" />
                 <span className="text-sm">{to.emoji}</span>
                 <span className="text-xs font-medium" style={{ color: to.color }}>{to.label}</span>
-                <span className="ml-auto text-[10px] text-muted-foreground/40 tabular-nums">{edge.message_count}</span>
-                <span className="text-[10px] text-muted-foreground/30">{timeAgo(edge.last_message_at)}</span>
+                <span className="ml-auto text-[10px] text-muted-foreground/40 tabular-nums font-mono">{edge.message_count}</span>
+                <span className="text-[10px] text-muted-foreground/30 font-mono">{timeAgo(edge.last_message_at)}</span>
               </div>
             )
           })}

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 import { createClientLogger } from '@/lib/client-logger'
 
 const log = createClientLogger('SSE')
@@ -38,7 +38,7 @@ export function useServerEvents() {
     addChatMessage,
     addNotification,
     addActivity,
-  } = useMissionControl()
+  } = useAgentControlRoom()
 
   useEffect(() => {
     let mounted = true

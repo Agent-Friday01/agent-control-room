@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 import { useWebSocket } from '@/lib/websocket'
+import { Plus, Trash2, RefreshCw, Plug, Zap } from 'lucide-react'
 
 interface Gateway {
   id: number
@@ -52,7 +53,7 @@ export function MultiGatewayPanel() {
   const [showAdd, setShowAdd] = useState(false)
   const [probing, setProbing] = useState<number | null>(null)
   const [healthByGatewayId, setHealthByGatewayId] = useState<Map<number, GatewayHealthProbe>>(new Map())
-  const { connection } = useMissionControl()
+  const { connection } = useAgentControlRoom()
   const { connect } = useWebSocket()
 
   const fetchGateways = useCallback(async () => {
@@ -130,7 +131,7 @@ export function MultiGatewayPanel() {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -142,25 +143,27 @@ export function MultiGatewayPanel() {
         <div className="flex items-center gap-2">
           <button
             onClick={probeAll}
-            className="h-8 px-3 rounded-md text-xs font-medium bg-secondary text-foreground hover:bg-secondary/80 transition-smooth"
+            className="h-8 px-3 text-xs rounded-lg font-medium bg-secondary text-foreground hover:bg-secondary/80 transition-smooth flex items-center gap-1.5"
           >
+            <Zap className="w-3.5 h-3.5" />
             Probe All
           </button>
           <button
             onClick={() => setShowAdd(!showAdd)}
-            className="h-8 px-3 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-smooth"
+            className="h-8 px-3 text-xs rounded-lg font-medium bg-violet-500 text-primary-foreground hover:bg-violet-500/90 transition-smooth flex items-center gap-1.5"
           >
-            + Add Gateway
+            <Plus className="w-3.5 h-3.5" />
+            Add Gateway
           </button>
         </div>
       </div>
 
       {/* Current connection info */}
-      <div className="bg-card border border-border rounded-lg p-4">
+      <div className="bg-card border border-border rounded-xl p-4">
         <div className="flex items-center gap-3">
-          <span className={`w-2.5 h-2.5 rounded-full ${connection.isConnected ? 'bg-green-500' : 'bg-red-500 animate-pulse'}`} />
+          <span className={`w-2.5 h-2.5 rounded-full ${connection.isConnected ? 'bg-emerald-500' : 'bg-red-500 animate-pulse'}`} />
           <div>
-            <div className="text-sm font-medium text-foreground">
+            <div className="text-sm font-semibold text-foreground">
               {connection.isConnected ? 'Connected' : 'Disconnected'}
             </div>
             <div className="text-xs text-muted-foreground">
@@ -180,8 +183,8 @@ export function MultiGatewayPanel() {
       {loading ? (
         <div className="text-center text-xs text-muted-foreground py-8">Loading gateways...</div>
       ) : gateways.length === 0 ? (
-        <div className="text-center py-12 bg-card border border-border rounded-lg">
-          <p className="text-sm text-muted-foreground">No gateways configured</p>
+        <div className="text-center py-12 bg-card border border-border rounded-xl">
+          <p className="text-sm font-medium text-muted-foreground">No gateways configured</p>
           <p className="text-xs text-muted-foreground mt-1">Add a gateway to start managing connections</p>
         </div>
       ) : (
@@ -213,13 +216,14 @@ export function MultiGatewayPanel() {
           </div>
           <button
             onClick={fetchDirectConnections}
-            className="h-7 px-2.5 rounded-md text-2xs font-medium bg-secondary text-foreground hover:bg-secondary/80 transition-smooth"
+            className="h-8 px-3 text-xs rounded-lg font-medium bg-secondary text-foreground hover:bg-secondary/80 transition-smooth flex items-center gap-1"
           >
+            <RefreshCw className="w-3 h-3" />
             Refresh
           </button>
         </div>
         {directConnections.length === 0 ? (
-          <div className="text-center py-8 bg-card border border-border rounded-lg">
+          <div className="text-center py-8 bg-card border border-border rounded-xl">
             <p className="text-xs text-muted-foreground">No direct CLI connections</p>
             <p className="text-2xs text-muted-foreground mt-1">
               Use <code className="font-mono bg-secondary px-1 rounded">POST /api/connect</code> to register a CLI tool
@@ -228,18 +232,18 @@ export function MultiGatewayPanel() {
         ) : (
           <div className="space-y-2">
             {directConnections.map(conn => (
-              <div key={conn.id} className="bg-card border border-border rounded-lg p-4">
+              <div key={conn.id} className="bg-card border border-border rounded-xl p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${conn.status === 'connected' ? 'bg-green-500' : 'bg-red-500'}`} />
+                      <span className={`w-2 h-2 rounded-full ${conn.status === 'connected' ? 'bg-emerald-500' : 'bg-red-500'}`} />
                       <span className="text-sm font-semibold text-foreground">{conn.agent_name}</span>
-                      <span className="text-2xs px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 border border-blue-500/30 font-medium">
+                      <span className="text-2xs px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 font-medium">
                         {conn.tool_name}{conn.tool_version ? ` v${conn.tool_version}` : ''}
                       </span>
                       <span className={`text-2xs px-1.5 py-0.5 rounded font-medium ${
                         conn.status === 'connected'
-                          ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                           : 'bg-red-500/20 text-red-400 border border-red-500/30'
                       }`}>
                         {conn.status.toUpperCase()}
@@ -280,7 +284,7 @@ function GatewayCard({ gateway, health, isProbing, isCurrentlyConnected, onSetPr
   onProbe: () => void
 }) {
   const statusColors: Record<string, string> = {
-    online: 'bg-green-500',
+    online: 'bg-emerald-500',
     offline: 'bg-red-500',
     timeout: 'bg-amber-500',
     unknown: 'bg-muted-foreground/30',
@@ -292,8 +296,8 @@ function GatewayCard({ gateway, health, isProbing, isCurrentlyConnected, onSetPr
   const compatibilityWarning = health?.compatibility_warning
 
   return (
-    <div className={`bg-card border rounded-lg p-4 transition-smooth ${
-      isCurrentlyConnected ? 'border-green-500/30 bg-green-500/5' : 'border-border'
+    <div className={`bg-card border rounded-xl p-4 transition-smooth ${
+      isCurrentlyConnected ? 'border-emerald-500/30 bg-emerald-500/5' : 'border-border'
     }`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
@@ -306,7 +310,7 @@ function GatewayCard({ gateway, health, isProbing, isCurrentlyConnected, onSetPr
               </span>
             ) : null}
             {isCurrentlyConnected && (
-              <span className="text-2xs px-1.5 py-0.5 rounded bg-green-500/20 text-green-400 border border-green-500/30 font-medium">
+              <span className="text-2xs px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">
                 CONNECTED
               </span>
             )}
@@ -332,17 +336,19 @@ function GatewayCard({ gateway, health, isProbing, isCurrentlyConnected, onSetPr
           <button
             onClick={onProbe}
             disabled={isProbing}
-            className="h-7 px-2.5 rounded-md text-2xs font-medium bg-secondary text-foreground hover:bg-secondary/80 transition-smooth disabled:opacity-50"
+            className="h-7 px-2.5 rounded-md text-2xs font-medium bg-secondary text-foreground hover:bg-secondary/80 transition-smooth disabled:opacity-50 flex items-center gap-1"
             title="Probe gateway"
           >
+            <Zap className="w-3 h-3" />
             {isProbing ? 'Probing...' : 'Probe'}
           </button>
           {!isCurrentlyConnected && (
             <button
               onClick={onConnect}
-              className="h-7 px-2.5 rounded-md text-2xs font-medium bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-smooth"
+              className="h-7 px-2.5 rounded-md text-2xs font-medium bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500/30 transition-smooth flex items-center gap-1"
               title="Connect to this gateway"
             >
+              <Plug className="w-3 h-3" />
               Connect
             </button>
           )}
@@ -360,9 +366,7 @@ function GatewayCard({ gateway, health, isProbing, isCurrentlyConnected, onSetPr
                 className="w-7 h-7 rounded-md text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-smooth flex items-center justify-center"
                 title="Remove gateway"
               >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                  <path d="M3 4h10M6 4V3h4v1M5 4v8.5a.5.5 0 00.5.5h5a.5.5 0 00.5-.5V4" />
-                </svg>
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             </>
           )}
@@ -408,7 +412,7 @@ function AddGatewayForm({ onAdded, onCancel }: { onAdded: () => void; onCancel: 
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-card border border-primary/20 rounded-lg p-4 space-y-3">
+    <form onSubmit={handleSubmit} className="bg-card border border-primary/20 rounded-xl p-4 space-y-3">
       <h3 className="text-sm font-semibold text-foreground">Add Gateway</h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
@@ -461,7 +465,7 @@ function AddGatewayForm({ onAdded, onCancel }: { onAdded: () => void; onCancel: 
         <button type="button" onClick={onCancel} className="h-8 px-4 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary border border-border transition-smooth">
           Cancel
         </button>
-        <button type="submit" disabled={saving} className="h-8 px-4 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-smooth disabled:opacity-50">
+        <button type="submit" disabled={saving} className="h-8 px-4 rounded-md text-xs font-medium bg-violet-500 text-primary-foreground hover:bg-violet-500/90 transition-smooth disabled:opacity-50">
           {saving ? 'Adding...' : 'Add Gateway'}
         </button>
       </div>

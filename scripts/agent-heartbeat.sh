@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Mission Control Phase 3: Agent Heartbeat Script
+# Agent Control Room Phase 3: Agent Heartbeat Script
 # Called by OpenClaw cron every 15 minutes to wake agents and check for work
 #
 # Usage:
@@ -11,8 +11,8 @@
 set -e
 
 # Configuration
-MISSION_CONTROL_URL="${MISSION_CONTROL_URL:-http://localhost:3000}"
-LOG_DIR="${LOG_DIR:-$HOME/.mission-control/logs}"
+AGENT_CONTROL_ROOM_URL="${AGENT_CONTROL_ROOM_URL:-http://localhost:3000}"
+LOG_DIR="${LOG_DIR:-$HOME/.agent-control-room/logs}"
 LOG_FILE="$LOG_DIR/agent-heartbeat-$(date +%Y-%m-%d).log"
 MAX_CONCURRENT=3  # Max agents to check concurrently
 OPENCLAW_CMD="${OPENCLAW_CMD:-openclaw}"
@@ -27,10 +27,10 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$level] $*" | tee -a "$LOG_FILE"
 }
 
-# Check if Mission Control is running
-check_mission_control() {
-    if ! curl -s "$MISSION_CONTROL_URL/api/status" > /dev/null 2>&1; then
-        log "ERROR" "Mission Control not accessible at $MISSION_CONTROL_URL"
+# Check if Agent Control Room is running
+check_agent_control_room() {
+    if ! curl -s "$AGENT_CONTROL_ROOM_URL/api/status" > /dev/null 2>&1; then
+        log "ERROR" "Agent Control Room not accessible at $AGENT_CONTROL_ROOM_URL"
         return 1
     fi
     return 0
@@ -45,7 +45,7 @@ check_agent_heartbeat() {
     
     # Call heartbeat endpoint
     local response
-    response=$(curl -s -w "HTTP_STATUS:%{http_code}" "$MISSION_CONTROL_URL/api/agents/$agent_id/heartbeat" 2>/dev/null)
+    response=$(curl -s -w "HTTP_STATUS:%{http_code}" "$AGENT_CONTROL_ROOM_URL/api/agents/$agent_id/heartbeat" 2>/dev/null)
     
     local http_code
     http_code=$(echo "$response" | grep -o "HTTP_STATUS:[0-9]*" | cut -d: -f2)
@@ -92,7 +92,7 @@ get_agent_session_key() {
     
     # Query agents API to get session key
     local agent_data
-    agent_data=$(curl -s "$MISSION_CONTROL_URL/api/agents?limit=100" 2>/dev/null | jq -r ".agents[] | select(.name == \"$agent_name\") | .session_key" 2>/dev/null || echo "")
+    agent_data=$(curl -s "$AGENT_CONTROL_ROOM_URL/api/agents?limit=100" 2>/dev/null | jq -r ".agents[] | select(.name == \"$agent_name\") | .session_key" 2>/dev/null || echo "")
     
     echo "$agent_data"
 }
@@ -107,11 +107,11 @@ send_wake_notification() {
     log "INFO" "Sending wake notification to $agent_name (session: $session_key)"
     
     # Format wake message
-    local wake_message="🤖 **Mission Control Heartbeat**\n\n"
+    local wake_message="🤖 **Agent Control Room Heartbeat**\n\n"
     wake_message+="Agent: $agent_name\n"
     wake_message+="Work items found: $work_items_count\n\n"
     wake_message+="🔔 You have notifications or tasks that need attention.\n"
-    wake_message+="Use Mission Control to view details: $MISSION_CONTROL_URL\n\n"
+    wake_message+="Use Agent Control Room to view details: $AGENT_CONTROL_ROOM_URL\n\n"
     wake_message+="⏰ $(date '+%Y-%m-%d %H:%M:%S')"
     
     # Send via OpenClaw sessions_send
@@ -133,7 +133,7 @@ get_agents_to_check() {
     fi
     
     # Get all agents with session keys
-    curl -s "$MISSION_CONTROL_URL/api/agents?limit=100" 2>/dev/null | \
+    curl -s "$AGENT_CONTROL_ROOM_URL/api/agents?limit=100" 2>/dev/null | \
         jq -r '.agents[] | select(.session_key != null and .session_key != "") | .name' 2>/dev/null || \
         echo ""
 }
@@ -144,9 +144,9 @@ main() {
     
     log "INFO" "Starting agent heartbeat check (PID: $$)"
     
-    # Check if Mission Control is running
-    if ! check_mission_control; then
-        log "ERROR" "Aborting: Mission Control not accessible"
+    # Check if Agent Control Room is running
+    if ! check_agent_control_room; then
+        log "ERROR" "Aborting: Agent Control Room not accessible"
         exit 1
     fi
     
@@ -221,7 +221,7 @@ main() {
 # Handle script arguments
 case "${1:-}" in
     --help|-h)
-        echo "Mission Control Agent Heartbeat Script"
+        echo "Agent Control Room Agent Heartbeat Script"
         echo ""
         echo "Usage: $0 [agent_name]"
         echo ""
@@ -230,7 +230,7 @@ case "${1:-}" in
         echo "  --help, -h    Show this help message"
         echo ""
         echo "Environment variables:"
-        echo "  MISSION_CONTROL_URL  Mission Control base URL (default: http://localhost:3005)"
+        echo "  AGENT_CONTROL_ROOM_URL  Agent Control Room base URL (default: http://localhost:3005)"
         echo ""
         exit 0
         ;;

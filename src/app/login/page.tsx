@@ -101,16 +101,16 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mb-3">
-            <span className="text-primary-foreground font-bold text-lg">MC</span>
+          <div className="w-12 h-12 rounded-xl bg-violet-500 flex items-center justify-center mb-3">
+            <span className="text-white font-bold text-lg">MC</span>
           </div>
-          <h1 className="text-xl font-semibold text-foreground">Mission Control</h1>
+          <h1 className="text-xl font-semibold text-foreground">Agent Control Room</h1>
           <p className="text-sm text-muted-foreground mt-1">Sign in to continue</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div role="alert" className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
+            <div role="alert" className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-500">
               {error}
             </div>
           )}
@@ -122,7 +122,7 @@ export default function LoginPage() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full h-10 px-3 rounded-lg bg-secondary border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-smooth"
+              className="w-full h-10 px-3 rounded-lg bg-secondary border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all duration-150"
               placeholder="Enter username"
               autoComplete="username"
               autoFocus
@@ -138,7 +138,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full h-10 px-3 rounded-lg bg-secondary border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-smooth"
+              className="w-full h-10 px-3 rounded-lg bg-secondary border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all duration-150"
               placeholder="Enter password"
               autoComplete="current-password"
               required
@@ -149,7 +149,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading || !username || !password}
-            className="w-full h-10 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-smooth flex items-center justify-center gap-2"
+            className="w-full h-10 rounded-lg bg-violet-500 text-white text-sm font-medium hover:bg-violet-600 active:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 flex items-center justify-center gap-2"
           >
             {loading ? (
               <>

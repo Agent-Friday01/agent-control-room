@@ -39,11 +39,11 @@ import { UpdateBanner } from '@/components/layout/update-banner'
 import { PromoBanner } from '@/components/layout/promo-banner'
 import { useWebSocket } from '@/lib/websocket'
 import { useServerEvents } from '@/lib/use-server-events'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 
 export default function Home() {
   const { connect } = useWebSocket()
-  const { activeTab, setActiveTab, setCurrentUser, setDashboardMode, setGatewayAvailable, setSubscription, setUpdateAvailable, liveFeedOpen, toggleLiveFeed } = useMissionControl()
+  const { activeTab, setActiveTab, setCurrentUser, setDashboardMode, setGatewayAvailable, setSubscription, setUpdateAvailable, liveFeedOpen, toggleLiveFeed } = useAgentControlRoom()
 
   // Sync URL → Zustand activeTab
   const pathname = usePathname()
@@ -126,12 +126,12 @@ export default function Home() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">MC</span>
+          <div className="w-10 h-10 rounded-xl bg-violet-500 flex items-center justify-center">
+            <span className="text-white font-bold text-sm">MC</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            <span className="text-sm text-muted-foreground">Loading Mission Control...</span>
+            <div className="w-1.5 h-1.5 rounded-full bg-violet-500 animate-pulse" />
+            <span className="text-sm text-muted-foreground">Loading Agent Control Room...</span>
           </div>
         </div>
       </div>
@@ -140,7 +140,7 @@ export default function Home() {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:text-sm focus:font-medium">
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-violet-500 focus:text-white focus:rounded-lg focus:text-sm focus:font-medium">
         Skip to main content
       </a>
       {/* Left: Icon rail navigation (hidden on mobile, shown as bottom bar instead) */}
@@ -175,8 +175,8 @@ export default function Home() {
           className="hidden lg:flex fixed right-0 top-1/2 -translate-y-1/2 z-30 w-6 h-12 items-center justify-center bg-card border border-r-0 border-border rounded-l-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200"
           title="Show live feed"
         >
-          <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M10 3l-5 5 5 5" strokeLinecap="round" strokeLinejoin="round" />
+          <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
       )}
@@ -188,7 +188,7 @@ export default function Home() {
 }
 
 function ContentRouter({ tab }: { tab: string }) {
-  const { dashboardMode } = useMissionControl()
+  const { dashboardMode } = useAgentControlRoom()
   const isLocal = dashboardMode === 'local'
 
   switch (tab) {

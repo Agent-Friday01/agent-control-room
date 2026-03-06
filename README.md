@@ -1,6 +1,6 @@
 <div align="center">
 
-# Mission Control
+# Agent Control Room
 
 **The open-source dashboard for AI agent orchestration.**
 
@@ -12,17 +12,17 @@ Manage agent fleets, track tasks, monitor costs, and orchestrate workflows — a
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org/)
 [![SQLite](https://img.shields.io/badge/SQLite-WAL-003B57?logo=sqlite&logoColor=white)](https://sqlite.org/)
 
-![Mission Control Dashboard](docs/mission-control.jpg)
+![Agent Control Room Dashboard](docs/agent-control-room.jpg)
 
 </div>
 
 ---
 
-> **Alpha Software** — Mission Control is under active development. APIs, database schemas, and configuration formats may change between releases. Review the [known limitations](#known-limitations) and [security considerations](#security-considerations) before deploying to production.
+> **Alpha Software** — Agent Control Room is under active development. APIs, database schemas, and configuration formats may change between releases. Review the [known limitations](#known-limitations) and [security considerations](#security-considerations) before deploying to production.
 
-## Why Mission Control?
+## Why Agent Control Room?
 
-Running AI agents at scale means juggling sessions, tasks, costs, and reliability across multiple models and channels. Mission Control gives you:
+Running AI agents at scale means juggling sessions, tasks, costs, and reliability across multiple models and channels. Agent Control Room gives you:
 
 - **28 panels** — Tasks, agents, logs, tokens, memory, cron, alerts, webhooks, pipelines, and more
 - **Real-time everything** — WebSocket + SSE push updates, smart polling that pauses when you're away
@@ -33,11 +33,11 @@ Running AI agents at scale means juggling sessions, tasks, costs, and reliabilit
 
 ## Quick Start
 
-> **Requires [pnpm](https://pnpm.io/installation)** — Mission Control uses pnpm for dependency management. Install it with `npm install -g pnpm` or `corepack enable`.
+> **Requires [pnpm](https://pnpm.io/installation)** — Agent Control Room uses pnpm for dependency management. Install it with `npm install -g pnpm` or `corepack enable`.
 
 ```bash
-git clone https://github.com/builderz-labs/mission-control.git
-cd mission-control
+git clone https://github.com/builderz-labs/agent-control-room.git
+cd agent-control-room
 pnpm install
 cp .env.example .env    # edit with your values
 pnpm dev                # http://localhost:3000
@@ -96,7 +96,7 @@ Token usage dashboard with per-model breakdowns, trend charts, and cost analysis
 Scheduled tasks for database backups, stale record cleanup, and agent heartbeat monitoring. Configurable via UI or API.
 
 ### Direct CLI Integration
-Connect Claude Code, Codex, or any CLI tool directly to Mission Control without requiring a gateway. Register connections, send heartbeats with inline token reporting, and auto-register agents.
+Connect Claude Code, Codex, or any CLI tool directly to Agent Control Room without requiring a gateway. Register connections, send heartbeats with inline token reporting, and auto-register agents.
 
 ### Claude Code Session Tracking
 Automatically discovers and tracks local Claude Code sessions by scanning `~/.claude/projects/`. Extracts token usage, model info, message counts, cost estimates, and active status from JSONL transcripts. Scans every 60 seconds via the background scheduler.
@@ -119,7 +119,7 @@ Automatic GitHub release check notifies you when a new version is available, dis
 ## Architecture
 
 ```
-mission-control/
+agent-control-room/
 ├── src/
 │   ├── proxy.ts               # Auth gate + CSRF + network access control
 │   ├── app/
@@ -381,7 +381,7 @@ To add a new workspace/client instance in the UI:
 
 ### Projects and Ticket Prefixes
 
-Mission Control supports multi-project task organization per workspace:
+Agent Control Room supports multi-project task organization per workspace:
 
 - Create/manage projects via Task Board → `Projects`.
 - Each project has its own ticket prefix and counter.
@@ -390,7 +390,7 @@ Mission Control supports multi-project task organization per workspace:
 
 ### Memory Scope Clarification
 
-- **Agent profile → Memory tab**: per-agent working memory stored in Mission Control DB (`working_memory`).
+- **Agent profile → Memory tab**: per-agent working memory stored in Agent Control Room DB (`working_memory`).
 - **Memory Browser page**: workspace/local filesystem memory tree under `OPENCLAW_MEMORY_DIR`.
 
 ## Deployment
@@ -420,40 +420,40 @@ pnpm quality:gate     # All checks
 
 ## Roadmap
 
-See [open issues](https://github.com/builderz-labs/mission-control/issues) for planned work and the [v1.0.0 release notes](https://github.com/builderz-labs/mission-control/releases/tag/v1.0.0) for what shipped.
+See [open issues](https://github.com/builderz-labs/agent-control-room/issues) for planned work and the [v1.0.0 release notes](https://github.com/builderz-labs/agent-control-room/releases/tag/v1.0.0) for what shipped.
 
 **Completed:**
 
-- [x] Dockerfile and docker-compose.yml ([#34](https://github.com/builderz-labs/mission-control/issues/34))
-- [x] Implement session control actions — monitor/pause/terminate are stub buttons ([#35](https://github.com/builderz-labs/mission-control/issues/35))
-- [x] Dynamic model catalog — replace hardcoded pricing across 3 files ([#36](https://github.com/builderz-labs/mission-control/issues/36))
-- [x] API-wide rate limiting ([#37](https://github.com/builderz-labs/mission-control/issues/37))
-- [x] React error boundaries around panels ([#38](https://github.com/builderz-labs/mission-control/issues/38))
-- [x] Structured logging with pino ([#39](https://github.com/builderz-labs/mission-control/issues/39))
-- [x] Accessibility improvements — WCAG 2.1 AA ([#40](https://github.com/builderz-labs/mission-control/issues/40))
-- [x] HSTS header for TLS deployments ([#41](https://github.com/builderz-labs/mission-control/issues/41))
-- [x] Input validation with zod schemas ([#42](https://github.com/builderz-labs/mission-control/issues/42))
-- [x] Export endpoint row limits ([#43](https://github.com/builderz-labs/mission-control/issues/43))
+- [x] Dockerfile and docker-compose.yml ([#34](https://github.com/builderz-labs/agent-control-room/issues/34))
+- [x] Implement session control actions — monitor/pause/terminate are stub buttons ([#35](https://github.com/builderz-labs/agent-control-room/issues/35))
+- [x] Dynamic model catalog — replace hardcoded pricing across 3 files ([#36](https://github.com/builderz-labs/agent-control-room/issues/36))
+- [x] API-wide rate limiting ([#37](https://github.com/builderz-labs/agent-control-room/issues/37))
+- [x] React error boundaries around panels ([#38](https://github.com/builderz-labs/agent-control-room/issues/38))
+- [x] Structured logging with pino ([#39](https://github.com/builderz-labs/agent-control-room/issues/39))
+- [x] Accessibility improvements — WCAG 2.1 AA ([#40](https://github.com/builderz-labs/agent-control-room/issues/40))
+- [x] HSTS header for TLS deployments ([#41](https://github.com/builderz-labs/agent-control-room/issues/41))
+- [x] Input validation with zod schemas ([#42](https://github.com/builderz-labs/agent-control-room/issues/42))
+- [x] Export endpoint row limits ([#43](https://github.com/builderz-labs/agent-control-room/issues/43))
 - [x] Fill in Vitest unit test stubs with real assertions
 
-- [x] Direct CLI integration — connect tools like Codex, Claude Code, or custom CLIs directly without requiring a gateway ([#61](https://github.com/builderz-labs/mission-control/pull/61))
-- [x] OpenAPI 3.1 documentation with Scalar UI ([#60](https://github.com/builderz-labs/mission-control/pull/60))
-- [x] GitHub Issues sync — inbound sync with label/assignee mapping ([#63](https://github.com/builderz-labs/mission-control/pull/63))
+- [x] Direct CLI integration — connect tools like Codex, Claude Code, or custom CLIs directly without requiring a gateway ([#61](https://github.com/builderz-labs/agent-control-room/pull/61))
+- [x] OpenAPI 3.1 documentation with Scalar UI ([#60](https://github.com/builderz-labs/agent-control-room/pull/60))
+- [x] GitHub Issues sync — inbound sync with label/assignee mapping ([#63](https://github.com/builderz-labs/agent-control-room/pull/63))
 
 - [x] Webhook retry with exponential backoff and circuit breaker
 - [x] Webhook signature verification (HMAC-SHA256 with constant-time comparison)
 - [x] Local Claude Code session tracking — auto-discover sessions from `~/.claude/projects/`
 - [x] Rate limiter IP extraction hardening with trusted proxy support
-- [x] Ed25519 device identity for WebSocket challenge-response handshake ([#85](https://github.com/builderz-labs/mission-control/pull/85))
-- [x] Agent SOUL workspace sync — bidirectional sync between `soul.md` files and database ([#95](https://github.com/builderz-labs/mission-control/pull/95))
-- [x] Update available banner with GitHub release check ([#94](https://github.com/builderz-labs/mission-control/pull/94))
-- [x] Side panel navigation synced with URL routes ([#87](https://github.com/builderz-labs/mission-control/pull/87))
-- [x] Task board SSE wiring, priority enum, and auto-advance ([#89](https://github.com/builderz-labs/mission-control/pull/89))
+- [x] Ed25519 device identity for WebSocket challenge-response handshake ([#85](https://github.com/builderz-labs/agent-control-room/pull/85))
+- [x] Agent SOUL workspace sync — bidirectional sync between `soul.md` files and database ([#95](https://github.com/builderz-labs/agent-control-room/pull/95))
+- [x] Update available banner with GitHub release check ([#94](https://github.com/builderz-labs/agent-control-room/pull/94))
+- [x] Side panel navigation synced with URL routes ([#87](https://github.com/builderz-labs/agent-control-room/pull/87))
+- [x] Task board SSE wiring, priority enum, and auto-advance ([#89](https://github.com/builderz-labs/agent-control-room/pull/89))
 
 **Up next:**
 
 - [ ] Agent-agnostic gateway support — connect any orchestration framework (OpenClaw, ZeroClaw, OpenFang, NeoBot, IronClaw, etc.), not just OpenClaw
-- [ ] Workspace isolation for multi-team usage ([#75](https://github.com/builderz-labs/mission-control/issues/75))
+- [ ] Workspace isolation for multi-team usage ([#75](https://github.com/builderz-labs/agent-control-room/issues/75))
 - [ ] **[Flight Deck](https://github.com/splitlabs/flight-deck)** — native desktop companion app (Tauri v2) with real PTY terminal grid, stall inbox with native OS notifications, and system tray HUD. Currently in private beta.
 - [ ] First-class per-agent cost breakdowns — dedicated panel with per-agent token usage and spend (currently derivable from per-session data)
 - [ ] OAuth approval UI improvements

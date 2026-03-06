@@ -29,11 +29,11 @@ import { MultiGatewayPanel } from '@/components/panels/multi-gateway-panel'
 import { ChatPanel } from '@/components/chat/chat-panel'
 import { useWebSocket } from '@/lib/websocket'
 import { useServerEvents } from '@/lib/use-server-events'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 
 export default function Home() {
   const { connect } = useWebSocket()
-  const { activeTab, setCurrentUser, liveFeedOpen, toggleLiveFeed } = useMissionControl()
+  const { activeTab, setCurrentUser, liveFeedOpen, toggleLiveFeed } = useAgentControlRoom()
 
   // Connect to SSE for real-time local DB events (tasks, agents, chat, etc.)
   useServerEvents()
@@ -65,7 +65,7 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-2">
             <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            <span className="text-sm text-muted-foreground">Loading Mission Control...</span>
+            <span className="text-sm text-muted-foreground">Loading Agent Control Room...</span>
           </div>
         </div>
       </div>

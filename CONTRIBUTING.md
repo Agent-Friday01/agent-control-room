@@ -1,13 +1,13 @@
-# Contributing to Mission Control
+# Contributing to Agent Control Room
 
-Thank you for your interest in contributing to Mission Control.
+Thank you for your interest in contributing to Agent Control Room.
 
 ## Getting Started
 
 ```bash
 # Clone the repo
-git clone https://github.com/builderz-labs/mission-control.git
-cd mission-control
+git clone https://github.com/builderz-labs/agent-control-room.git
+cd agent-control-room
 
 # Install dependencies
 pnpm install

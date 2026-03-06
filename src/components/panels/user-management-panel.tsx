@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 
 interface UserRecord {
   id: number
@@ -35,12 +35,12 @@ interface AccessRequest {
 
 const roleColors: Record<string, string> = {
   admin: 'bg-red-500/20 text-red-400',
-  operator: 'bg-blue-500/20 text-blue-400',
-  viewer: 'bg-gray-500/20 text-gray-400',
+  operator: 'bg-cyan-500/20 text-cyan-400',
+  viewer: 'bg-slate-500/20 text-slate-400',
 }
 
 export function UserManagementPanel() {
-  const { currentUser } = useMissionControl()
+  const { currentUser } = useAgentControlRoom()
   const [users, setUsers] = useState<UserRecord[]>([])
   const [requests, setRequests] = useState<AccessRequest[]>([])
   const [loading, setLoading] = useState(true)
@@ -223,28 +223,28 @@ export function UserManagementPanel() {
   }
 
   return (
-    <div className="p-6 max-w-5xl mx-auto space-y-5">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-5">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-lg font-semibold text-foreground">Users</h2>
           <p className="text-sm text-muted-foreground">{users.length} registered users · {pendingRequests.length} pending approvals</p>
         </div>
         <button
           onClick={() => setShowCreate(!showCreate)}
-          className="h-8 px-3 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-smooth"
+          className="h-8 px-3 rounded-lg bg-violet-500 text-primary-foreground text-xs font-medium hover:bg-violet-500/90 transition-smooth"
         >
           {showCreate ? 'Cancel' : '+ Add Local User'}
         </button>
       </div>
 
       {feedback && (
-        <div className={`px-3 py-2 rounded-md text-sm border ${feedback.ok ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+        <div className={`px-3 py-2 rounded-md text-sm border ${feedback.ok ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
           {feedback.text}
         </div>
       )}
 
       {pendingRequests.length > 0 && (
-        <div className="border border-amber-500/30 rounded-lg overflow-hidden">
+        <div className="border border-amber-500/30 rounded-xl overflow-hidden">
           <div className="px-4 py-3 bg-amber-500/10 border-b border-amber-500/20 text-sm font-medium text-amber-200">Pending Google Access Requests</div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -292,7 +292,7 @@ export function UserManagementPanel() {
       )}
 
       {showCreate && (
-        <div className="p-4 rounded-lg bg-secondary/50 border border-border space-y-3">
+        <div className="p-4 rounded-xl bg-secondary/50 border border-border space-y-3">
           <h3 className="text-sm font-medium text-foreground">New Local User</h3>
           <div className="grid grid-cols-2 gap-3">
             <input value={createForm.username} onChange={(e) => setCreateForm((f) => ({ ...f, username: e.target.value }))} placeholder="Username" className="h-9 px-3 rounded-md bg-secondary border border-border text-sm text-foreground" />
@@ -305,22 +305,22 @@ export function UserManagementPanel() {
             </select>
           </div>
           <div className="flex justify-end">
-            <button onClick={handleCreate} disabled={!createForm.username || !createForm.password || creating} className="h-8 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium disabled:opacity-50">
+            <button onClick={handleCreate} disabled={!createForm.username || !createForm.password || creating} className="h-8 px-4 rounded-md bg-violet-500 text-primary-foreground text-sm font-medium disabled:opacity-50">
               {creating ? 'Creating...' : 'Create User'}
             </button>
           </div>
         </div>
       )}
 
-      <div className="border border-border rounded-lg overflow-hidden">
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
         <table className="w-full">
           <thead>
             <tr className="bg-secondary/50 border-b border-border">
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">User</th>
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Provider</th>
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground">Role</th>
-              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground hidden md:table-cell">Last Login</th>
-              <th className="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground">Actions</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">User</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Provider</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Role</th>
+              <th className="text-left px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider hidden md:table-cell">Last Login</th>
+              <th className="text-right px-4 py-2.5 text-xs font-medium text-muted-foreground uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -343,7 +343,7 @@ export function UserManagementPanel() {
                       <input type="password" value={editForm.password} onChange={(e) => setEditForm((f) => ({ ...f, password: e.target.value }))} placeholder="New password (optional)" className="h-8 px-2 rounded bg-secondary border border-border text-sm text-foreground w-full" disabled={(u.provider || 'local') !== 'local'} />
                     </td>
                     <td className="px-4 py-2.5 text-right space-x-2">
-                      <button onClick={handleEdit} disabled={saving} className="h-7 px-2 rounded bg-primary text-primary-foreground text-xs">Save</button>
+                      <button onClick={handleEdit} disabled={saving} className="h-7 px-2 rounded bg-violet-500 text-primary-foreground text-xs">Save</button>
                       <button onClick={() => setEditingId(null)} className="h-7 px-2 rounded border border-border text-xs">Cancel</button>
                     </td>
                   </>
@@ -351,7 +351,7 @@ export function UserManagementPanel() {
                   <>
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-[10px] font-semibold text-primary overflow-hidden">
+                        <div className="w-7 h-7 rounded-full bg-violet-500/20 flex items-center justify-center text-[10px] font-semibold text-violet-600 dark:text-violet-400 overflow-hidden">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           {u.avatar_url ? <img src={u.avatar_url} alt={u.display_name} className="w-7 h-7 object-cover" /> : u.display_name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)}
                         </div>
@@ -362,7 +362,7 @@ export function UserManagementPanel() {
                       </div>
                     </td>
                     <td className="px-4 py-2.5 text-xs">
-                      <span className={`px-2 py-0.5 rounded-full ${u.provider === 'google' ? 'bg-blue-500/20 text-blue-300' : 'bg-gray-500/20 text-gray-300'}`}>{u.provider || 'local'}</span>
+                      <span className={`px-2 py-0.5 rounded-full ${u.provider === 'google' ? 'bg-cyan-500/20 text-cyan-300' : 'bg-slate-500/20 text-slate-300'}`}>{u.provider || 'local'}</span>
                     </td>
                     <td className="px-4 py-2.5">
                       <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${roleColors[u.role] || ''}`}>{u.role}</span>

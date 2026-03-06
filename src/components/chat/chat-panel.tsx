@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useCallback, useState, useRef } from 'react'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 import { useSmartPoll } from '@/lib/use-smart-poll'
 import { createClientLogger } from '@/lib/client-logger'
+import { ChevronLeft, MessageSquare, Menu, X } from 'lucide-react'
 import { ConversationList } from './conversation-list'
 import { MessageList } from './message-list'
 import { ChatInput } from './chat-input'
@@ -23,7 +24,7 @@ export function ChatPanel() {
     setIsSendingMessage,
     agents,
     setAgents,
-  } = useMissionControl()
+  } = useAgentControlRoom()
 
   const pendingIdRef = useRef(-1)
 
@@ -188,16 +189,11 @@ export function ChatPanel() {
                 onClick={handleBackToList}
                 className="text-muted-foreground hover:text-foreground transition-smooth"
               >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M10 12L6 8l4-4" />
-                </svg>
+                <ChevronLeft className="w-4 h-4" />
               </button>
             )}
             <div className="flex items-center gap-2">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
-                <path d="M14 10c0 .37-.1.7-.28 1-.53.87-2.2 3-5.72 3-4.42 0-6-3-6-4V4a2 2 0 012-2h8a2 2 0 012 2v6z" />
-                <path d="M6 7h.01M10 7h.01" />
-              </svg>
+              <MessageSquare className="w-4 h-4 text-violet-600 dark:text-violet-400" />
               <span className="text-sm font-semibold text-foreground">Agent Chat</span>
             </div>
             <span className="text-xs text-muted-foreground hidden sm:inline">
@@ -212,18 +208,14 @@ export function ChatPanel() {
               className="hidden md:flex w-7 h-7 items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-smooth"
               title={showConversations ? 'Hide conversations' : 'Show conversations'}
             >
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <path d="M2 4h12M2 8h12M2 12h12" />
-              </svg>
+              <Menu className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={() => setChatPanelOpen(false)}
               className="w-7 h-7 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-smooth"
               title="Close chat (Esc)"
             >
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <path d="M4 4l8 8M12 4l-8 8" />
-              </svg>
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -242,7 +234,7 @@ export function ChatPanel() {
             <div className="flex-1 flex flex-col min-w-0">
               {/* Conversation header */}
               {activeConversation && (
-                <div className="px-4 py-2 border-b border-border/50 bg-surface-1 flex items-center gap-2 flex-shrink-0">
+                <div className="px-4 py-2 border-b border-border/50 bg-card flex items-center gap-2 flex-shrink-0">
                   <AgentAvatar name={activeConversation.replace('agent_', '')} size="sm" />
                   <div className="min-w-0">
                     <div className="text-sm font-medium text-foreground truncate">
@@ -272,13 +264,13 @@ export function ChatPanel() {
 // Inline avatar component
 function AgentAvatar({ name, size = 'md' }: { name: string; size?: 'sm' | 'md' }) {
   const colors: Record<string, string> = {
-    coordinator: 'bg-purple-500/20 text-purple-400',
+    coordinator: 'bg-violet-500/20 text-violet-400',
     aegis: 'bg-red-500/20 text-red-400',
-    research: 'bg-green-500/20 text-green-400',
+    research: 'bg-emerald-500/20 text-emerald-400',
     ops: 'bg-orange-500/20 text-orange-400',
     reviewer: 'bg-teal-500/20 text-teal-400',
     content: 'bg-indigo-500/20 text-indigo-400',
-    human: 'bg-primary/20 text-primary',
+    human: 'bg-violet-500/20 text-violet-600 dark:text-violet-400',
   }
 
   const colorClass = colors[name.toLowerCase()] || 'bg-muted text-muted-foreground'

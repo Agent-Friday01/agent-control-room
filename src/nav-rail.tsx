@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 
 interface NavItem {
   id: string
@@ -64,7 +64,7 @@ const navGroups: NavGroup[] = [
 const allNavItems = navGroups.flatMap(g => g.items)
 
 export function NavRail() {
-  const { activeTab, setActiveTab, connection, sidebarExpanded, collapsedGroups, toggleSidebar, toggleGroup } = useMissionControl()
+  const { activeTab, setActiveTab, connection, sidebarExpanded, collapsedGroups, toggleSidebar, toggleGroup } = useAgentControlRoom()
 
   // Keyboard shortcut: [ to toggle sidebar
   useEffect(() => {
@@ -92,7 +92,7 @@ export function NavRail() {
             <span className="text-primary-foreground font-bold text-xs">MC</span>
           </div>
           {sidebarExpanded && (
-            <span className="text-sm font-semibold text-foreground truncate flex-1">Mission Control</span>
+            <span className="text-sm font-semibold text-foreground truncate flex-1">Agent Control Room</span>
           )}
           <button
             onClick={toggleSidebar}

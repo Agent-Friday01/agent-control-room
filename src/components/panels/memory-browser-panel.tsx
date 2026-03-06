@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 import { createClientLogger } from '@/lib/client-logger'
+import { Search, RefreshCw, Pencil, Trash2, Save, X, Plus, FolderOpen, Folder, FileText, File } from 'lucide-react'
 
 const log = createClientLogger('MemoryBrowser')
 
@@ -24,7 +25,7 @@ export function MemoryBrowserPanel() {
     setMemoryFiles,
     setSelectedMemoryFile,
     setMemoryContent
-  } = useMissionControl()
+  } = useAgentControlRoom()
   const isLocal = dashboardMode === 'local'
 
   const [isLoading, setIsLoading] = useState(false)
@@ -43,6 +44,7 @@ export function MemoryBrowserPanel() {
     setIsLoading(true)
     try {
       const response = await fetch('/api/memory?action=tree')
+      if (!response.ok) return
       const data = await response.json()
       setMemoryFiles(data.tree || [])
 
@@ -61,7 +63,7 @@ export function MemoryBrowserPanel() {
 
   const getFilteredFiles = () => {
     if (activeTab === 'all') return memoryFiles
-    
+
     return memoryFiles.filter(file => {
       if (activeTab === 'daily') {
         return file.name === 'daily' || file.path.includes('daily/')
@@ -77,8 +79,9 @@ export function MemoryBrowserPanel() {
     setIsLoading(true)
     try {
       const response = await fetch(`/api/memory?action=content&path=${encodeURIComponent(filePath)}`)
+      if (!response.ok) return
       const data = await response.json()
-      
+
       if (data.content !== undefined) {
         setSelectedMemoryFile(filePath)
         setMemoryContent(data.content)
@@ -99,6 +102,7 @@ export function MemoryBrowserPanel() {
     setIsSearching(true)
     try {
       const response = await fetch(`/api/memory?action=search&query=${encodeURIComponent(searchQuery)}`)
+      if (!response.ok) return
       const data = await response.json()
       setSearchResults(data.results || [])
     } catch (error) {
@@ -237,8 +241,8 @@ export function MemoryBrowserPanel() {
               className="flex items-center space-x-2 py-1 px-2 hover:bg-secondary rounded cursor-pointer"
               onClick={() => toggleFolder(file.path)}
             >
-              <span className="text-blue-400">
-                {expandedFolders.has(file.path) ? '📂' : '📁'}
+              <span className="text-cyan-400">
+                {expandedFolders.has(file.path) ? <FolderOpen className="w-4 h-4" /> : <Folder className="w-4 h-4" />}
               </span>
               <span className="text-foreground">{file.name}</span>
               <span className="text-xs text-muted-foreground">
@@ -259,9 +263,8 @@ export function MemoryBrowserPanel() {
             onClick={() => loadFileContent(file.path)}
           >
             <span className="text-muted-foreground">
-              {file.name.endsWith('.md') ? '📄' :
-               file.name.endsWith('.txt') ? '📝' :
-               file.name.endsWith('.json') ? '📋' : '📄'}
+              {file.name.endsWith('.md') ? <FileText className="w-4 h-4" /> :
+               file.name.endsWith('.json') ? <File className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
             </span>
             <span className="text-foreground flex-1">{file.name}</span>
             <div className="flex flex-col text-xs text-muted-foreground text-right">
@@ -304,39 +307,39 @@ export function MemoryBrowserPanel() {
     const elements: React.ReactElement[] = []
     let inList = false
     let seenHeaders = new Set<string>()
-    
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
       const trimmedLine = line.trim()
-      
+
       if (trimmedLine.startsWith('# ')) {
         const headerText = trimmedLine.slice(2)
         const headerId = `h1-${headerText.toLowerCase().replace(/\s+/g, '-')}`
-        
+
         // Skip duplicate headers
         if (seenHeaders.has(headerId)) continue
         seenHeaders.add(headerId)
-        
+
         if (inList) inList = false
         elements.push(<h1 key={`${i}-${headerId}`} className="text-2xl font-bold mt-6 mb-3 text-primary">{headerText}</h1>)
       } else if (trimmedLine.startsWith('## ')) {
         const headerText = trimmedLine.slice(3)
         const headerId = `h2-${headerText.toLowerCase().replace(/\s+/g, '-')}`
-        
+
         // Skip duplicate headers
         if (seenHeaders.has(headerId)) continue
         seenHeaders.add(headerId)
-        
+
         if (inList) inList = false
         elements.push(<h2 key={`${i}-${headerId}`} className="text-xl font-semibold mt-5 mb-3 text-foreground">{headerText}</h2>)
       } else if (trimmedLine.startsWith('### ')) {
         const headerText = trimmedLine.slice(4)
         const headerId = `h3-${headerText.toLowerCase().replace(/\s+/g, '-')}`
-        
+
         // Skip duplicate headers
         if (seenHeaders.has(headerId)) continue
         seenHeaders.add(headerId)
-        
+
         if (inList) inList = false
         elements.push(<h3 key={`${i}-${headerId}`} className="text-lg font-semibold mt-4 mb-2 text-foreground">{headerText}</h3>)
       } else if (trimmedLine.startsWith('- ')) {
@@ -357,60 +360,63 @@ export function MemoryBrowserPanel() {
         )
       }
     }
-    
+
     return elements
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="border-b border-border pb-4">
-        <h1 className="text-3xl font-bold text-foreground">Memory Browser</h1>
-        <p className="text-muted-foreground mt-2">
-          {isLocal
-            ? 'Browse and manage local knowledge files and memory'
-            : 'Explore knowledge files and memory structure'}
-        </p>
-        <p className="text-xs text-muted-foreground mt-1">
-          This page shows all workspace memory files. The agent profile Memory tab only edits that single agent&apos;s working memory.
-        </p>
-        
-        {/* Tab Navigation */}
-        <div className="flex gap-2 mt-4">
-          <button
-            onClick={() => setActiveTab('all')}
-            className={`px-4 py-2 rounded font-medium transition-colors ${
-              activeTab === 'all' 
-                ? 'bg-primary text-primary-foreground' 
-                : 'bg-secondary text-foreground hover:bg-secondary/80'
-            }`}
-          >
-            📁 All Files
-          </button>
-          <button
-            onClick={() => setActiveTab('daily')}
-            className={`px-4 py-2 rounded font-medium transition-colors ${
-              activeTab === 'daily' 
-                ? 'bg-primary text-primary-foreground' 
-                : 'bg-secondary text-foreground hover:bg-secondary/80'
-            }`}
-          >
-            📅 Daily Logs
-          </button>
-          <button
-            onClick={() => setActiveTab('knowledge')}
-            className={`px-4 py-2 rounded font-medium transition-colors ${
-              activeTab === 'knowledge' 
-                ? 'bg-primary text-primary-foreground' 
-                : 'bg-secondary text-foreground hover:bg-secondary/80'
-            }`}
-          >
-            🧠 Knowledge
-          </button>
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-lg font-semibold text-foreground">Memory Browser</h1>
+          <p className="text-sm text-muted-foreground">
+            {isLocal
+              ? 'Browse and manage local knowledge files and memory'
+              : 'Explore knowledge files and memory structure'}
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            This page shows all workspace memory files. The agent profile Memory tab only edits that single agent&apos;s working memory.
+          </p>
         </div>
       </div>
 
+      {/* Tab Navigation */}
+      <div className="flex gap-2">
+        <button
+          onClick={() => setActiveTab('all')}
+          className={`h-8 px-3 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 ${
+            activeTab === 'all'
+              ? 'bg-violet-500 text-primary-foreground'
+              : 'bg-secondary text-foreground hover:bg-secondary/80'
+          }`}
+        >
+          <Folder className="w-3.5 h-3.5" />
+          All Files
+        </button>
+        <button
+          onClick={() => setActiveTab('daily')}
+          className={`h-8 px-3 rounded-lg text-xs font-medium transition-colors ${
+            activeTab === 'daily'
+              ? 'bg-violet-500 text-primary-foreground'
+              : 'bg-secondary text-foreground hover:bg-secondary/80'
+          }`}
+        >
+          Daily Logs
+        </button>
+        <button
+          onClick={() => setActiveTab('knowledge')}
+          className={`h-8 px-3 rounded-lg text-xs font-medium transition-colors ${
+            activeTab === 'knowledge'
+              ? 'bg-violet-500 text-primary-foreground'
+              : 'bg-secondary text-foreground hover:bg-secondary/80'
+          }`}
+        >
+          Knowledge
+        </button>
+      </div>
+
       {/* Search Bar */}
-      <div className="bg-card border border-border rounded-lg p-4">
+      <div className="bg-card border border-border rounded-xl p-4">
         <div className="flex space-x-4">
           <div className="flex-1">
             <input
@@ -425,15 +431,17 @@ export function MemoryBrowserPanel() {
           <button
             onClick={searchFiles}
             disabled={isSearching || !searchQuery.trim()}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 bg-violet-500 text-primary-foreground rounded-md font-medium hover:bg-violet-500/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1.5"
           >
+            <Search className="w-4 h-4" />
             {isSearching ? 'Searching...' : 'Search'}
           </button>
           <button
             onClick={loadFileTree}
             disabled={isLoading}
-            className="px-4 py-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md font-medium hover:bg-blue-500/30 transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-md font-medium hover:bg-cyan-500/30 transition-colors disabled:opacity-50 flex items-center gap-1.5"
           >
+            <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
         </div>
@@ -463,11 +471,11 @@ export function MemoryBrowserPanel() {
         )}
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
+      <div className="grid lg:grid-cols-3 gap-4">
         {/* File Tree */}
-        <div className="bg-card border border-border rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Memory Structure</h2>
-          
+        <div className="bg-card border border-border rounded-xl p-4">
+          <h2 className="text-sm font-semibold text-foreground mb-4">Memory Structure</h2>
+
           {isLoading ? (
             <div className="flex items-center justify-center h-32">
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
@@ -477,8 +485,8 @@ export function MemoryBrowserPanel() {
             <div className="max-h-96 overflow-y-auto text-sm">
               {getFilteredFiles().length === 0 ? (
                 <div className="text-center text-muted-foreground py-8">
-                  {activeTab === 'all' ? 'No memory files found' : 
-                   activeTab === 'daily' ? 'No daily logs found' : 
+                  {activeTab === 'all' ? 'No memory files found' :
+                   activeTab === 'daily' ? 'No daily logs found' :
                    'No knowledge files found'}
                 </div>
               ) : (
@@ -489,9 +497,9 @@ export function MemoryBrowserPanel() {
         </div>
 
         {/* File Content */}
-        <div className="lg:col-span-2 bg-card border border-border rounded-lg p-6">
+        <div className="lg:col-span-2 bg-card border border-border rounded-xl p-4">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">
+            <h2 className="text-sm font-semibold text-foreground">
               {selectedMemoryFile || 'File Content'}
             </h2>
             <div className="flex items-center gap-2">
@@ -501,14 +509,16 @@ export function MemoryBrowserPanel() {
                     <>
                       <button
                         onClick={startEditing}
-                        className="px-3 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md text-sm hover:bg-blue-500/30 transition-smooth"
+                        className="px-3 py-1 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-md text-sm hover:bg-cyan-500/30 transition-smooth flex items-center gap-1"
                       >
+                        <Pencil className="w-3.5 h-3.5" />
                         Edit
                       </button>
                       <button
                         onClick={() => setShowDeleteConfirm(true)}
-                        className="px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/30 rounded-md text-sm hover:bg-red-500/30 transition-smooth"
+                        className="px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/30 rounded-md text-sm hover:bg-red-500/30 transition-smooth flex items-center gap-1"
                       >
+                        <Trash2 className="w-3.5 h-3.5" />
                         Delete
                       </button>
                     </>
@@ -517,14 +527,16 @@ export function MemoryBrowserPanel() {
                       <button
                         onClick={saveFile}
                         disabled={isSaving}
-                        className="px-3 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded-md text-sm hover:bg-green-500/30 disabled:opacity-50 transition-smooth"
+                        className="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-md text-sm hover:bg-emerald-500/30 disabled:opacity-50 transition-smooth flex items-center gap-1"
                       >
+                        <Save className="w-3.5 h-3.5" />
                         {isSaving ? 'Saving...' : 'Save'}
                       </button>
                       <button
                         onClick={cancelEditing}
-                        className="px-3 py-1 bg-secondary text-muted-foreground rounded-md text-sm hover:bg-secondary/80 transition-smooth"
+                        className="px-3 py-1 bg-secondary text-muted-foreground rounded-md text-sm hover:bg-secondary/80 transition-smooth flex items-center gap-1"
                       >
+                        <X className="w-3.5 h-3.5" />
                         Cancel
                       </button>
                     </>
@@ -538,20 +550,21 @@ export function MemoryBrowserPanel() {
                     }}
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    Close
+                    <X className="w-4 h-4" />
                   </button>
                 </>
               )}
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="px-3 py-1 bg-primary text-primary-foreground rounded text-sm hover:bg-primary/90 transition-colors"
+                className="px-3 py-1 bg-violet-500 text-primary-foreground rounded text-sm hover:bg-violet-500/90 transition-colors flex items-center gap-1"
               >
-                + New File
+                <Plus className="w-3.5 h-3.5" />
+                New File
               </button>
             </div>
           </div>
-          
-          <div className="border border-border rounded-lg min-h-96 overflow-auto">
+
+          <div className="border border-border rounded-xl min-h-96 overflow-auto">
             {isLoading ? (
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
@@ -600,8 +613,9 @@ export function MemoryBrowserPanel() {
                 <span>Select a file to view its content</span>
                 <button
                   onClick={() => setShowCreateModal(true)}
-                  className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90 transition-colors"
+                  className="mt-4 px-4 py-2 bg-violet-500 text-primary-foreground rounded hover:bg-violet-500/90 transition-colors flex items-center gap-1.5"
                 >
+                  <Plus className="w-4 h-4" />
                   Create New File
                 </button>
               </div>
@@ -612,12 +626,12 @@ export function MemoryBrowserPanel() {
 
       {/* File Stats */}
       {memoryFiles.length > 0 && (
-        <div className="bg-card border border-border rounded-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">Memory Statistics</h2>
-          
+        <div className="bg-card border border-border rounded-xl p-4">
+          <h2 className="text-sm font-semibold text-foreground mb-4">Memory Statistics</h2>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="bg-secondary rounded p-4">
-              <div className="text-2xl font-bold text-foreground">
+              <div className="text-2xl font-semibold font-mono text-foreground">
                 {memoryFiles.reduce((count, dir) => {
                   const countFiles = (files: MemoryFile[]): number => {
                     return files.reduce((acc, file) => {
@@ -628,11 +642,11 @@ export function MemoryBrowserPanel() {
                   return count + countFiles([dir])
                 }, 0)}
               </div>
-              <div className="text-sm text-muted-foreground">Total Files</div>
+              <div className="text-xs text-muted-foreground">Total Files</div>
             </div>
 
             <div className="bg-secondary rounded p-4">
-              <div className="text-2xl font-bold text-foreground">
+              <div className="text-2xl font-semibold font-mono text-foreground">
                 {memoryFiles.reduce((count, dir) => {
                   const countDirs = (files: MemoryFile[]): number => {
                     return files.reduce((acc, file) => {
@@ -643,11 +657,11 @@ export function MemoryBrowserPanel() {
                   return count + countDirs([dir])
                 }, 0)}
               </div>
-              <div className="text-sm text-muted-foreground">Directories</div>
+              <div className="text-xs text-muted-foreground">Directories</div>
             </div>
 
             <div className="bg-secondary rounded p-4">
-              <div className="text-2xl font-bold text-foreground">
+              <div className="text-2xl font-semibold font-mono text-foreground">
                 {formatFileSize(memoryFiles.reduce((size, dir) => {
                   const calculateSize = (files: MemoryFile[]): number => {
                     return files.reduce((acc, file) => {
@@ -658,7 +672,7 @@ export function MemoryBrowserPanel() {
                   return size + calculateSize([dir])
                 }, 0))}
               </div>
-              <div className="text-sm text-muted-foreground">Total Size</div>
+              <div className="text-xs text-muted-foreground">Total Size</div>
             </div>
           </div>
         </div>
@@ -717,10 +731,12 @@ function CreateFileModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-card border border-border rounded-lg max-w-md w-full p-6 shadow-xl">
+      <div className="bg-card border border-border rounded-xl max-w-md w-full p-6 shadow-xl">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold text-foreground">Create New File</h3>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xl transition-smooth">×</button>
+          <h3 className="text-lg font-semibold text-foreground">Create New File</h3>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-smooth">
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="space-y-4">
@@ -786,7 +802,7 @@ function CreateFileModal({
             <button
               onClick={handleCreate}
               disabled={!fileName.trim()}
-              className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-smooth"
+              className="flex-1 px-4 py-2 bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 disabled:opacity-50 disabled:cursor-not-allowed transition-smooth"
             >
               Create File
             </button>
@@ -815,14 +831,16 @@ function DeleteConfirmModal({
 }) {
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-card border border-border rounded-lg max-w-md w-full p-6 shadow-xl">
+      <div className="bg-card border border-border rounded-xl max-w-md w-full p-6 shadow-xl">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold text-red-400">Confirm Deletion</h3>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-xl transition-smooth">×</button>
+          <h3 className="text-lg font-semibold text-red-400">Confirm Deletion</h3>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-smooth">
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="space-y-4">
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-lg">
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-xl">
             <p className="text-sm">You are about to permanently delete:</p>
             <p className="font-mono text-foreground mt-2 bg-surface-1 p-2 rounded-md text-sm">
               {fileName}
@@ -835,8 +853,9 @@ function DeleteConfirmModal({
           <div className="flex gap-3 pt-4">
             <button
               onClick={onConfirm}
-              className="flex-1 px-4 py-2 bg-red-500/20 text-red-400 border border-red-500/30 rounded-md hover:bg-red-500/30 transition-smooth"
+              className="flex-1 px-4 py-2 bg-red-500/20 text-red-400 border border-red-500/30 rounded-md hover:bg-red-500/30 transition-smooth flex items-center justify-center gap-1.5"
             >
+              <Trash2 className="w-4 h-4" />
               Delete Permanently
             </button>
             <button

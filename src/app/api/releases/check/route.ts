@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { APP_VERSION } from '@/lib/version'
 
 const GITHUB_RELEASES_URL =
-  'https://api.github.com/repos/builderz-labs/mission-control/releases/latest'
+  'https://api.github.com/repos/builderz-labs/agent-control-room/releases/latest'
 
 /** Simple semver compare: returns 1 if a > b, -1 if a < b, 0 if equal. */
 function compareSemver(a: string, b: string): number {

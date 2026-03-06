@@ -1,10 +1,10 @@
 'use client'
 
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 import { useEffect, useState } from 'react'
 
 export function LiveFeed() {
-  const { logs, sessions, activities, connection, toggleLiveFeed } = useMissionControl()
+  const { logs, sessions, activities, connection, toggleLiveFeed } = useAgentControlRoom()
   const [expanded, setExpanded] = useState(true)
 
   // Combine logs and activities into a unified feed

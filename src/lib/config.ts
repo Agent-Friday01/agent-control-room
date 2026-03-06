@@ -6,12 +6,12 @@ const defaultDataDir = path.join(process.cwd(), '.data')
 const defaultOpenClawStateDir = path.join(os.homedir(), '.openclaw')
 const explicitOpenClawConfigPath =
   process.env.OPENCLAW_CONFIG_PATH ||
-  process.env.MISSION_CONTROL_OPENCLAW_CONFIG_PATH ||
+  process.env.AGENT_CONTROL_ROOM_OPENCLAW_CONFIG_PATH ||
   ''
 const legacyOpenClawHome =
   process.env.OPENCLAW_HOME ||
   process.env.CLAWDBOT_HOME ||
-  process.env.MISSION_CONTROL_OPENCLAW_HOME ||
+  process.env.AGENT_CONTROL_ROOM_OPENCLAW_HOME ||
   ''
 const openclawStateDir =
   process.env.OPENCLAW_STATE_DIR ||
@@ -26,13 +26,13 @@ export const config = {
   claudeHome:
     process.env.MC_CLAUDE_HOME ||
     path.join(os.homedir(), '.claude'),
-  dataDir: process.env.MISSION_CONTROL_DATA_DIR || defaultDataDir,
+  dataDir: process.env.AGENT_CONTROL_ROOM_DATA_DIR || defaultDataDir,
   dbPath:
-    process.env.MISSION_CONTROL_DB_PATH ||
-    path.join(defaultDataDir, 'mission-control.db'),
+    process.env.AGENT_CONTROL_ROOM_DB_PATH ||
+    path.join(defaultDataDir, 'agent-control-room.db'),
   tokensPath:
-    process.env.MISSION_CONTROL_TOKENS_PATH ||
-    path.join(defaultDataDir, 'mission-control-tokens.json'),
+    process.env.AGENT_CONTROL_ROOM_TOKENS_PATH ||
+    path.join(defaultDataDir, 'agent-control-room-tokens.json'),
   // Keep openclawHome as a legacy alias for existing code paths.
   openclawHome: openclawStateDir,
   openclawStateDir,

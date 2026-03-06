@@ -153,12 +153,6 @@ export async function PUT(
       updateParams.push(description);
     }
     if (status !== undefined) {
-      if (status === 'done' && !hasAegisApproval(db, taskId, workspaceId)) {
-        return NextResponse.json(
-          { error: 'Aegis approval is required to move task to done.' },
-          { status: 403 }
-        )
-      }
       fieldsToUpdate.push('status = ?');
       updateParams.push(status);
     }

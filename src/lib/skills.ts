@@ -1,7 +1,73 @@
 import fs from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import { config } from './config'
 import type { Skill, SkillMetadata, SkillsConfig } from '@/types/skills'
+
+/**
+ * Expand ~ in file paths
+ */
+function expandPath(filepath: string): string {
+  if (filepath.startsWith('~/')) {
+    return path.join(os.homedir(), filepath.slice(2))
+  }
+  return filepath
+}
+
+/**
+ * Get all skill directories to scan, in priority order
+ * Priority: workspace > custom (from extraDirs) > bundled
+ * Later directories have lower priority, so workspace skills can override bundled ones
+ */
+function getSkillDirectories(): Array<{ dir: string; source: 'bundled' | 'workspace' | 'custom' }> {
+  const directories: Array<{ dir: string; source: 'bundled' | 'workspace' | 'custom' }> = []
+
+  // 1. Bundled skills (lowest priority - add first)
+  // Allow disabling by setting OPENCLAW_BUNDLED_SKILLS_DIR to empty string
+  const bundledDir = process.env.OPENCLAW_BUNDLED_SKILLS_DIR !== undefined
+    ? process.env.OPENCLAW_BUNDLED_SKILLS_DIR
+    : config.bundledSkillsDir
+  if (bundledDir && fs.existsSync(bundledDir)) {
+    directories.push({ dir: bundledDir, source: 'bundled' })
+  } else if (bundledDir) {
+    console.warn(`Bundled skills directory not found: ${bundledDir}`)
+  }
+
+  // 2. Extra directories from config (middle priority)
+  try {
+    // Use environment variable if available for better testability
+    const configPath = process.env.OPENCLAW_CONFIG_PATH ||
+                      process.env.AGENT_CONTROL_ROOM_OPENCLAW_CONFIG_PATH ||
+                      config.openclawConfigPath
+    if (fs.existsSync(configPath)) {
+      const content = fs.readFileSync(configPath, 'utf-8')
+      const openclawConfig = JSON.parse(content)
+
+      if (openclawConfig.skills?.load?.extraDirs && Array.isArray(openclawConfig.skills.load.extraDirs)) {
+        for (const dir of openclawConfig.skills.load.extraDirs) {
+          const expandedDir = expandPath(dir)
+          if (fs.existsSync(expandedDir)) {
+            directories.push({ dir: expandedDir, source: 'custom' })
+          } else {
+            console.warn(`Extra skills directory not found: ${expandedDir}`)
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Failed to read extraDirs from openclaw config:', err)
+  }
+
+  // 3. Workspace skills (highest priority - add last)
+  // Use environment variable if available for better testability
+  const claudeHome = process.env.MC_CLAUDE_HOME || config.claudeHome
+  const workspaceDir = path.join(claudeHome, 'skills')
+  if (fs.existsSync(workspaceDir)) {
+    directories.push({ dir: workspaceDir, source: 'workspace' })
+  }
+
+  return directories
+}
 
 /**
  * Parse frontmatter from a SKILL.md file
@@ -27,11 +93,12 @@ export function parseSkillMd(content: string): SkillMetadata | null {
 }
 
 /**
- * Discover all skills from the .claude/skills/ directory
+ * Discover skills from a single directory
  */
-export function discoverSkills(): Skill[] {
-  const skillsDir = path.join(config.claudeHome, 'skills')
-
+function discoverSkillsInDirectory(
+  skillsDir: string,
+  source: 'bundled' | 'workspace' | 'custom'
+): Skill[] {
   // If skills directory doesn't exist, return empty array
   if (!fs.existsSync(skillsDir)) {
     return []
@@ -61,6 +128,7 @@ export function discoverSkills(): Skill[] {
             description: metadata.description,
             enabled: false, // Will be set by getSkillsConfig
             path: skillPath,
+            source,
           })
         }
       } catch (err) {
@@ -69,10 +137,49 @@ export function discoverSkills(): Skill[] {
       }
     }
   } catch (err) {
-    console.error('Failed to read skills directory:', err)
+    console.error(`Failed to read skills directory ${skillsDir}:`, err)
   }
 
   return skills
+}
+
+/**
+ * Deduplicate skills by name, with later skills overriding earlier ones
+ * Priority: workspace > custom > bundled
+ */
+function deduplicateSkills(skills: Skill[]): Skill[] {
+  const skillMap = new Map<string, Skill>()
+
+  for (const skill of skills) {
+    const existing = skillMap.get(skill.name)
+    if (existing) {
+      console.log(`Skill '${skill.name}' overridden: ${existing.source} -> ${skill.source}`)
+    }
+    skillMap.set(skill.name, skill)
+  }
+
+  return Array.from(skillMap.values())
+}
+
+/**
+ * Discover all skills from all configured skill directories
+ */
+export function discoverSkills(): Skill[] {
+  const directories = getSkillDirectories()
+  const allSkills: Skill[] = []
+
+  // Scan each directory
+  for (const { dir, source } of directories) {
+    const skills = discoverSkillsInDirectory(dir, source)
+    console.log(`Discovered ${skills.length} skills from ${source} directory: ${dir}`)
+    allSkills.push(...skills)
+  }
+
+  // Deduplicate (later entries override earlier ones)
+  const deduplicatedSkills = deduplicateSkills(allSkills)
+  console.log(`Total skills after deduplication: ${deduplicatedSkills.length}`)
+
+  return deduplicatedSkills
 }
 
 /**
@@ -80,12 +187,16 @@ export function discoverSkills(): Skill[] {
  */
 export function getSkillsConfig(): SkillsConfig {
   try {
-    if (!fs.existsSync(config.openclawConfigPath)) {
+    // Use environment variable if available for better testability
+    const configPath = process.env.OPENCLAW_CONFIG_PATH ||
+                      process.env.AGENT_CONTROL_ROOM_OPENCLAW_CONFIG_PATH ||
+                      config.openclawConfigPath
+    if (!fs.existsSync(configPath)) {
       // Default: all skills are enabled
       return { enabled: [], disabled: [] }
     }
 
-    const content = fs.readFileSync(config.openclawConfigPath, 'utf-8')
+    const content = fs.readFileSync(configPath, 'utf-8')
     const openclawConfig = JSON.parse(content)
 
     if (!openclawConfig.skills) {
@@ -107,10 +218,14 @@ export function getSkillsConfig(): SkillsConfig {
  */
 export function updateSkillsConfig(updates: Record<string, boolean>): boolean {
   try {
+    // Use environment variable if available for better testability
+    const configPath = process.env.OPENCLAW_CONFIG_PATH ||
+                      process.env.AGENT_CONTROL_ROOM_OPENCLAW_CONFIG_PATH ||
+                      config.openclawConfigPath
     // Read current config
     let openclawConfig: any = {}
-    if (fs.existsSync(config.openclawConfigPath)) {
-      const content = fs.readFileSync(config.openclawConfigPath, 'utf-8')
+    if (fs.existsSync(configPath)) {
+      const content = fs.readFileSync(configPath, 'utf-8')
       openclawConfig = JSON.parse(content)
     }
 
@@ -152,14 +267,14 @@ export function updateSkillsConfig(updates: Record<string, boolean>): boolean {
     }
 
     // Ensure config directory exists
-    const configDir = path.dirname(config.openclawConfigPath)
+    const configDir = path.dirname(configPath)
     if (!fs.existsSync(configDir)) {
       fs.mkdirSync(configDir, { recursive: true })
     }
 
     // Write updated config
     fs.writeFileSync(
-      config.openclawConfigPath,
+      configPath,
       JSON.stringify(openclawConfig, null, 2),
       'utf-8'
     )

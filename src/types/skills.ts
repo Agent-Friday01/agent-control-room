@@ -9,11 +9,16 @@ export interface Skill {
   description: string
   enabled: boolean
   path: string
+  source?: 'bundled' | 'workspace' | 'custom'
 }
 
 export interface SkillsConfig {
   enabled: string[]
   disabled: string[]
+}
+
+export interface SkillsLoadConfig {
+  extraDirs?: string[]
 }
 
 export interface SkillsApiResponse {

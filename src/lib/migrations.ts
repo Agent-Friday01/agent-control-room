@@ -753,6 +753,23 @@ const migrations: Migration[] = [
         }
       }
     }
+  },
+  {
+    id: '025_cron_task_bridge',
+    up: (db) => {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS cron_task_map (
+          cron_job_id TEXT NOT NULL,
+          task_id INTEGER NOT NULL,
+          last_run_at_ms INTEGER NOT NULL DEFAULT 0,
+          workspace_id INTEGER NOT NULL DEFAULT 1,
+          PRIMARY KEY (cron_job_id, workspace_id),
+          FOREIGN KEY (task_id) REFERENCES tasks(id) ON DELETE CASCADE
+        );
+        CREATE INDEX IF NOT EXISTS idx_cron_task_map_task_id ON cron_task_map(task_id);
+        CREATE INDEX IF NOT EXISTS idx_cron_task_map_workspace ON cron_task_map(workspace_id);
+      `)
+    }
   }
 ]
 

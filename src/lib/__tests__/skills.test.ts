@@ -8,6 +8,7 @@ describe('Skills Library', () => {
   let testDir: string
   let testSkillsDir: string
   let testConfigPath: string
+  let originalBundledSkillsDir: string | undefined
 
   beforeEach(() => {
     // Create temporary test directories
@@ -16,12 +17,23 @@ describe('Skills Library', () => {
     testConfigPath = path.join(testDir, 'openclaw.json')
 
     fs.mkdirSync(testSkillsDir, { recursive: true })
+
+    // Disable bundled skills scanning during tests
+    originalBundledSkillsDir = process.env.OPENCLAW_BUNDLED_SKILLS_DIR
+    process.env.OPENCLAW_BUNDLED_SKILLS_DIR = ''
   })
 
   afterEach(() => {
     // Cleanup test directories
     if (fs.existsSync(testDir)) {
       fs.rmSync(testDir, { recursive: true, force: true })
+    }
+
+    // Restore environment variable
+    if (originalBundledSkillsDir !== undefined) {
+      process.env.OPENCLAW_BUNDLED_SKILLS_DIR = originalBundledSkillsDir
+    } else {
+      delete process.env.OPENCLAW_BUNDLED_SKILLS_DIR
     }
   })
 

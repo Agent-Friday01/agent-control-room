@@ -21,6 +21,9 @@ const openclawStateDir =
 const openclawConfigPath =
   explicitOpenClawConfigPath ||
   path.join(openclawStateDir, 'openclaw.json')
+const bundledSkillsDir =
+  process.env.OPENCLAW_BUNDLED_SKILLS_DIR ||
+  '/usr/local/lib/node_modules/openclaw/skills/'
 
 export const config = {
   claudeHome:
@@ -37,6 +40,7 @@ export const config = {
   openclawHome: openclawStateDir,
   openclawStateDir,
   openclawConfigPath,
+  bundledSkillsDir,
   openclawBin: process.env.OPENCLAW_BIN || 'openclaw',
   clawdbotBin: process.env.CLAWDBOT_BIN || 'clawdbot',
   gatewayHost: process.env.OPENCLAW_GATEWAY_HOST || '127.0.0.1',

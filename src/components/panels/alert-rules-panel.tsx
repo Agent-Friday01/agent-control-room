@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { Play, Trash2, Plus, Bell } from 'lucide-react'
 
 interface AlertRule {
   id: number
@@ -47,9 +48,9 @@ const OPERATORS = [
 ]
 
 const ENTITY_COLORS: Record<string, string> = {
-  agent: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-  task: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-  session: 'bg-green-500/20 text-green-400 border-green-500/30',
+  agent: 'bg-violet-500/20 text-violet-400 border-violet-500/30',
+  task: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30',
+  session: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
   activity: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
 }
 
@@ -63,6 +64,7 @@ export function AlertRulesPanel() {
   const fetchRules = useCallback(async () => {
     try {
       const res = await fetch('/api/alerts')
+      if (!res.ok) return
       const data = await res.json()
       setRules(data.rules || [])
     } catch { /* ignore */ }
@@ -108,7 +110,7 @@ export function AlertRulesPanel() {
   const totalTriggers = rules.reduce((sum, r) => sum + r.trigger_count, 0)
 
   return (
-    <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-6">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -130,39 +132,40 @@ export function AlertRulesPanel() {
               </>
             ) : (
               <>
-                <PlayIcon />
+                <Play className="w-3.5 h-3.5" />
                 Evaluate Now
               </>
             )}
           </button>
           <button
             onClick={() => setShowCreate(!showCreate)}
-            className="h-8 px-3 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-smooth"
+            className="h-8 px-3 rounded-md text-xs font-medium bg-violet-500 text-primary-foreground hover:bg-violet-500/90 transition-smooth flex items-center gap-1.5"
           >
-            + New Rule
+            <Plus className="w-3.5 h-3.5" />
+            New Rule
           </button>
         </div>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-card border border-border rounded-lg p-3">
-          <div className="text-2xs text-muted-foreground">Total Rules</div>
-          <div className="text-xl font-bold text-foreground mt-0.5">{rules.length}</div>
+        <div className="bg-card border border-border rounded-xl p-3">
+          <div className="text-xs text-muted-foreground">Total Rules</div>
+          <div className="text-2xl font-semibold font-mono text-foreground mt-0.5">{rules.length}</div>
         </div>
-        <div className="bg-card border border-border rounded-lg p-3">
-          <div className="text-2xs text-muted-foreground">Active</div>
-          <div className="text-xl font-bold text-green-400 mt-0.5">{enabledCount}</div>
+        <div className="bg-card border border-border rounded-xl p-3">
+          <div className="text-xs text-muted-foreground">Active</div>
+          <div className="text-2xl font-semibold font-mono text-emerald-400 mt-0.5">{enabledCount}</div>
         </div>
-        <div className="bg-card border border-border rounded-lg p-3">
-          <div className="text-2xs text-muted-foreground">Total Triggers</div>
-          <div className="text-xl font-bold text-amber-400 mt-0.5">{totalTriggers}</div>
+        <div className="bg-card border border-border rounded-xl p-3">
+          <div className="text-xs text-muted-foreground">Total Triggers</div>
+          <div className="text-2xl font-semibold font-mono text-amber-400 mt-0.5">{totalTriggers}</div>
         </div>
       </div>
 
       {/* Eval Results */}
       {evalResults && (
-        <div className="bg-card border border-border rounded-lg p-4">
+        <div className="bg-card border border-border rounded-xl p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-semibold text-foreground">Evaluation Results</h3>
             <button onClick={() => setEvalResults(null)} className="text-xs text-muted-foreground hover:text-foreground">
@@ -175,7 +178,7 @@ export function AlertRulesPanel() {
                 r.triggered ? 'bg-red-500/10 border border-red-500/20' : 'bg-secondary/50'
               }`}>
                 <span className="font-medium text-foreground">{r.rule_name}</span>
-                <span className={r.triggered ? 'text-red-400 font-medium' : 'text-muted-foreground'}>
+                <span className={r.triggered ? 'text-red-400 font-medium font-mono' : 'text-muted-foreground'}>
                   {r.triggered ? 'TRIGGERED' : r.reason}
                 </span>
               </div>
@@ -196,9 +199,11 @@ export function AlertRulesPanel() {
       {loading ? (
         <div className="text-center text-xs text-muted-foreground py-8">Loading rules...</div>
       ) : rules.length === 0 ? (
-        <div className="text-center py-12 bg-card border border-border rounded-lg">
-          <div className="text-3xl mb-2 opacity-30">&#9888;</div>
-          <p className="text-sm text-muted-foreground">No alert rules configured</p>
+        <div className="text-center py-12 bg-card border border-border rounded-xl">
+          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center mx-auto mb-3">
+            <Bell className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <p className="text-sm font-medium text-foreground">No alert rules configured</p>
           <p className="text-xs text-muted-foreground mt-1">Create a rule to get notified about system events</p>
         </div>
       ) : (
@@ -219,13 +224,13 @@ function RuleCard({ rule, onToggle, onDelete }: { rule: AlertRule; onToggle: () 
     : 'Never'
 
   return (
-    <div className={`bg-card border rounded-lg p-4 transition-smooth ${
+    <div className={`bg-card border rounded-xl p-4 transition-smooth ${
       rule.enabled ? 'border-border' : 'border-border/50 opacity-60'
     }`}>
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className={`text-2xs px-1.5 py-0.5 rounded border ${ENTITY_COLORS[rule.entity_type] || 'bg-muted text-muted-foreground border-border'}`}>
+            <span className={`text-2xs px-1.5 py-0.5 rounded border font-mono ${ENTITY_COLORS[rule.entity_type] || 'bg-muted text-muted-foreground border-border'}`}>
               {rule.entity_type}
             </span>
             <h3 className="text-sm font-semibold text-foreground truncate">{rule.name}</h3>
@@ -237,16 +242,16 @@ function RuleCard({ rule, onToggle, onDelete }: { rule: AlertRule; onToggle: () 
             <span className="font-mono bg-secondary/50 px-1.5 py-0.5 rounded">
               {rule.condition_field} {operator?.label || rule.condition_operator} {rule.condition_value}
             </span>
-            <span>Cooldown: {rule.cooldown_minutes}m</span>
-            <span>Triggered: {rule.trigger_count}x</span>
-            <span>Last: {lastTriggered}</span>
+            <span className="font-mono">Cooldown: {rule.cooldown_minutes}m</span>
+            <span className="font-mono">Triggered: {rule.trigger_count}x</span>
+            <span className="font-mono">Last: {lastTriggered}</span>
           </div>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={onToggle}
             className={`w-10 h-5 rounded-full transition-smooth relative ${
-              rule.enabled ? 'bg-green-500' : 'bg-muted'
+              rule.enabled ? 'bg-emerald-500' : 'bg-muted'
             }`}
           >
             <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-all ${
@@ -258,9 +263,7 @@ function RuleCard({ rule, onToggle, onDelete }: { rule: AlertRule; onToggle: () 
             className="w-7 h-7 rounded-md text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-smooth flex items-center justify-center"
             title="Delete rule"
           >
-            <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-              <path d="M3 4h10M6 4V3h4v1M5 4v8.5a.5.5 0 00.5.5h5a.5.5 0 00.5-.5V4" />
-            </svg>
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
@@ -319,7 +322,7 @@ function CreateRuleForm({ onCreated, onCancel }: { onCreated: () => void; onCanc
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-card border border-primary/20 rounded-lg p-4 space-y-3">
+    <form onSubmit={handleSubmit} className="bg-card border border-primary/20 rounded-xl p-4 space-y-3">
       <h3 className="text-sm font-semibold text-foreground">New Alert Rule</h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -429,19 +432,11 @@ function CreateRuleForm({ onCreated, onCancel }: { onCreated: () => void; onCanc
         <button
           type="submit"
           disabled={saving}
-          className="h-8 px-4 rounded-md text-xs font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-smooth disabled:opacity-50"
+          className="h-8 px-4 rounded-md text-xs font-medium bg-violet-500 text-primary-foreground hover:bg-violet-500/90 transition-smooth disabled:opacity-50"
         >
           {saving ? 'Creating...' : 'Create Rule'}
         </button>
       </div>
     </form>
-  )
-}
-
-function PlayIcon() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
-      <path d="M4 2l10 6-10 6V2z" />
-    </svg>
   )
 }

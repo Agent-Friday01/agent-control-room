@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClientLogger } from '@/lib/client-logger'
+import { Plus, RefreshCw, X } from 'lucide-react'
 
 const log = createClientLogger('AgentSquadPanel')
 
@@ -26,8 +27,8 @@ interface Agent {
 }
 
 const statusColors: Record<string, string> = {
-  offline: 'bg-gray-500',
-  idle: 'bg-green-500',
+  offline: 'bg-slate-500',
+  idle: 'bg-emerald-500',
   busy: 'bg-yellow-500',
   error: 'bg-red-500',
 }
@@ -92,13 +93,13 @@ export function AgentSquadPanel() {
       })
 
       if (!response.ok) throw new Error('Failed to update agent status')
-      
+
       // Update local state
-      setAgents(prev => prev.map(agent => 
-        agent.name === agentName 
-          ? { 
-              ...agent, 
-              status, 
+      setAgents(prev => prev.map(agent =>
+        agent.name === agentName
+          ? {
+              ...agent,
+              status,
               last_activity: activity || `Status changed to ${status}`,
               last_seen: Math.floor(Date.now() / 1000),
               updated_at: Math.floor(Date.now() / 1000)
@@ -114,7 +115,7 @@ export function AgentSquadPanel() {
   // Format last seen time
   const formatLastSeen = (timestamp?: number) => {
     if (!timestamp) return 'Never'
-    
+
     const now = Date.now()
     const diffMs = now - (timestamp * 1000)
     const diffMinutes = Math.floor(diffMs / (1000 * 60))
@@ -125,7 +126,7 @@ export function AgentSquadPanel() {
     if (diffMinutes < 60) return `${diffMinutes}m ago`
     if (diffHours < 24) return `${diffHours}h ago`
     if (diffDays < 7) return `${diffDays}d ago`
-    
+
     return new Date(timestamp * 1000).toLocaleDateString()
   }
 
@@ -138,51 +139,53 @@ export function AgentSquadPanel() {
   if (loading && agents.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        <span className="ml-2 text-gray-400">Loading agents...</span>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
+        <span className="ml-2 text-muted-foreground">Loading agents...</span>
       </div>
     )
   }
 
   return (
-    <div className="h-full flex flex-col bg-gray-900">
+    <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="flex justify-between items-center p-4 border-b border-gray-700">
+      <div className="flex justify-between items-center p-4 border-b border-border">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold text-white">Agent Squad</h2>
-          
+          <h2 className="text-lg font-semibold text-foreground">Agent Squad</h2>
+
           {/* Status Summary */}
           <div className="flex gap-2 text-sm">
             {Object.entries(statusCounts).map(([status, count]) => (
               <div key={status} className="flex items-center gap-1">
                 <div className={`w-2 h-2 rounded-full ${statusColors[status]}`}></div>
-                <span className="text-gray-400">{count}</span>
+                <span className="text-muted-foreground">{count}</span>
               </div>
             ))}
           </div>
         </div>
-        
+
         <div className="flex gap-2">
           <button
             onClick={() => setAutoRefresh(!autoRefresh)}
             className={`px-3 py-1 text-sm rounded transition-colors ${
-              autoRefresh 
-                ? 'bg-green-600 text-white hover:bg-green-700' 
-                : 'bg-gray-600 text-white hover:bg-gray-700'
+              autoRefresh
+                ? 'bg-emerald-600 text-foreground hover:bg-emerald-700'
+                : 'bg-secondary text-foreground hover:bg-secondary'
             }`}
           >
             {autoRefresh ? 'Live' : 'Manual'}
           </button>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 bg-cyan-600 text-foreground rounded hover:bg-cyan-700 transition-colors flex items-center gap-1.5"
           >
-            + Add Agent
+            <Plus className="w-4 h-4" />
+            Add Agent
           </button>
           <button
             onClick={fetchAgents}
-            className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+            className="px-4 py-2 bg-secondary text-foreground rounded hover:bg-secondary transition-colors flex items-center gap-1.5"
           >
+            <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
         </div>
@@ -190,7 +193,7 @@ export function AgentSquadPanel() {
 
       {/* Error Display */}
       {error && (
-        <div className="bg-red-900/20 border border-red-500 text-red-400 p-3 m-4 rounded">
+        <div className="bg-red-900/20 border border-red-500 text-red-400 p-3 m-4 rounded-xl">
           {error}
           <button
             onClick={() => setError(null)}
@@ -204,7 +207,7 @@ export function AgentSquadPanel() {
       {/* Agent Grid */}
       <div className="flex-1 p-4 overflow-y-auto">
         {agents.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">
+          <div className="text-center text-muted-foreground py-8">
             <div className="text-4xl mb-2">🤖</div>
             <p>No agents found</p>
             <p className="text-sm">Add your first agent to get started</p>
@@ -214,47 +217,47 @@ export function AgentSquadPanel() {
             {agents.map(agent => (
               <div
                 key={agent.id}
-                className="bg-gray-800 rounded-lg p-4 border-l-4 border-gray-600 hover:bg-gray-750 transition-colors cursor-pointer"
+                className="bg-card rounded-xl p-4 border-l-4 border-border hover:bg-card/80 transition-colors cursor-pointer"
                 onClick={() => setSelectedAgent(agent)}
               >
                 {/* Agent Header */}
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h3 className="font-semibold text-white text-lg">{agent.name}</h3>
-                    <p className="text-gray-400 text-sm">{agent.role}</p>
+                    <h3 className="font-semibold text-foreground text-lg">{agent.name}</h3>
+                    <p className="text-muted-foreground text-sm">{agent.role}</p>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     <div className={`w-3 h-3 rounded-full ${statusColors[agent.status]} animate-pulse`}></div>
-                    <span className="text-xs text-gray-400">{agent.status}</span>
+                    <span className="text-xs text-muted-foreground font-mono">{agent.status}</span>
                   </div>
                 </div>
 
                 {/* Session Info */}
                 {agent.session_key && (
-                  <div className="text-xs text-gray-400 mb-2">
-                    <span className="font-medium">Session:</span> {agent.session_key}
+                  <div className="text-xs text-muted-foreground mb-2">
+                    <span className="font-medium">Session:</span> <span className="font-mono">{agent.session_key}</span>
                   </div>
                 )}
 
                 {/* Task Stats */}
                 {agent.taskStats && (
                   <div className="grid grid-cols-2 gap-2 mb-3">
-                    <div className="bg-gray-700/50 rounded p-2 text-center">
-                      <div className="text-lg font-semibold text-white">{agent.taskStats.total}</div>
-                      <div className="text-xs text-gray-400">Total Tasks</div>
+                    <div className="bg-secondary/50 rounded-xl p-2 text-center">
+                      <div className="text-lg font-semibold text-foreground">{agent.taskStats.total}</div>
+                      <div className="text-xs text-muted-foreground">Total Tasks</div>
                     </div>
-                    <div className="bg-gray-700/50 rounded p-2 text-center">
+                    <div className="bg-secondary/50 rounded-xl p-2 text-center">
                       <div className="text-lg font-semibold text-yellow-400">{agent.taskStats.in_progress}</div>
-                      <div className="text-xs text-gray-400">In Progress</div>
+                      <div className="text-xs text-muted-foreground">In Progress</div>
                     </div>
                   </div>
                 )}
 
                 {/* Last Activity */}
-                <div className="text-xs text-gray-400 mb-3">
+                <div className="text-xs text-muted-foreground mb-3">
                   <div>
-                    <span className="font-medium">Last seen:</span> {formatLastSeen(agent.last_seen)}
+                    <span className="font-medium">Last seen:</span> <span className="font-mono">{formatLastSeen(agent.last_seen)}</span>
                   </div>
                   {agent.last_activity && (
                     <div className="mt-1 truncate" title={agent.last_activity}>
@@ -271,7 +274,7 @@ export function AgentSquadPanel() {
                       updateAgentStatus(agent.name, 'idle', 'Manually activated')
                     }}
                     disabled={agent.status === 'idle'}
-                    className="flex-1 px-2 py-1 text-xs bg-green-600 text-white rounded hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex-1 px-2 py-1 text-xs bg-emerald-600 text-foreground rounded hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     Wake
                   </button>
@@ -281,7 +284,7 @@ export function AgentSquadPanel() {
                       updateAgentStatus(agent.name, 'busy', 'Manually set to busy')
                     }}
                     disabled={agent.status === 'busy'}
-                    className="flex-1 px-2 py-1 text-xs bg-yellow-600 text-white rounded hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex-1 px-2 py-1 text-xs bg-yellow-600 text-foreground rounded hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     Busy
                   </button>
@@ -291,7 +294,7 @@ export function AgentSquadPanel() {
                       updateAgentStatus(agent.name, 'offline', 'Manually set offline')
                     }}
                     disabled={agent.status === 'offline'}
-                    className="flex-1 px-2 py-1 text-xs bg-gray-600 text-white rounded hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="flex-1 px-2 py-1 text-xs bg-secondary text-foreground rounded hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     Sleep
                   </button>
@@ -354,7 +357,7 @@ function AgentDetailModal({
       })
 
       if (!response.ok) throw new Error('Failed to update agent')
-      
+
       setEditing(false)
       onUpdate()
     } catch (error) {
@@ -364,23 +367,25 @@ function AgentDetailModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-card rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h3 className="text-xl font-bold text-white">{agent.name}</h3>
-              <p className="text-gray-400">{agent.role}</p>
+              <h3 className="text-lg font-semibold text-foreground">{agent.name}</h3>
+              <p className="text-muted-foreground">{agent.role}</p>
             </div>
             <div className="flex items-center gap-3">
               <div className={`w-4 h-4 rounded-full ${statusColors[agent.status]}`}></div>
-              <span className="text-white">{agent.status}</span>
-              <button onClick={onClose} className="text-gray-400 hover:text-white text-2xl">×</button>
+              <span className="text-foreground font-mono">{agent.status}</span>
+              <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
+                <X className="w-6 h-6" />
+              </button>
             </div>
           </div>
 
           {/* Status Controls */}
-          <div className="mb-6 p-4 bg-gray-700/50 rounded-lg">
-            <h4 className="text-sm font-medium text-white mb-2">Status Control</h4>
+          <div className="mb-6 p-4 bg-secondary/50 rounded-xl">
+            <h4 className="text-sm font-medium text-foreground mb-2">Status Control</h4>
             <div className="flex gap-2">
               {(['idle', 'busy', 'offline'] as const).map(status => (
                 <button
@@ -388,8 +393,8 @@ function AgentDetailModal({
                   onClick={() => onStatusUpdate(agent.name, status)}
                   className={`px-3 py-1 text-sm rounded transition-colors ${
                     agent.status === status
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-600 text-white hover:bg-gray-500'
+                      ? 'bg-cyan-600 text-foreground'
+                      : 'bg-secondary text-foreground hover:bg-secondary/80'
                   }`}
                 >
                   {statusIcons[status]} {status}
@@ -401,68 +406,68 @@ function AgentDetailModal({
           {/* Agent Details */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Role</label>
+              <label className="block text-sm font-medium text-muted-foreground mb-1">Role</label>
               {editing ? (
                 <input
                   type="text"
                   value={formData.role}
                   onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                  className="w-full bg-gray-700 text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-secondary text-foreground rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               ) : (
-                <p className="text-white">{agent.role}</p>
+                <p className="text-foreground">{agent.role}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Session Key</label>
+              <label className="block text-sm font-medium text-muted-foreground mb-1">Session Key</label>
               {editing ? (
                 <input
                   type="text"
                   value={formData.session_key}
                   onChange={(e) => setFormData(prev => ({ ...prev, session_key: e.target.value }))}
-                  className="w-full bg-gray-700 text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-secondary text-foreground rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               ) : (
-                <p className="text-white font-mono">{agent.session_key || 'Not set'}</p>
+                <p className="text-foreground font-mono">{agent.session_key || 'Not set'}</p>
               )}
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">SOUL Content</label>
+              <label className="block text-sm font-medium text-muted-foreground mb-1">SOUL Content</label>
               {editing ? (
                 <textarea
                   value={formData.soul_content}
                   onChange={(e) => setFormData(prev => ({ ...prev, soul_content: e.target.value }))}
                   rows={4}
-                  className="w-full bg-gray-700 text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-secondary text-foreground rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   placeholder="Agent personality and instructions..."
                 />
               ) : (
-                <p className="text-white whitespace-pre-wrap">{agent.soul_content || 'Not set'}</p>
+                <p className="text-foreground whitespace-pre-wrap">{agent.soul_content || 'Not set'}</p>
               )}
             </div>
 
             {/* Task Statistics */}
             {agent.taskStats && (
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Task Statistics</label>
+                <label className="block text-sm font-medium text-muted-foreground mb-1">Task Statistics</label>
                 <div className="grid grid-cols-4 gap-2">
-                  <div className="bg-gray-700/50 rounded p-3 text-center">
-                    <div className="text-lg font-semibold text-white">{agent.taskStats.total}</div>
-                    <div className="text-xs text-gray-400">Total</div>
+                  <div className="bg-secondary/50 rounded-xl p-3 text-center">
+                    <div className="text-lg font-semibold text-foreground">{agent.taskStats.total}</div>
+                    <div className="text-xs text-muted-foreground">Total</div>
                   </div>
-                  <div className="bg-gray-700/50 rounded p-3 text-center">
-                    <div className="text-lg font-semibold text-blue-400">{agent.taskStats.assigned}</div>
-                    <div className="text-xs text-gray-400">Assigned</div>
+                  <div className="bg-secondary/50 rounded-xl p-3 text-center">
+                    <div className="text-lg font-semibold text-cyan-400">{agent.taskStats.assigned}</div>
+                    <div className="text-xs text-muted-foreground">Assigned</div>
                   </div>
-                  <div className="bg-gray-700/50 rounded p-3 text-center">
+                  <div className="bg-secondary/50 rounded-xl p-3 text-center">
                     <div className="text-lg font-semibold text-yellow-400">{agent.taskStats.in_progress}</div>
-                    <div className="text-xs text-gray-400">In Progress</div>
+                    <div className="text-xs text-muted-foreground">In Progress</div>
                   </div>
-                  <div className="bg-gray-700/50 rounded p-3 text-center">
-                    <div className="text-lg font-semibold text-green-400">{agent.taskStats.completed}</div>
-                    <div className="text-xs text-gray-400">Done</div>
+                  <div className="bg-secondary/50 rounded-xl p-3 text-center">
+                    <div className="text-lg font-semibold text-emerald-400">{agent.taskStats.completed}</div>
+                    <div className="text-xs text-muted-foreground">Done</div>
                   </div>
                 </div>
               </div>
@@ -471,12 +476,12 @@ function AgentDetailModal({
             {/* Timestamps */}
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-gray-400">Created:</span>
-                <span className="text-white ml-2">{new Date(agent.created_at * 1000).toLocaleDateString()}</span>
+                <span className="text-muted-foreground">Created:</span>
+                <span className="text-foreground ml-2 font-mono">{new Date(agent.created_at * 1000).toLocaleDateString()}</span>
               </div>
               <div>
-                <span className="text-gray-400">Last Updated:</span>
-                <span className="text-white ml-2">{new Date(agent.updated_at * 1000).toLocaleDateString()}</span>
+                <span className="text-muted-foreground">Last Updated:</span>
+                <span className="text-foreground ml-2 font-mono">{new Date(agent.updated_at * 1000).toLocaleDateString()}</span>
               </div>
             </div>
           </div>
@@ -487,13 +492,13 @@ function AgentDetailModal({
               <>
                 <button
                   onClick={handleSave}
-                  className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors"
+                  className="flex-1 bg-cyan-600 text-foreground py-2 rounded hover:bg-cyan-700 transition-colors"
                 >
                   Save Changes
                 </button>
                 <button
                   onClick={() => setEditing(false)}
-                  className="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition-colors"
+                  className="flex-1 bg-secondary text-foreground py-2 rounded hover:bg-secondary transition-colors"
                 >
                   Cancel
                 </button>
@@ -501,7 +506,7 @@ function AgentDetailModal({
             ) : (
               <button
                 onClick={() => setEditing(true)}
-                className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors"
+                className="flex-1 bg-cyan-600 text-foreground py-2 rounded hover:bg-cyan-700 transition-colors"
               >
                 Edit Agent
               </button>
@@ -530,7 +535,7 @@ function CreateAgentModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     try {
       const response = await fetch('/api/agents', {
         method: 'POST',
@@ -539,7 +544,7 @@ function CreateAgentModal({
       })
 
       if (!response.ok) throw new Error('Failed to create agent')
-      
+
       onCreated()
       onClose()
     } catch (error) {
@@ -549,68 +554,73 @@ function CreateAgentModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800 rounded-lg max-w-md w-full">
+      <div className="bg-card rounded-xl max-w-md w-full">
         <form onSubmit={handleSubmit} className="p-6">
-          <h3 className="text-xl font-bold text-white mb-4">Create New Agent</h3>
-          
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold text-foreground">Create New Agent</h3>
+            <button type="button" onClick={onClose} className="text-muted-foreground hover:text-foreground">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
           <div className="space-y-4">
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Name</label>
+              <label className="block text-sm text-muted-foreground mb-1">Name</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full bg-gray-700 text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-secondary text-foreground rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 required
               />
             </div>
-            
+
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Role</label>
+              <label className="block text-sm text-muted-foreground mb-1">Role</label>
               <input
                 type="text"
                 value={formData.role}
                 onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
-                className="w-full bg-gray-700 text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-secondary text-foreground rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 placeholder="e.g., researcher, developer, analyst"
                 required
               />
             </div>
-            
+
             <div>
-              <label className="block text-sm text-gray-400 mb-1">Session Key (Optional)</label>
+              <label className="block text-sm text-muted-foreground mb-1">Session Key (Optional)</label>
               <input
                 type="text"
                 value={formData.session_key}
                 onChange={(e) => setFormData(prev => ({ ...prev, session_key: e.target.value }))}
-                className="w-full bg-gray-700 text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-secondary text-foreground rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 placeholder="ClawdBot session identifier"
               />
             </div>
-            
+
             <div>
-              <label className="block text-sm text-gray-400 mb-1">SOUL Content (Optional)</label>
+              <label className="block text-sm text-muted-foreground mb-1">SOUL Content (Optional)</label>
               <textarea
                 value={formData.soul_content}
                 onChange={(e) => setFormData(prev => ({ ...prev, soul_content: e.target.value }))}
-                className="w-full bg-gray-700 text-white rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-secondary text-foreground rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 rows={3}
                 placeholder="Agent personality and instructions..."
               />
             </div>
           </div>
-          
+
           <div className="flex gap-3 mt-6">
             <button
               type="submit"
-              className="flex-1 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors"
+              className="flex-1 bg-cyan-600 text-foreground py-2 rounded hover:bg-cyan-700 transition-colors"
             >
               Create Agent
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-600 text-white py-2 rounded hover:bg-gray-700 transition-colors"
+              className="flex-1 bg-secondary text-foreground py-2 rounded hover:bg-secondary transition-colors"
             >
               Cancel
             </button>

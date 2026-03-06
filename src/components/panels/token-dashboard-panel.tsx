@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useMissionControl } from '@/store'
+import { Download } from 'lucide-react'
+import { useAgentControlRoom } from '@/store'
 import { createClientLogger } from '@/lib/client-logger'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts'
 
@@ -27,7 +28,7 @@ interface TrendData {
 }
 
 export function TokenDashboardPanel() {
-  const { sessions } = useMissionControl()
+  const { sessions } = useAgentControlRoom()
 
   const [selectedTimeframe, setSelectedTimeframe] = useState<'hour' | 'day' | 'week' | 'month'>('day')
   const [usageStats, setUsageStats] = useState<UsageStats | null>(null)
@@ -39,6 +40,7 @@ export function TokenDashboardPanel() {
     setIsLoading(true)
     try {
       const response = await fetch(`/api/tokens?action=stats&timeframe=${selectedTimeframe}`)
+      if (!response.ok) return
       const data = await response.json()
       setUsageStats(data)
     } catch (error) {
@@ -51,6 +53,7 @@ export function TokenDashboardPanel() {
   const loadTrendData = useCallback(async () => {
     try {
       const response = await fetch(`/api/tokens?action=trends&timeframe=${selectedTimeframe}`)
+      if (!response.ok) return
       const data = await response.json()
       setTrendData(data)
     } catch (error) {
@@ -67,7 +70,7 @@ export function TokenDashboardPanel() {
     setIsExporting(true)
     try {
       const response = await fetch(`/api/tokens?action=export&timeframe=${selectedTimeframe}&format=${format}`)
-      
+
       if (!response.ok) {
         throw new Error('Export failed')
       }
@@ -131,7 +134,7 @@ export function TokenDashboardPanel() {
       }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 6) // Top 6 models
-    
+
     return data
   }
 
@@ -203,7 +206,7 @@ export function TokenDashboardPanel() {
   // Alert conditions
   const getAlerts = () => {
     const alerts = []
-    
+
     if (usageStats && usageStats.summary.totalCost !== undefined && usageStats.summary.totalCost > 100) {
       alerts.push({
         type: 'warning',
@@ -237,12 +240,11 @@ export function TokenDashboardPanel() {
   const alerts = getAlerts()
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="border-b border-border pb-4">
-        <div className="flex items-center justify-between">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
+      <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Token & Cost Dashboard</h1>
-            <p className="text-muted-foreground mt-2">
+            <h1 className="text-lg font-semibold text-foreground">Token & Cost Dashboard</h1>
+            <p className="text-sm text-muted-foreground">
               Monitor token usage and costs across models and sessions
             </p>
           </div>
@@ -253,7 +255,7 @@ export function TokenDashboardPanel() {
                 onClick={() => setSelectedTimeframe(timeframe)}
                 className={`px-4 py-2 text-sm rounded-md font-medium transition-colors ${
                   selectedTimeframe === timeframe
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'bg-violet-500 text-primary-foreground'
                     : 'bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80'
                 }`}
               >
@@ -261,7 +263,6 @@ export function TokenDashboardPanel() {
               </button>
             ))}
           </div>
-        </div>
       </div>
 
       {isLoading ? (
@@ -272,49 +273,49 @@ export function TokenDashboardPanel() {
       ) : usageStats ? (
         <div className="space-y-6">
           {/* Overview Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-card border border-border rounded-lg p-6">
-              <div className="text-3xl font-bold text-foreground">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-card border border-border rounded-xl p-4">
+              <div className="text-2xl font-semibold font-mono text-foreground">
                 {formatNumber(usageStats.summary.totalTokens)}
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-xs text-muted-foreground">
                 Total Tokens ({selectedTimeframe})
               </div>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-6">
-              <div className="text-3xl font-bold text-foreground">
+            <div className="bg-card border border-border rounded-xl p-4">
+              <div className="text-2xl font-semibold font-mono text-foreground">
                 {formatCost(usageStats.summary.totalCost)}
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-xs text-muted-foreground">
                 Total Cost ({selectedTimeframe})
               </div>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-6">
-              <div className="text-3xl font-bold text-foreground">
+            <div className="bg-card border border-border rounded-xl p-4">
+              <div className="text-2xl font-semibold font-mono text-foreground">
                 {formatNumber(usageStats.summary.requestCount)}
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-xs text-muted-foreground">
                 API Requests
               </div>
             </div>
 
-            <div className="bg-card border border-border rounded-lg p-6">
-              <div className="text-3xl font-bold text-foreground">
+            <div className="bg-card border border-border rounded-xl p-4">
+              <div className="text-2xl font-semibold font-mono text-foreground">
                 {formatNumber(usageStats.summary.avgTokensPerRequest)}
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-xs text-muted-foreground">
                 Avg Tokens/Request
               </div>
             </div>
           </div>
 
           {/* Charts Section */}
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-2 gap-4">
             {/* Usage Trends Chart */}
-            <div className="bg-card border border-border rounded-lg p-6 lg:col-span-2">
-              <h2 className="text-xl font-semibold mb-4">Usage Trends (Last 24h)</h2>
+            <div className="bg-card border border-border rounded-xl p-4 lg:col-span-2">
+              <h2 className="text-sm font-semibold text-foreground mb-4">Usage Trends (Last 24h)</h2>
               <div className="h-64">
                 {prepareTrendChartData().length === 0 ? (
                   <div className="h-full flex items-center justify-center text-muted-foreground text-sm">No trend data for this timeframe</div>
@@ -326,18 +327,18 @@ export function TokenDashboardPanel() {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="tokens" 
-                      stroke="#8884d8" 
-                      strokeWidth={2} 
+                    <Line
+                      type="monotone"
+                      dataKey="tokens"
+                      stroke="#8884d8"
+                      strokeWidth={2}
                       name="Tokens"
                     />
-                    <Line 
-                      type="monotone" 
-                      dataKey="requests" 
-                      stroke="#82ca9d" 
-                      strokeWidth={2} 
+                    <Line
+                      type="monotone"
+                      dataKey="requests"
+                      stroke="#82ca9d"
+                      strokeWidth={2}
                       name="Requests"
                     />
                   </LineChart>
@@ -347,8 +348,8 @@ export function TokenDashboardPanel() {
             </div>
 
             {/* Model Usage Bar Chart */}
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Token Usage by Model</h2>
+            <div className="bg-card border border-border rounded-xl p-4">
+              <h2 className="text-sm font-semibold text-foreground mb-4">Token Usage by Model</h2>
               <div className="h-64">
                 {prepareModelChartData().length === 0 ? (
                   <div className="h-full flex items-center justify-center text-muted-foreground text-sm">No model usage data yet</div>
@@ -356,10 +357,10 @@ export function TokenDashboardPanel() {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={prepareModelChartData()}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis 
-                      dataKey="name" 
-                      angle={-45} 
-                      textAnchor="end" 
+                    <XAxis
+                      dataKey="name"
+                      angle={-45}
+                      textAnchor="end"
                       height={80}
                       interval={0}
                     />
@@ -373,8 +374,8 @@ export function TokenDashboardPanel() {
             </div>
 
             {/* Cost Distribution Pie Chart */}
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Cost Distribution by Model</h2>
+            <div className="bg-card border border-border rounded-xl p-4">
+              <h2 className="text-sm font-semibold text-foreground mb-4">Cost Distribution by Model</h2>
               <div className="h-64">
                 {preparePieChartData().length === 0 ? (
                   <div className="h-full flex items-center justify-center text-muted-foreground text-sm">No cost data yet</div>
@@ -404,22 +405,24 @@ export function TokenDashboardPanel() {
           </div>
 
           {/* Export Section */}
-          <div className="bg-card border border-border rounded-lg p-6">
+          <div className="bg-card border border-border rounded-xl p-4">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold">Export Data</h2>
+              <h2 className="text-sm font-semibold text-foreground">Export Data</h2>
               <div className="flex space-x-2">
                 <button
                   onClick={() => exportData('csv')}
                   disabled={isExporting}
-                  className="px-4 py-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md hover:bg-blue-500/30 disabled:opacity-50 transition-smooth"
+                  className="px-4 py-2 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-md hover:bg-cyan-500/30 disabled:opacity-50 transition-smooth flex items-center gap-1.5"
                 >
+                  <Download className="w-4 h-4" />
                   {isExporting ? 'Exporting...' : 'Export CSV'}
                 </button>
                 <button
                   onClick={() => exportData('json')}
                   disabled={isExporting}
-                  className="px-4 py-2 bg-green-500/20 text-green-400 border border-green-500/30 rounded-md hover:bg-green-500/30 disabled:opacity-50 transition-smooth"
+                  className="px-4 py-2 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-md hover:bg-emerald-500/30 disabled:opacity-50 transition-smooth flex items-center gap-1.5"
                 >
+                  <Download className="w-4 h-4" />
                   {isExporting ? 'Exporting...' : 'Export JSON'}
                 </button>
               </div>
@@ -431,9 +434,9 @@ export function TokenDashboardPanel() {
 
           {/* Performance Insights */}
           {performanceMetrics && (
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Performance Insights</h2>
-              
+            <div className="bg-card border border-border rounded-xl p-4">
+              <h2 className="text-sm font-semibold text-foreground mb-4">Performance Insights</h2>
+
               {/* Alerts */}
               {alerts.length > 0 && (
                 <div className="mb-6 space-y-3">
@@ -441,9 +444,9 @@ export function TokenDashboardPanel() {
                     <div
                       key={index}
                       className={`border-l-4 p-4 rounded ${
-                        alert.type === 'warning' 
-                          ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20' 
-                          : 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                        alert.type === 'warning'
+                          ? 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20'
+                          : 'border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20'
                       }`}
                     >
                       <div className="flex items-start">
@@ -453,7 +456,7 @@ export function TokenDashboardPanel() {
                         <div className="ml-3">
                           <p className="text-sm font-medium">{alert.title}</p>
                           <p className="text-xs text-muted-foreground mt-1">{alert.message}</p>
-                          <p className="text-xs text-blue-600 dark:text-blue-400 mt-2">{alert.suggestion}</p>
+                          <p className="text-xs text-cyan-600 dark:text-cyan-400 mt-2">{alert.suggestion}</p>
                         </div>
                       </div>
                     </div>
@@ -463,9 +466,9 @@ export function TokenDashboardPanel() {
 
               {/* Performance Metrics Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div className="bg-secondary rounded-lg p-4">
+                <div className="bg-secondary rounded-xl p-4">
                   <h3 className="text-sm font-medium text-muted-foreground mb-2">Most Efficient Model</h3>
-                  <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                  <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
                     {getModelDisplayName(performanceMetrics.mostEfficient.model)}
                   </div>
                   <div className="text-xs text-muted-foreground">
@@ -473,9 +476,9 @@ export function TokenDashboardPanel() {
                   </div>
                 </div>
 
-                <div className="bg-secondary rounded-lg p-4">
+                <div className="bg-secondary rounded-xl p-4">
                   <h3 className="text-sm font-medium text-muted-foreground mb-2">Most Used Model</h3>
-                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                  <div className="text-lg font-bold text-cyan-600 dark:text-cyan-400">
                     {getModelDisplayName(performanceMetrics.mostUsed.model)}
                   </div>
                   <div className="text-xs text-muted-foreground">
@@ -483,7 +486,7 @@ export function TokenDashboardPanel() {
                   </div>
                 </div>
 
-                <div className="bg-secondary rounded-lg p-4">
+                <div className="bg-secondary rounded-xl p-4">
                   <h3 className="text-sm font-medium text-muted-foreground mb-2">Optimization Potential</h3>
                   <div className="text-lg font-bold text-orange-600 dark:text-orange-400">
                     {formatCost(performanceMetrics.potentialSavings)}
@@ -513,7 +516,7 @@ export function TokenDashboardPanel() {
                           <div className="flex-1 mx-3">
                             <div className="w-full bg-secondary rounded-full h-2">
                               <div
-                                className="bg-green-500 h-2 rounded-full"
+                                className="bg-emerald-500 h-2 rounded-full"
                                 style={{ width: `${barWidth}%` }}
                               ></div>
                             </div>
@@ -530,20 +533,20 @@ export function TokenDashboardPanel() {
           )}
 
           {/* Detailed Statistics */}
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-2 gap-4">
             {/* Model Statistics */}
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Model Performance</h2>
-              
+            <div className="bg-card border border-border rounded-xl p-4">
+              <h2 className="text-sm font-semibold text-foreground mb-4">Model Performance</h2>
+
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {Object.entries(usageStats.models)
                   .sort(([,a], [,b]) => b.totalCost - a.totalCost)
                   .map(([model, stats]) => {
                     const avgCostPerRequest = stats.totalCost / Math.max(1, stats.requestCount)
                     const avgTokensPerRequest = stats.totalTokens / Math.max(1, stats.requestCount)
-                    
+
                     return (
-                      <div key={model} className="p-3 bg-secondary rounded-lg">
+                      <div key={model} className="p-3 bg-secondary rounded-xl">
                         <div className="flex items-center justify-between mb-2">
                           <div className="font-medium text-foreground">
                             {getModelDisplayName(model)}
@@ -578,9 +581,9 @@ export function TokenDashboardPanel() {
             </div>
 
             {/* Session Statistics */}
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Top Sessions by Cost</h2>
-              
+            <div className="bg-card border border-border rounded-xl p-4">
+              <h2 className="text-sm font-semibold text-foreground mb-4">Top Sessions by Cost</h2>
+
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {Object.entries(usageStats.sessions)
                   .sort(([,a], [,b]) => b.totalCost - a.totalCost)
@@ -588,9 +591,9 @@ export function TokenDashboardPanel() {
                   .map(([sessionId, stats]) => {
                     const sessionInfo = sessions.find(s => s.id === sessionId)
                     const avgCostPerRequest = stats.totalCost / Math.max(1, stats.requestCount)
-                    
+
                     return (
-                      <div key={sessionId} className="p-3 bg-secondary rounded-lg">
+                      <div key={sessionId} className="p-3 bg-secondary rounded-xl">
                         <div className="flex items-center justify-between mb-2">
                           <div>
                             <div className="font-medium text-foreground">
@@ -630,9 +633,9 @@ export function TokenDashboardPanel() {
         <div className="text-center text-muted-foreground py-12">
           <div className="text-lg mb-2">No usage data available</div>
           <div className="text-sm">Token usage will appear here once agents start running</div>
-          <button 
+          <button
             onClick={loadUsageStats}
-            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+            className="mt-4 px-4 py-2 bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 transition-colors"
           >
             Refresh
           </button>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { Download, Camera, FileText } from 'lucide-react'
 import { createClientLogger } from '@/lib/client-logger'
 
 const log = createClientLogger('StandupPanel')
@@ -167,7 +168,7 @@ export function StandupPanel() {
   // Get priority color
   const getPriorityColor = (priority: string) => {
     const colors: Record<string, string> = {
-      low: 'text-green-400',
+      low: 'text-emerald-400',
       medium: 'text-yellow-400',
       high: 'text-orange-400',
       urgent: 'text-red-400'
@@ -216,28 +217,28 @@ export function StandupPanel() {
     lines.push('## Individual Reports')
     standupReport.agentReports.forEach(report => {
       lines.push(`### ${report.agent.name} (${report.agent.role})`)
-      
+
       if (report.completedToday.length > 0) {
         lines.push('**Completed Today:**')
         report.completedToday.forEach(task => {
           lines.push(`- ${task.title}`)
         })
       }
-      
+
       if (report.inProgress.length > 0) {
         lines.push('**In Progress:**')
         report.inProgress.forEach(task => {
           lines.push(`- ${task.title}`)
         })
       }
-      
+
       if (report.blocked.length > 0) {
         lines.push('**Blocked:**')
         report.blocked.forEach(task => {
           lines.push(`- [${task.priority.toUpperCase()}] ${task.title}`)
         })
       }
-      
+
       lines.push('')
     })
 
@@ -254,18 +255,19 @@ export function StandupPanel() {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col p-4 md:p-6">
+      <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
       {/* Header */}
-      <div className="flex justify-between items-center p-4 border-b border-border flex-shrink-0">
-        <h2 className="text-xl font-bold text-foreground">Daily Standup</h2>
+      <div className="flex justify-between items-center mb-6 flex-shrink-0">
+        <h2 className="text-lg font-semibold text-foreground">Daily Standup</h2>
 
         <div className="flex items-center gap-3">
           {/* View Toggle */}
-          <div className="flex bg-secondary rounded-lg p-1">
+          <div className="flex bg-secondary rounded-xl p-1">
             <button
               onClick={() => setView('current')}
               className={`px-3 py-1 text-sm rounded-md transition-smooth ${
-                view === 'current' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                view === 'current' ? 'bg-violet-500 text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               Current
@@ -273,7 +275,7 @@ export function StandupPanel() {
             <button
               onClick={() => setView('history')}
               className={`px-3 py-1 text-sm rounded-md transition-smooth ${
-                view === 'history' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
+                view === 'history' ? 'bg-violet-500 text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               History
@@ -292,7 +294,7 @@ export function StandupPanel() {
               <button
                 onClick={() => generateStandup()}
                 disabled={loading}
-                className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-smooth flex items-center gap-2"
+                className="px-3 py-1.5 text-sm bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 disabled:opacity-50 disabled:cursor-not-allowed transition-smooth flex items-center gap-2"
               >
                 {loading && <div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-primary-foreground/30 border-t-primary-foreground" />}
                 {loading ? 'Generating...' : 'Generate'}
@@ -301,8 +303,9 @@ export function StandupPanel() {
               {standupReport && (
                 <button
                   onClick={exportStandup}
-                  className="px-3 py-1.5 text-sm bg-green-500/20 text-green-400 border border-green-500/30 rounded-md hover:bg-green-500/30 transition-smooth"
+                  className="px-3 py-1.5 text-sm bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-md hover:bg-emerald-500/30 transition-smooth flex items-center gap-1.5"
                 >
+                  <Download className="w-3.5 h-3.5" />
                   Export
                 </button>
               )}
@@ -313,7 +316,7 @@ export function StandupPanel() {
 
       {/* Error Display */}
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 m-4 rounded-lg text-sm flex items-center justify-between">
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 m-4 rounded-xl text-sm flex items-center justify-between">
           <span>{error}</span>
           <button onClick={() => setError(null)} className="text-red-400/60 hover:text-red-400 ml-2">×</button>
         </div>
@@ -326,8 +329,8 @@ export function StandupPanel() {
           standupReport ? (
             <div className="p-4 space-y-6">
               {/* Report Header */}
-              <div className="bg-card rounded-lg p-4 border border-border">
-                <h3 className="text-lg font-semibold text-foreground mb-2">
+              <div className="bg-card rounded-xl p-4 border border-border">
+                <h3 className="text-sm font-semibold text-foreground mb-2">
                   Standup for {formatDate(standupReport.date)}
                 </h3>
                 <p className="text-muted-foreground text-sm">
@@ -337,33 +340,33 @@ export function StandupPanel() {
 
               {/* Summary Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-card rounded-lg p-4 border border-border text-center">
-                  <div className="text-2xl font-bold text-foreground">{standupReport.summary.totalCompleted}</div>
-                  <div className="text-sm text-green-400">Completed</div>
+                <div className="bg-card rounded-xl p-4 border border-border text-center">
+                  <div className="text-2xl font-semibold font-mono text-foreground">{standupReport.summary.totalCompleted}</div>
+                  <div className="text-xs text-muted-foreground">Completed</div>
                 </div>
-                <div className="bg-card rounded-lg p-4 border border-border text-center">
-                  <div className="text-2xl font-bold text-foreground">{standupReport.summary.totalInProgress}</div>
-                  <div className="text-sm text-yellow-400">In Progress</div>
+                <div className="bg-card rounded-xl p-4 border border-border text-center">
+                  <div className="text-2xl font-semibold font-mono text-foreground">{standupReport.summary.totalInProgress}</div>
+                  <div className="text-xs text-muted-foreground">In Progress</div>
                 </div>
-                <div className="bg-card rounded-lg p-4 border border-border text-center">
-                  <div className="text-2xl font-bold text-foreground">{standupReport.summary.totalBlocked}</div>
-                  <div className="text-sm text-red-400">Blocked</div>
+                <div className="bg-card rounded-xl p-4 border border-border text-center">
+                  <div className="text-2xl font-semibold font-mono text-foreground">{standupReport.summary.totalBlocked}</div>
+                  <div className="text-xs text-muted-foreground">Blocked</div>
                 </div>
-                <div className="bg-card rounded-lg p-4 border border-border text-center">
-                  <div className="text-2xl font-bold text-foreground">{standupReport.summary.overdue}</div>
-                  <div className="text-sm text-orange-400">Overdue</div>
+                <div className="bg-card rounded-xl p-4 border border-border text-center">
+                  <div className="text-2xl font-semibold font-mono text-foreground">{standupReport.summary.overdue}</div>
+                  <div className="text-xs text-muted-foreground">Overdue</div>
                 </div>
               </div>
 
               {/* Team Accomplishments */}
               {standupReport.teamAccomplishments.length > 0 && (
-                <div className="bg-card rounded-lg p-4 border border-border">
-                  <h4 className="text-lg font-semibold text-foreground mb-3">🎉 Team Accomplishments</h4>
+                <div className="bg-card rounded-xl p-4 border border-border">
+                  <h4 className="text-sm font-semibold text-foreground mb-3">Team Accomplishments</h4>
                   <div className="space-y-2">
                     {standupReport.teamAccomplishments.map(task => (
-                      <div key={task.id} className="flex justify-between items-center p-2 bg-green-900/20 rounded border-l-4 border-green-500">
+                      <div key={task.id} className="flex justify-between items-center p-2 bg-emerald-900/20 rounded border-l-4 border-emerald-500">
                         <span className="text-foreground">{task.title}</span>
-                        <span className="text-green-400 text-sm">{task.agent}</span>
+                        <span className="text-emerald-400 text-sm">{task.agent}</span>
                       </div>
                     ))}
                   </div>
@@ -372,8 +375,8 @@ export function StandupPanel() {
 
               {/* Team Blockers */}
               {standupReport.teamBlockers.length > 0 && (
-                <div className="bg-card rounded-lg p-4 border border-border">
-                  <h4 className="text-lg font-semibold text-foreground mb-3">🚫 Team Blockers</h4>
+                <div className="bg-card rounded-xl p-4 border border-border">
+                  <h4 className="text-sm font-semibold text-foreground mb-3">Team Blockers</h4>
                   <div className="space-y-2">
                     {standupReport.teamBlockers.map(task => (
                       <div key={task.id} className="flex justify-between items-center p-2 bg-red-900/20 rounded border-l-4 border-red-500">
@@ -392,8 +395,8 @@ export function StandupPanel() {
 
               {/* Overdue Tasks */}
               {standupReport.overdueTasks.length > 0 && (
-                <div className="bg-card rounded-lg p-4 border border-border">
-                  <h4 className="text-lg font-semibold text-foreground mb-3">⏰ Overdue Tasks</h4>
+                <div className="bg-card rounded-xl p-4 border border-border">
+                  <h4 className="text-sm font-semibold text-foreground mb-3">Overdue Tasks</h4>
                   <div className="space-y-2">
                     {standupReport.overdueTasks.map(task => (
                       <div key={task.id} className="flex justify-between items-center p-2 bg-orange-900/20 rounded border-l-4 border-orange-500">
@@ -412,9 +415,9 @@ export function StandupPanel() {
 
               {/* Individual Agent Reports */}
               <div className="space-y-4">
-                <h4 className="text-lg font-semibold text-foreground">👥 Individual Reports</h4>
+                <h4 className="text-sm font-semibold text-foreground">Individual Reports</h4>
                 {standupReport.agentReports.map(report => (
-                  <div key={report.agent.name} className="bg-card rounded-lg p-4 border border-border">
+                  <div key={report.agent.name} className="bg-card rounded-xl p-4 border border-border">
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <h5 className="font-semibold text-foreground">{report.agent.name}</h5>
@@ -431,7 +434,7 @@ export function StandupPanel() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {/* Completed Today */}
                       <div>
-                        <h6 className="text-green-400 font-medium mb-2">✅ Completed ({report.completedToday.length})</h6>
+                        <h6 className="text-emerald-400 font-medium mb-2">Completed ({report.completedToday.length})</h6>
                         <div className="space-y-1">
                           {report.completedToday.map(task => (
                             <div key={task.id} className="text-sm text-foreground/80 truncate" title={task.title}>
@@ -446,7 +449,7 @@ export function StandupPanel() {
 
                       {/* In Progress */}
                       <div>
-                        <h6 className="text-yellow-400 font-medium mb-2">🔄 In Progress ({report.inProgress.length})</h6>
+                        <h6 className="text-yellow-400 font-medium mb-2">In Progress ({report.inProgress.length})</h6>
                         <div className="space-y-1">
                           {report.inProgress.map(task => (
                             <div key={task.id} className="text-sm text-foreground/80 truncate" title={task.title}>
@@ -461,7 +464,7 @@ export function StandupPanel() {
 
                       {/* Assigned */}
                       <div>
-                        <h6 className="text-blue-400 font-medium mb-2">📋 Assigned ({report.assigned.length})</h6>
+                        <h6 className="text-cyan-400 font-medium mb-2">Assigned ({report.assigned.length})</h6>
                         <div className="space-y-1">
                           {report.assigned.map(task => (
                             <div key={task.id} className="text-sm text-foreground/80">
@@ -479,7 +482,7 @@ export function StandupPanel() {
 
                       {/* Blocked */}
                       <div>
-                        <h6 className="text-red-400 font-medium mb-2">🚫 Blocked ({report.blocked.length})</h6>
+                        <h6 className="text-red-400 font-medium mb-2">Blocked ({report.blocked.length})</h6>
                         <div className="space-y-1">
                           {report.blocked.map(task => (
                             <div key={task.id} className="text-sm text-foreground/80">
@@ -503,17 +506,14 @@ export function StandupPanel() {
             // Empty state for current view
             <div className="flex flex-col items-center justify-center h-full text-center">
               <div className="w-14 h-14 rounded-xl bg-surface-2 flex items-center justify-center mx-auto mb-4">
-                <svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="text-muted-foreground/40">
-                  <path d="M2 12V4h3l2-2h2l2 2h3v8H2z" />
-                  <path d="M5 8h6M8 5v6" />
-                </svg>
+                <Camera className="w-10 h-10 text-muted-foreground/40" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">No Standup Generated</h3>
-              <p className="text-sm text-muted-foreground mb-4">Select a date and generate a report</p>
+              <h3 className="text-sm font-medium text-foreground mb-2">No Standup Generated</h3>
+              <p className="text-xs text-muted-foreground mb-4">Select a date and generate a report</p>
               <button
                 onClick={() => generateStandup()}
                 disabled={loading}
-                className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 transition-smooth"
+                className="px-4 py-2 bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 disabled:opacity-50 transition-smooth"
               >
                 Generate Today&apos;s Standup
               </button>
@@ -524,16 +524,14 @@ export function StandupPanel() {
           <div className="p-4">
             {standupHistory.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/50">
-                <svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="mb-2">
-                  <rect x="3" y="2" width="10" height="12" rx="1" />
-                  <path d="M6 5h4M6 8h4M6 11h2" />
-                </svg>
-                <p className="text-sm">No standup history found</p>
+                <FileText className="w-10 h-10 mb-2" />
+                <p className="text-sm font-medium">No standup history found</p>
+                <p className="text-xs text-muted-foreground mt-1">Generate your first standup to see history</p>
               </div>
             ) : (
               <div className="space-y-4">
                 {standupHistory.map(history => (
-                  <div key={history.id} className="bg-card rounded-lg p-4 border border-border hover:bg-surface-1 transition-smooth">
+                  <div key={history.id} className="bg-card rounded-xl p-4 border border-border hover:bg-surface-1 transition-smooth">
                     <div className="flex justify-between items-start">
                       <div>
                         <h4 className="text-foreground font-medium">{formatDate(history.date)}</h4>
@@ -560,6 +558,7 @@ export function StandupPanel() {
             )}
           </div>
         )}
+      </div>
       </div>
     </div>
   )

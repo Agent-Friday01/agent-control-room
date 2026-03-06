@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 import { useSmartPoll } from '@/lib/use-smart-poll'
 
 import { createClientLogger } from '@/lib/client-logger'
@@ -79,15 +79,15 @@ interface MentionOption {
 
 const statusColumns = [
   { key: 'inbox', title: 'Inbox', color: 'bg-secondary text-foreground' },
-  { key: 'assigned', title: 'Assigned', color: 'bg-blue-500/20 text-blue-400' },
+  { key: 'assigned', title: 'Assigned', color: 'bg-cyan-500/20 text-cyan-400' },
   { key: 'in_progress', title: 'In Progress', color: 'bg-yellow-500/20 text-yellow-400' },
-  { key: 'review', title: 'Review', color: 'bg-purple-500/20 text-purple-400' },
+  { key: 'review', title: 'Review', color: 'bg-violet-500/20 text-violet-400' },
   { key: 'quality_review', title: 'Quality Review', color: 'bg-indigo-500/20 text-indigo-400' },
-  { key: 'done', title: 'Done', color: 'bg-green-500/20 text-green-400' },
+  { key: 'done', title: 'Done', color: 'bg-emerald-500/20 text-emerald-400' },
 ]
 
 const priorityColors: Record<string, string> = {
-  low: 'border-green-500',
+  low: 'border-emerald-500',
   medium: 'border-yellow-500',
   high: 'border-orange-500',
   critical: 'border-red-500',
@@ -227,7 +227,7 @@ function MentionTextarea({
                 insertMention(option)
               }}
               className={`w-full text-left px-3 py-2 text-xs border-b last:border-b-0 border-border/40 ${
-                index === activeIndex ? 'bg-primary/20 text-primary' : 'text-foreground hover:bg-surface-2'
+                index === activeIndex ? 'bg-violet-500/20 text-violet-600 dark:text-violet-400' : 'text-foreground hover:bg-surface-2'
               }`}
             >
               <div className="font-mono">@{option.handle}</div>
@@ -243,7 +243,7 @@ function MentionTextarea({
 }
 
 export function TaskBoardPanel() {
-  const { tasks: storeTasks, setTasks: storeSetTasks, selectedTask, setSelectedTask } = useMissionControl()
+  const { tasks: storeTasks, setTasks: storeSetTasks, selectedTask, setSelectedTask } = useAgentControlRoom()
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -398,7 +398,7 @@ export function TaskBoardPanel() {
     e.preventDefault()
   }
 
-  const { updateTask } = useMissionControl()
+  const { updateTask } = useAgentControlRoom()
 
   const handleDrop = async (e: React.DragEvent, newStatus: string) => {
     e.preventDefault()
@@ -479,13 +479,13 @@ export function TaskBoardPanel() {
       return 'bg-orange-500/20 text-orange-400 border-orange-500/30'
     }
     if (lowerTag.includes('feature') || lowerTag.includes('enhancement')) {
-      return 'bg-green-500/20 text-green-400 border-green-500/30'
+      return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
     }
     if (lowerTag.includes('research') || lowerTag.includes('analysis')) {
-      return 'bg-purple-500/20 text-purple-400 border-purple-500/30'
+      return 'bg-violet-500/20 text-violet-400 border-violet-500/30'
     }
     if (lowerTag.includes('deploy') || lowerTag.includes('release')) {
-      return 'bg-blue-500/20 text-blue-400 border-blue-500/30'
+      return 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30'
     }
     return 'bg-muted-foreground/10 text-muted-foreground border-muted-foreground/20'
   }
@@ -506,11 +506,12 @@ export function TaskBoardPanel() {
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col p-4 md:p-6">
+      <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
       {/* Header */}
-      <div className="flex justify-between items-center p-4 border-b border-border flex-shrink-0">
+      <div className="flex justify-between items-center mb-6 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <h2 className="text-xl font-bold text-foreground">Task Board</h2>
+          <h2 className="text-lg font-semibold text-foreground">Task Board</h2>
           <select
             value={projectFilter}
             onChange={(e) => setProjectFilter(e.target.value)}
@@ -533,7 +534,7 @@ export function TaskBoardPanel() {
           </button>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-smooth text-sm font-medium"
+            className="px-4 py-2 bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 transition-smooth text-sm font-medium"
           >
             + New Task
           </button>
@@ -548,7 +549,7 @@ export function TaskBoardPanel() {
 
       {/* Error Display */}
       {error && (
-        <div role="alert" className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 m-4 rounded-lg text-sm flex items-center justify-between">
+        <div role="alert" className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 m-4 rounded-xl text-sm flex items-center justify-between">
           <span>{error}</span>
           <button
             onClick={() => setError(null)}
@@ -561,21 +562,21 @@ export function TaskBoardPanel() {
       )}
 
       {/* Kanban Board */}
-      <div className="flex-1 flex gap-4 p-4 overflow-x-auto" role="region" aria-label="Task board">
+      <div className="flex-1 flex gap-4 overflow-x-auto" role="region" aria-label="Task board">
         {statusColumns.map(column => (
           <div
             key={column.key}
             role="region"
             aria-label={`${column.title} column, ${tasksByStatus[column.key]?.length || 0} tasks`}
-            className="flex-1 min-w-80 bg-card border border-border rounded-lg flex flex-col"
+            className="flex-1 min-w-80 bg-card border border-border rounded-xl flex flex-col"
             onDragEnter={(e) => handleDragEnter(e, column.key)}
             onDragLeave={handleDragLeave}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, column.key)}
           >
             {/* Column Header */}
-            <div className={`${column.color} p-3 rounded-t-lg flex justify-between items-center`}>
-              <h3 className="font-semibold">{column.title}</h3>
+            <div className={`${column.color} p-3 rounded-t-xl flex justify-between items-center`}>
+              <h3 className="text-sm font-semibold text-foreground">{column.title}</h3>
               <span className="text-sm bg-black/20 px-2 py-1 rounded">
                 {tasksByStatus[column.key]?.length || 0}
               </span>
@@ -602,7 +603,7 @@ export function TaskBoardPanel() {
                       updateTaskUrl(task.id)
                     }
                   }}
-                  className={`bg-surface-1 rounded-lg p-3 cursor-pointer hover:bg-surface-2 transition-smooth border-l-4 ${priorityColors[task.priority]} ${
+                  className={`bg-surface-1 rounded-xl p-3 cursor-pointer hover:bg-surface-2 transition-smooth border-l-4 ${priorityColors[task.priority]} ${
                     draggedTask?.id === task.id ? 'opacity-50' : ''
                   }`}
                 >
@@ -612,7 +613,7 @@ export function TaskBoardPanel() {
                     </h4>
                     <div className="flex items-center gap-2">
                       {task.ticket_ref && (
-                        <span className="text-[10px] px-2 py-0.5 rounded bg-primary/20 text-primary">
+                        <span className="text-[10px] px-2 py-0.5 rounded bg-violet-500/20 text-violet-600 dark:text-violet-400">
                           {task.ticket_ref}
                         </span>
                       )}
@@ -625,7 +626,7 @@ export function TaskBoardPanel() {
                         task.priority === 'critical' ? 'bg-red-500/20 text-red-400' :
                         task.priority === 'high' ? 'bg-orange-500/20 text-orange-400' :
                         task.priority === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
-                        'bg-green-500/20 text-green-400'
+                        'bg-emerald-500/20 text-emerald-400'
                       }`}>
                         {task.priority}
                       </span>
@@ -704,6 +705,7 @@ export function TaskBoardPanel() {
         ))}
       </div>
 
+      </div>
       {/* Task Detail Modal */}
       {selectedTask && !editingTask && (
         <TaskDetailModal
@@ -911,14 +913,14 @@ function TaskDetailModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="task-detail-title" className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="task-detail-title" className="bg-card border border-border rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
-            <h3 id="task-detail-title" className="text-xl font-bold text-foreground">{task.title}</h3>
+            <h3 id="task-detail-title" className="text-lg font-semibold text-foreground">{task.title}</h3>
             <div className="flex gap-2">
               <button
                 onClick={() => onEdit(task)}
-                className="px-3 py-1.5 bg-primary/20 text-primary hover:bg-primary/30 rounded-md transition-smooth text-sm font-medium"
+                className="px-3 py-1.5 bg-violet-500/20 text-violet-600 dark:text-violet-400 hover:bg-violet-500/30 rounded-md transition-smooth text-sm font-medium"
               >
                 Edit
               </button>
@@ -947,7 +949,7 @@ function TaskDetailModal({
                 aria-controls={`tabpanel-${tab}`}
                 onClick={() => setActiveTab(tab)}
                 className={`px-3 py-2 text-sm rounded-md transition-smooth ${
-                  activeTab === tab ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-surface-2'
+                  activeTab === tab ? 'bg-violet-500 text-primary-foreground' : 'bg-secondary text-muted-foreground hover:bg-surface-2'
                 }`}
               >
                 {tab === 'details' ? 'Details' : tab === 'comments' ? 'Comments' : 'Quality Review'}
@@ -1003,7 +1005,7 @@ function TaskDetailModal({
               <h4 className="text-lg font-semibold text-foreground">Comments</h4>
               <button
                 onClick={fetchComments}
-                className="text-xs text-blue-400 hover:text-blue-300"
+                className="text-xs text-cyan-400 hover:text-cyan-300"
               >
                 Refresh
               </button>
@@ -1049,7 +1051,7 @@ function TaskDetailModal({
               <div className="flex justify-end">
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-smooth text-sm"
+                  className="px-4 py-2 bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 transition-smooth text-sm"
                 >
                   Add Comment
                 </button>
@@ -1072,7 +1074,7 @@ function TaskDetailModal({
                 <div className="flex justify-end">
                   <button
                     type="submit"
-                    className="px-3 py-2 bg-purple-500/20 text-purple-400 border border-purple-500/30 rounded-md hover:bg-purple-500/30 transition-smooth text-xs"
+                    className="px-3 py-2 bg-violet-500/20 text-violet-400 border border-violet-500/30 rounded-md hover:bg-violet-500/30 transition-smooth text-xs"
                   >
                     Broadcast
                   </button>
@@ -1129,7 +1131,7 @@ function TaskDetailModal({
                   />
                   <button
                     type="submit"
-                    className="px-3 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded-md text-xs"
+                    className="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-md text-xs"
                   >
                     Submit
                   </button>
@@ -1199,9 +1201,9 @@ function CreateTaskModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="create-task-title" className="bg-card border border-border rounded-lg max-w-md w-full">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="create-task-title" className="bg-card border border-border rounded-xl max-w-md w-full">
         <form onSubmit={handleSubmit} className="p-6">
-          <h3 id="create-task-title" className="text-xl font-bold text-foreground mb-4">Create New Task</h3>
+          <h3 id="create-task-title" className="text-lg font-semibold text-foreground mb-4">Create New Task</h3>
           
           <div className="space-y-4">
             <div>
@@ -1295,7 +1297,7 @@ function CreateTaskModal({
           <div className="flex gap-3 mt-6">
             <button
               type="submit"
-              className="flex-1 bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90 transition-smooth"
+              className="flex-1 bg-violet-500 text-primary-foreground py-2 rounded-md hover:bg-violet-500/90 transition-smooth"
             >
               Create Task
             </button>
@@ -1371,9 +1373,9 @@ function EditTaskModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="edit-task-title" className="bg-card border border-border rounded-lg max-w-md w-full">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="edit-task-title" className="bg-card border border-border rounded-xl max-w-md w-full">
         <form onSubmit={handleSubmit} className="p-6">
-          <h3 id="edit-task-title" className="text-xl font-bold text-foreground mb-4">Edit Task</h3>
+          <h3 id="edit-task-title" className="text-lg font-semibold text-foreground mb-4">Edit Task</h3>
 
           <div className="space-y-4">
             <div>
@@ -1484,7 +1486,7 @@ function EditTaskModal({
           <div className="flex gap-3 mt-6">
             <button
               type="submit"
-              className="flex-1 bg-primary text-primary-foreground py-2 rounded-md hover:bg-primary/90 transition-smooth"
+              className="flex-1 bg-violet-500 text-primary-foreground py-2 rounded-md hover:bg-violet-500/90 transition-smooth"
             >
               Save Changes
             </button>
@@ -1589,10 +1591,10 @@ function ProjectManagerModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={(e) => { if (e.target === e.currentTarget) onClose() }}>
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="projects-title" className="bg-card border border-border rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="projects-title" className="bg-card border border-border rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 id="projects-title" className="text-xl font-bold text-foreground">Project Management</h3>
+            <h3 id="projects-title" className="text-lg font-semibold text-foreground">Project Management</h3>
             <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-2xl">×</button>
           </div>
 
@@ -1614,7 +1616,7 @@ function ProjectManagerModal({
               placeholder="Ticket prefix (e.g. PA)"
               className="bg-surface-1 text-foreground border border-border rounded-md px-3 py-2"
             />
-            <button type="submit" className="bg-primary text-primary-foreground rounded-md px-3 py-2 hover:bg-primary/90">
+            <button type="submit" className="bg-violet-500 text-primary-foreground rounded-md px-3 py-2 hover:bg-violet-500/90">
               Add Project
             </button>
             <input

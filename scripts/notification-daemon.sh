@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Mission Control Phase 3: Notification Delivery Daemon
+# Agent Control Room Phase 3: Notification Delivery Daemon
 # Polls undelivered notifications and sends them to agent sessions via OpenClaw
 #
 # Usage:
@@ -16,8 +16,8 @@
 set -e
 
 # Configuration
-MISSION_CONTROL_URL="${MISSION_CONTROL_URL:-http://localhost:3000}"
-LOG_DIR="${LOG_DIR:-$HOME/.mission-control/logs}"
+AGENT_CONTROL_ROOM_URL="${AGENT_CONTROL_ROOM_URL:-http://localhost:3000}"
+LOG_DIR="${LOG_DIR:-$HOME/.agent-control-room/logs}"
 LOG_FILE="$LOG_DIR/notification-daemon-$(date +%Y-%m-%d).log"
 PID_FILE="/tmp/notification-daemon.pid"
 DEFAULT_INTERVAL=60
@@ -40,10 +40,10 @@ log() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [$level] $*" | tee -a "$LOG_FILE"
 }
 
-# Check if Mission Control is running
-check_mission_control() {
-    if ! curl -s "$MISSION_CONTROL_URL/api/status" > /dev/null 2>&1; then
-        log "ERROR" "Mission Control not accessible at $MISSION_CONTROL_URL"
+# Check if Agent Control Room is running
+check_agent_control_room() {
+    if ! curl -s "$AGENT_CONTROL_ROOM_URL/api/status" > /dev/null 2>&1; then
+        log "ERROR" "Agent Control Room not accessible at $AGENT_CONTROL_ROOM_URL"
         return 1
     fi
     return 0
@@ -72,7 +72,7 @@ deliver_notifications() {
         -X POST \
         -H "Content-Type: application/json" \
         -d "$api_payload" \
-        "$MISSION_CONTROL_URL/api/notifications/deliver" 2>/dev/null)
+        "$AGENT_CONTROL_ROOM_URL/api/notifications/deliver" 2>/dev/null)
     
     local http_code
     http_code=$(echo "$response" | grep -o "HTTP_STATUS:[0-9]*" | cut -d: -f2)
@@ -120,7 +120,7 @@ deliver_notifications() {
 
 # Get delivery statistics
 get_delivery_stats() {
-    local stats_url="$MISSION_CONTROL_URL/api/notifications/deliver"
+    local stats_url="$AGENT_CONTROL_ROOM_URL/api/notifications/deliver"
     
     if [[ -n "$AGENT_FILTER" ]]; then
         stats_url+="?agent=$AGENT_FILTER"
@@ -183,8 +183,8 @@ run_daemon() {
     
     # Main daemon loop
     while true; do
-        if ! check_mission_control; then
-            log "WARN" "Mission Control not accessible, sleeping $INTERVAL seconds"
+        if ! check_agent_control_room; then
+            log "WARN" "Agent Control Room not accessible, sleeping $INTERVAL seconds"
             sleep "$INTERVAL"
             continue
         fi
@@ -263,7 +263,7 @@ parse_args() {
 # Show help
 show_help() {
     cat << 'EOF'
-Mission Control Notification Delivery Daemon
+Agent Control Room Notification Delivery Daemon
 
 Usage: notification-daemon.sh [options]
 
@@ -297,7 +297,7 @@ Examples:
   ./notification-daemon.sh --stop
 
 Environment variables:
-  MISSION_CONTROL_URL    Mission Control base URL (default: http://localhost:3005)
+  AGENT_CONTROL_ROOM_URL    Agent Control Room base URL (default: http://localhost:3005)
 
 Log files:
   $LOG_DIR/notification-daemon-YYYY-MM-DD.log
@@ -328,8 +328,8 @@ main() {
         # Single run mode
         log "INFO" "Starting single notification delivery run"
         
-        if ! check_mission_control; then
-            log "ERROR" "Aborting: Mission Control not accessible"
+        if ! check_agent_control_room; then
+            log "ERROR" "Aborting: Agent Control Room not accessible"
             exit 1
         fi
         

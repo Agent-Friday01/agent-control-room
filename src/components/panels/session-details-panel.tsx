@@ -1,25 +1,26 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 import { useSmartPoll } from '@/lib/use-smart-poll'
 import { createClientLogger } from '@/lib/client-logger'
 
 const log = createClientLogger('SessionDetails')
 
 export function SessionDetailsPanel() {
-  const { 
-    sessions, 
-    selectedSession, 
+  const {
+    sessions,
+    selectedSession,
     setSelectedSession,
     setSessions,
-    availableModels 
-  } = useMissionControl()
+    availableModels
+  } = useAgentControlRoom()
 
   // Smart polling for sessions (30s, visibility-aware)
   const loadSessions = useCallback(async () => {
     try {
       const response = await fetch('/api/sessions')
+      if (!response.ok) return
       const data = await response.json()
       setSessions(data.sessions || data)
     } catch (error) {
@@ -84,7 +85,7 @@ export function SessionDetailsPanel() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'text-green-400'
+      case 'active': return 'text-emerald-400'
       case 'warning': return 'text-yellow-400'
       case 'critical': return 'text-red-400'
       case 'idle': return 'text-muted-foreground'
@@ -94,10 +95,10 @@ export function SessionDetailsPanel() {
 
   const getStatusBg = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-500/20'
+      case 'active': return 'bg-emerald-500/20'
       case 'warning': return 'bg-yellow-500/20'
       case 'critical': return 'bg-red-500/20'
-      case 'idle': return 'bg-gray-500/20'
+      case 'idle': return 'bg-secondary'
       default: return 'bg-secondary'
     }
   }
@@ -135,16 +136,19 @@ export function SessionDetailsPanel() {
   const selectedSessionData = sessions.find(s => s.id === selectedSession)
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="border-b border-border pb-4">
-        <h1 className="text-3xl font-bold text-foreground">Session Management</h1>
-        <p className="text-muted-foreground mt-2">
-          Monitor and manage active agent sessions
-        </p>
+    <div className="p-4 md:p-6 space-y-6">
+      <div className="max-w-7xl mx-auto w-full space-y-6">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-lg font-semibold text-foreground">Session Management</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Monitor and manage active agent sessions
+          </p>
+        </div>
       </div>
 
       {/* Filters and Controls */}
-      <div className="bg-card border border-border rounded-lg p-4">
+      <div className="bg-card border border-border rounded-xl p-4">
         <div className="flex items-center justify-between">
           <div className="flex space-x-4">
             {/* Filter by Status */}
@@ -192,7 +196,7 @@ export function SessionDetailsPanel() {
         {/* Sessions List */}
         <div className="lg:col-span-2 space-y-4">
           {sortedSessions.length === 0 ? (
-            <div className="bg-card border border-border rounded-lg p-12 text-center">
+            <div className="bg-card border border-border rounded-xl p-12 text-center">
               <div className="text-muted-foreground">
                 No sessions match the current filter
               </div>
@@ -205,11 +209,11 @@ export function SessionDetailsPanel() {
               const isExpanded = expandedSession === session.id
 
               return (
-                <div 
+                <div
                   key={session.id}
-                  className={`bg-card border border-border rounded-lg p-6 cursor-pointer transition-all ${
-                    selectedSession === session.id 
-                      ? 'ring-2 ring-primary/50 border-primary/30' 
+                  className={`bg-card border border-border rounded-xl p-6 cursor-pointer transition-all ${
+                    selectedSession === session.id
+                      ? 'ring-2 ring-primary/50 border-primary/30'
                       : 'hover:border-primary/20'
                   }`}
                   onClick={() => handleSessionSelect(session)}
@@ -237,16 +241,16 @@ export function SessionDetailsPanel() {
                         </div>
                       </div>
                       <div className="flex items-center space-x-2">
-                        {session.flags.map((flag, index) => (
-                          <span 
+                        {session.flags.map((flag: string, index: number) => (
+                          <span
                             key={index}
-                            className="px-2 py-1 text-xs bg-blue-500/20 text-blue-400 rounded"
+                            className="px-2 py-1 text-xs bg-cyan-500/20 text-cyan-400 rounded"
                           >
                             {flag}
                           </span>
                         ))}
                         <div className={`w-3 h-3 rounded-full ${
-                          session.active ? 'bg-green-500' : 'bg-gray-500'
+                          session.active ? 'bg-emerald-500' : 'bg-muted-foreground'
                         }`}></div>
                       </div>
                     </div>
@@ -265,7 +269,7 @@ export function SessionDetailsPanel() {
                           <div
                             className={`h-2 rounded-full transition-all ${
                               tokenUsage.percentage > 95 ? 'bg-red-500' :
-                              tokenUsage.percentage > 80 ? 'bg-yellow-500' : 'bg-green-500'
+                              tokenUsage.percentage > 80 ? 'bg-yellow-500' : 'bg-emerald-500'
                             }`}
                             style={{ width: `${Math.min(tokenUsage.percentage, 100)}%` }}
                           ></div>
@@ -280,16 +284,16 @@ export function SessionDetailsPanel() {
                           <h4 className="font-medium text-foreground mb-2">Session Details</h4>
                           <div className="grid grid-cols-2 gap-4 text-sm">
                             <div>
-                              <span className="text-muted-foreground">Kind:</span> 
+                              <span className="text-muted-foreground">Kind:</span>
                               <span className="ml-2 text-foreground">{session.kind}</span>
                             </div>
                             <div>
-                              <span className="text-muted-foreground">ID:</span> 
+                              <span className="text-muted-foreground">ID:</span>
                               <span className="ml-2 text-foreground font-mono text-xs">{session.id}</span>
                             </div>
                             {session.lastActivity && (
                               <div>
-                                <span className="text-muted-foreground">Last Activity:</span> 
+                                <span className="text-muted-foreground">Last Activity:</span>
                                 <span className="ml-2 text-foreground">
                                   {new Date(session.lastActivity).toLocaleTimeString()}
                                 </span>
@@ -297,7 +301,7 @@ export function SessionDetailsPanel() {
                             )}
                             {session.messageCount && (
                               <div>
-                                <span className="text-muted-foreground">Messages:</span> 
+                                <span className="text-muted-foreground">Messages:</span>
                                 <span className="ml-2 text-foreground">{session.messageCount}</span>
                               </div>
                             )}
@@ -310,15 +314,15 @@ export function SessionDetailsPanel() {
                           <div className="bg-secondary rounded p-3 text-sm">
                             <div className="grid grid-cols-2 gap-2">
                               <div>
-                                <span className="text-muted-foreground">Full Name:</span> 
+                                <span className="text-muted-foreground">Full Name:</span>
                                 <div className="font-mono text-xs text-foreground mt-1">{modelInfo.name}</div>
                               </div>
                               <div>
-                                <span className="text-muted-foreground">Provider:</span> 
+                                <span className="text-muted-foreground">Provider:</span>
                                 <div className="text-foreground mt-1">{modelInfo.provider}</div>
                               </div>
                               <div className="col-span-2">
-                                <span className="text-muted-foreground">Description:</span> 
+                                <span className="text-muted-foreground">Description:</span>
                                 <div className="text-foreground mt-1">{modelInfo.description}</div>
                               </div>
                             </div>
@@ -328,7 +332,7 @@ export function SessionDetailsPanel() {
                         {/* Actions */}
                         <div className="flex space-x-2">
                           <button
-                            className="px-3 py-1 text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded hover:bg-blue-500/30 transition-colors disabled:opacity-50"
+                            className="px-3 py-1 text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded hover:bg-cyan-500/30 transition-colors disabled:opacity-50"
                             disabled={controllingSession !== null}
                             onClick={async (e) => {
                               e.stopPropagation()
@@ -415,9 +419,9 @@ export function SessionDetailsPanel() {
 
         {/* Session Summary */}
         <div className="space-y-6">
-          <div className="bg-card border border-border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Session Overview</h2>
-            
+          <div className="bg-card border border-border rounded-xl p-6">
+            <h2 className="text-sm font-semibold text-foreground mb-4">Session Overview</h2>
+
             <div className="space-y-4">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Total Sessions:</span>
@@ -425,7 +429,7 @@ export function SessionDetailsPanel() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Active:</span>
-                <span className="font-medium text-green-400">
+                <span className="font-medium text-emerald-400">
                   {sessions.filter(s => s.active).length}
                 </span>
               </div>
@@ -451,9 +455,9 @@ export function SessionDetailsPanel() {
           </div>
 
           {/* Model Distribution */}
-          <div className="bg-card border border-border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Model Distribution</h2>
-            
+          <div className="bg-card border border-border rounded-xl p-6">
+            <h2 className="text-sm font-semibold text-foreground mb-4">Model Distribution</h2>
+
             <div className="space-y-3">
               {Object.entries(
                 sessions.reduce((acc, session) => {
@@ -480,15 +484,16 @@ export function SessionDetailsPanel() {
 
           {/* High Token Usage Alert */}
           {sessions.some(s => parseTokenUsage(s.tokens).percentage > 80) && (
-            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
-              <h3 className="font-medium text-yellow-400 mb-2">⚠️ High Token Usage</h3>
+            <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+              <h3 className="font-medium text-yellow-400 mb-2">High Token Usage</h3>
               <div className="text-sm text-muted-foreground">
-                {sessions.filter(s => parseTokenUsage(s.tokens).percentage > 80).length} sessions 
+                {sessions.filter(s => parseTokenUsage(s.tokens).percentage > 80).length} sessions
                 are using more than 80% of their token limit.
               </div>
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   )

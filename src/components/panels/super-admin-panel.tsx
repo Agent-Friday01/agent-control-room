@@ -1,7 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useMissionControl } from '@/store'
+import { RefreshCw } from 'lucide-react'
+import { useAgentControlRoom } from '@/store'
 
 type SuperTab = 'tenants' | 'jobs' | 'events'
 
@@ -67,7 +68,7 @@ const TENANT_PAGE_SIZE = 8
 const JOB_PAGE_SIZE = 8
 
 export function SuperAdminPanel() {
-  const { currentUser } = useMissionControl()
+  const { currentUser } = useAgentControlRoom()
 
   const [tenants, setTenants] = useState<TenantRow[]>([])
   const [jobs, setJobs] = useState<ProvisionJob[]>([])
@@ -386,7 +387,7 @@ export function SuperAdminPanel() {
     return (
       <div className="p-8 text-center">
         <div className="text-lg font-semibold text-foreground mb-2">Access Denied</div>
-        <p className="text-sm text-muted-foreground">Super Mission Control requires admin privileges.</p>
+        <p className="text-sm text-muted-foreground">Super Agent Control Room requires admin privileges.</p>
       </div>
     )
   }
@@ -401,45 +402,46 @@ export function SuperAdminPanel() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-5">
-      <div className="flex items-start justify-between gap-4">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-5">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Super Mission Control</h2>
+          <h2 className="text-lg font-semibold text-foreground">Super Agent Control Room</h2>
           <p className="text-sm text-muted-foreground">
             Multi-tenant provisioning control plane with approval gates and safer destructive actions.
           </p>
         </div>
         <button
           onClick={load}
-          className="h-8 px-3 rounded-md border border-border text-sm text-foreground hover:bg-secondary/60 transition-smooth"
+          className="h-8 px-3 text-xs rounded-lg border border-border text-foreground hover:bg-secondary/60 transition-smooth flex items-center gap-1.5"
         >
+          <RefreshCw className="w-3.5 h-3.5" />
           Refresh
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <div className="rounded-lg border border-border bg-card px-4 py-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-card border border-border rounded-xl p-4">
           <div className="text-xs text-muted-foreground">Active Tenants</div>
-          <div className="text-xl font-semibold text-foreground mt-1">{kpis.active}</div>
+          <div className="text-2xl font-semibold font-mono text-foreground mt-1">{kpis.active}</div>
         </div>
-        <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <div className="bg-card border border-border rounded-xl p-4">
           <div className="text-xs text-muted-foreground">Pending / In Progress</div>
-          <div className="text-xl font-semibold text-foreground mt-1">{kpis.pending}</div>
+          <div className="text-2xl font-semibold font-mono text-foreground mt-1">{kpis.pending}</div>
         </div>
-        <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <div className="bg-card border border-border rounded-xl p-4">
           <div className="text-xs text-muted-foreground">Errored Tenants</div>
-          <div className="text-xl font-semibold text-red-400 mt-1">{kpis.errored}</div>
+          <div className="text-2xl font-semibold font-mono text-red-400 mt-1">{kpis.errored}</div>
         </div>
-        <div className="rounded-lg border border-border bg-card px-4 py-3">
+        <div className="bg-card border border-border rounded-xl p-4">
           <div className="text-xs text-muted-foreground">Queued Approvals</div>
-          <div className="text-xl font-semibold text-amber-400 mt-1">{kpis.queuedApprovals}</div>
+          <div className="text-2xl font-semibold font-mono text-amber-400 mt-1">{kpis.queuedApprovals}</div>
         </div>
       </div>
 
       {feedback && (
         <div className={`px-3 py-2 rounded-md text-sm border ${
           feedback.ok
-            ? 'bg-green-500/10 text-green-400 border-green-500/20'
+            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
             : 'bg-red-500/10 text-red-400 border-red-500/20'
         }`}>
           {feedback.text}
@@ -452,10 +454,10 @@ export function SuperAdminPanel() {
         </div>
       )}
 
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <button
           onClick={() => setCreateExpanded((v) => !v)}
-          className="w-full px-4 py-3 border-b border-border text-left text-sm font-medium text-foreground hover:bg-secondary/20"
+          className="w-full px-4 py-3 border-b border-border text-left text-sm font-semibold text-foreground hover:bg-secondary/20"
         >
           {createExpanded ? 'Hide' : 'Show'} Create Client Instance
         </button>
@@ -534,7 +536,7 @@ export function SuperAdminPanel() {
               </label>
               <button
                 onClick={createTenant}
-                className="h-9 px-4 rounded-md bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-smooth"
+                className="h-9 px-4 rounded-md bg-violet-500 text-primary-foreground text-sm font-medium hover:bg-violet-500/90 transition-smooth"
               >
                 Create + Queue
               </button>
@@ -543,7 +545,7 @@ export function SuperAdminPanel() {
         )}
       </div>
 
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
+      <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="px-3 py-2 border-b border-border flex items-center gap-2">
           {(['tenants', 'jobs', 'events'] as SuperTab[]).map((tab) => (
             <button
@@ -551,7 +553,7 @@ export function SuperAdminPanel() {
               onClick={() => setActiveTab(tab)}
               className={`h-8 px-3 rounded-md text-sm capitalize ${
                 activeTab === tab
-                  ? 'bg-primary/20 text-primary border border-primary/30'
+                  ? 'bg-violet-500/20 text-violet-600 dark:text-violet-400 border border-violet-500/30'
                   : 'text-muted-foreground border border-transparent hover:bg-secondary/40'
               }`}
             >
@@ -590,12 +592,12 @@ export function SuperAdminPanel() {
                 <caption className="sr-only">Tenant list</caption>
                 <thead>
                   <tr className="bg-secondary/30 border-b border-border">
-                    <th scope="col" className="text-left px-3 py-2 text-xs text-muted-foreground">Tenant</th>
-                    <th scope="col" className="text-left px-3 py-2 text-xs text-muted-foreground">System User</th>
-                    <th scope="col" className="text-left px-3 py-2 text-xs text-muted-foreground">Owner</th>
-                    <th scope="col" className="text-left px-3 py-2 text-xs text-muted-foreground">Status</th>
-                    <th scope="col" className="text-left px-3 py-2 text-xs text-muted-foreground">Latest Job</th>
-                    <th scope="col" className="text-right px-3 py-2 text-xs text-muted-foreground">Action</th>
+                    <th scope="col" className="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Tenant</th>
+                    <th scope="col" className="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">System User</th>
+                    <th scope="col" className="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Owner</th>
+                    <th scope="col" className="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
+                    <th scope="col" className="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Latest Job</th>
+                    <th scope="col" className="text-right px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -615,7 +617,7 @@ export function SuperAdminPanel() {
                         </td>
                         <td className="px-3 py-2 text-xs">
                           <span className={`px-2 py-0.5 rounded border ${
-                            tenant.status === 'active' ? 'border-green-500/30 text-green-400' :
+                            tenant.status === 'active' ? 'border-emerald-500/30 text-emerald-400' :
                             tenant.status === 'error' ? 'border-red-500/30 text-red-400' :
                             tenant.status === 'decommissioning' ? 'border-amber-500/30 text-amber-400' :
                             'border-border text-muted-foreground'
@@ -625,7 +627,7 @@ export function SuperAdminPanel() {
                         </td>
                         <td className="px-3 py-2 text-xs">
                           {latest ? (
-                            <button onClick={() => loadJobDetail(latest.id)} className="text-primary hover:underline">
+                            <button onClick={() => loadJobDetail(latest.id)} className="text-violet-600 dark:text-violet-400 hover:underline">
                               #{latest.id} · {latest.status}
                             </button>
                           ) : (
@@ -721,20 +723,20 @@ export function SuperAdminPanel() {
                 <caption className="sr-only">Provisioning jobs</caption>
                 <thead>
                   <tr className="bg-secondary/30 border-b border-border">
-                    <th scope="col" className="text-left px-3 py-2 text-xs text-muted-foreground">Job</th>
-                    <th scope="col" className="text-left px-3 py-2 text-xs text-muted-foreground">Tenant</th>
-                    <th scope="col" className="text-left px-3 py-2 text-xs text-muted-foreground">Status</th>
-                    <th scope="col" className="text-left px-3 py-2 text-xs text-muted-foreground">Requested/Approved</th>
-                    <th scope="col" className="text-right px-3 py-2 text-xs text-muted-foreground">Action</th>
+                    <th scope="col" className="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Job</th>
+                    <th scope="col" className="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Tenant</th>
+                    <th scope="col" className="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
+                    <th scope="col" className="text-left px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Requested/Approved</th>
+                    <th scope="col" className="text-right px-3 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pagedJobs.map((job) => {
                     const menuKey = `job-${job.id}`
                     return (
-                      <tr key={job.id} className={`border-b border-border/50 last:border-0 ${selectedJobId === job.id ? 'bg-primary/10' : 'hover:bg-secondary/20'}`}>
+                      <tr key={job.id} className={`border-b border-border/50 last:border-0 ${selectedJobId === job.id ? 'bg-violet-500/10' : 'hover:bg-secondary/20'}`}>
                         <td className="px-3 py-2">
-                          <button onClick={() => loadJobDetail(job.id)} className="text-primary hover:underline text-xs">
+                          <button onClick={() => loadJobDetail(job.id)} className="text-violet-600 dark:text-violet-400 hover:underline text-xs">
                             #{job.id}
                           </button>
                           <div className="text-[11px] text-muted-foreground">{job.job_type} {job.dry_run ? '(dry)' : '(live)'}</div>
@@ -777,7 +779,7 @@ export function SuperAdminPanel() {
                               <button
                                 onClick={() => runJob(job.id)}
                                 disabled={busyJobId === job.id || job.status !== 'approved'}
-                                className="w-full px-3 py-2 text-xs text-primary hover:bg-primary/10 disabled:opacity-40"
+                                className="w-full px-3 py-2 text-xs text-violet-600 dark:text-violet-400 hover:bg-violet-500/10 disabled:opacity-40"
                               >
                                 {busyJobId === job.id ? 'Running...' : 'Run'}
                               </button>
@@ -840,7 +842,7 @@ export function SuperAdminPanel() {
 
       {decommissionDialog.open && decommissionDialog.tenant && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-          <div className="w-full max-w-2xl rounded-lg border border-border bg-card shadow-xl">
+          <div className="w-full max-w-2xl rounded-xl border border-border bg-card shadow-xl">
             <div className="px-4 py-3 border-b border-border">
               <h3 className="text-sm font-semibold text-foreground">Queue Decommission: {decommissionDialog.tenant.display_name}</h3>
               <p className="text-xs text-muted-foreground mt-1">Review impact before creating the job.</p>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClientLogger } from '@/lib/client-logger'
+import { ChevronDown, RefreshCw } from 'lucide-react'
 import {
   PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, Legend, ResponsiveContainer,
@@ -34,6 +35,7 @@ export function AgentCostPanel() {
     setIsLoading(true)
     try {
       const res = await fetch(`/api/tokens?action=agent-costs&timeframe=${selectedTimeframe}`)
+      if (!res.ok) return
       const json = await res.json()
       setData(json)
     } catch (err) {
@@ -99,13 +101,12 @@ export function AgentCostPanel() {
   const maxCostPer1k = Math.max(...efficiencyData.map(d => d.costPer1k), 0.0001)
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div className="border-b border-border pb-4">
-        <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Agent Cost Breakdown</h1>
-            <p className="text-muted-foreground mt-2">Per-agent token usage and spend analysis</p>
+            <h1 className="text-lg font-semibold text-foreground">Agent Cost Breakdown</h1>
+            <p className="text-sm text-muted-foreground">Per-agent token usage and spend analysis</p>
           </div>
           <div className="flex space-x-2">
             {(['hour', 'day', 'week', 'month'] as const).map((tf) => (
@@ -114,7 +115,7 @@ export function AgentCostPanel() {
                 onClick={() => setSelectedTimeframe(tf)}
                 className={`px-4 py-2 text-sm rounded-md font-medium transition-colors ${
                   selectedTimeframe === tf
-                    ? 'bg-primary text-primary-foreground'
+                    ? 'bg-violet-500 text-primary-foreground'
                     : 'bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/80'
                 }`}
               >
@@ -122,7 +123,6 @@ export function AgentCostPanel() {
               </button>
             ))}
           </div>
-        </div>
       </div>
 
       {isLoading ? (
@@ -134,32 +134,33 @@ export function AgentCostPanel() {
         <div className="text-center text-muted-foreground py-12">
           <div className="text-lg mb-2">No agent cost data available</div>
           <div className="text-sm">Cost data will appear once agents start using tokens</div>
-          <button onClick={loadData} className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
+          <button onClick={loadData} className="mt-4 px-4 py-2 bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 transition-colors flex items-center gap-1.5 mx-auto">
+            <RefreshCw className="w-3.5 h-3.5" />
             Refresh
           </button>
         </div>
       ) : (
         <div className="space-y-6">
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <div className="bg-card border border-border rounded-lg p-6">
-              <div className="text-3xl font-bold text-foreground">{totalAgents}</div>
-              <div className="text-sm text-muted-foreground">Total Agents</div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="bg-card border border-border rounded-xl p-4">
+              <div className="text-2xl font-semibold font-mono text-foreground">{totalAgents}</div>
+              <div className="text-xs text-muted-foreground">Total Agents</div>
             </div>
-            <div className="bg-card border border-border rounded-lg p-6">
-              <div className="text-3xl font-bold text-foreground">{formatCost(totalCost)}</div>
-              <div className="text-sm text-muted-foreground">Total Cost ({selectedTimeframe})</div>
+            <div className="bg-card border border-border rounded-xl p-4">
+              <div className="text-2xl font-semibold font-mono text-foreground">{formatCost(totalCost)}</div>
+              <div className="text-xs text-muted-foreground">Total Cost ({selectedTimeframe})</div>
             </div>
-            <div className="bg-card border border-border rounded-lg p-6">
-              <div className="text-3xl font-bold text-orange-500">{mostExpensive?.[0] || '-'}</div>
-              <div className="text-sm text-muted-foreground">Most Expensive Agent</div>
-              {mostExpensive && <div className="text-xs text-muted-foreground mt-1">{formatCost(mostExpensive[1].stats.totalCost)}</div>}
+            <div className="bg-card border border-border rounded-xl p-4">
+              <div className="text-2xl font-semibold font-mono text-orange-500">{mostExpensive?.[0] || '-'}</div>
+              <div className="text-xs text-muted-foreground">Most Expensive Agent</div>
+              {mostExpensive && <div className="text-xs text-muted-foreground mt-1 font-mono">{formatCost(mostExpensive[1].stats.totalCost)}</div>}
             </div>
-            <div className="bg-card border border-border rounded-lg p-6">
-              <div className="text-3xl font-bold text-green-500">{mostEfficient?.[0] || '-'}</div>
-              <div className="text-sm text-muted-foreground">Most Efficient Agent</div>
+            <div className="bg-card border border-border rounded-xl p-4">
+              <div className="text-2xl font-semibold font-mono text-emerald-500">{mostEfficient?.[0] || '-'}</div>
+              <div className="text-xs text-muted-foreground">Most Efficient Agent</div>
               {mostEfficient && (
-                <div className="text-xs text-muted-foreground mt-1">
+                <div className="text-xs text-muted-foreground mt-1 font-mono">
                   ${(mostEfficient[1].stats.totalCost / Math.max(1, mostEfficient[1].stats.totalTokens) * 1000).toFixed(4)}/1K tokens
                 </div>
               )}
@@ -167,10 +168,10 @@ export function AgentCostPanel() {
           </div>
 
           {/* Charts */}
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-2 gap-4">
             {/* Cost Distribution Pie */}
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Cost Distribution by Agent</h2>
+            <div className="bg-card border border-border rounded-xl p-4">
+              <h2 className="text-sm font-semibold text-foreground mb-4">Cost Distribution by Agent</h2>
               <div className="h-64">
                 {pieData.length === 0 ? (
                   <div className="h-full flex items-center justify-center text-muted-foreground text-sm">No cost data</div>
@@ -191,8 +192,8 @@ export function AgentCostPanel() {
             </div>
 
             {/* Cost Trend Lines */}
-            <div className="bg-card border border-border rounded-lg p-6">
-              <h2 className="text-xl font-semibold mb-4">Cost Trends (Top 5 Agents)</h2>
+            <div className="bg-card border border-border rounded-xl p-4">
+              <h2 className="text-sm font-semibold text-foreground mb-4">Cost Trends (Top 5 Agents)</h2>
               <div className="h-64">
                 {trendData.length === 0 ? (
                   <div className="h-full flex items-center justify-center text-muted-foreground text-sm">No trend data</div>
@@ -215,8 +216,8 @@ export function AgentCostPanel() {
           </div>
 
           {/* Cost Efficiency Comparison */}
-          <div className="bg-card border border-border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Cost Efficiency ($/1K Tokens per Agent)</h2>
+          <div className="bg-card border border-border rounded-xl p-4">
+            <h2 className="text-sm font-semibold text-foreground mb-4">Cost Efficiency ($/1K Tokens per Agent)</h2>
             <div className="space-y-2">
               {efficiencyData.map(({ name, costPer1k }) => (
                 <div key={name} className="flex items-center text-sm">
@@ -224,49 +225,46 @@ export function AgentCostPanel() {
                   <div className="flex-1 mx-3">
                     <div className="w-full bg-secondary rounded-full h-2">
                       <div
-                        className="bg-blue-500 h-2 rounded-full"
+                        className="bg-cyan-500 h-2 rounded-full"
                         style={{ width: `${(costPer1k / maxCostPer1k) * 100}%` }}
                       />
                     </div>
                   </div>
-                  <div className="w-24 text-right text-xs text-muted-foreground">${costPer1k.toFixed(4)}/1K</div>
+                  <div className="w-24 text-right text-xs text-muted-foreground font-mono">${costPer1k.toFixed(4)}/1K</div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Agent Cost Ranking Table */}
-          <div className="bg-card border border-border rounded-lg p-6">
-            <h2 className="text-xl font-semibold mb-4">Agent Cost Ranking</h2>
+          <div className="bg-card border border-border rounded-xl p-4">
+            <h2 className="text-sm font-semibold text-foreground mb-4">Agent Cost Ranking</h2>
             <div className="space-y-2 max-h-[500px] overflow-y-auto">
               {sortedAgents.map(([name, a], index) => (
-                <div key={name} className="border border-border rounded-lg overflow-hidden">
+                <div key={name} className="border border-border rounded-xl overflow-hidden">
                   <button
                     onClick={() => setExpandedAgent(expandedAgent === name ? null : name)}
                     className="w-full p-4 flex items-center justify-between hover:bg-secondary/50 transition-colors text-left"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-xs text-muted-foreground w-6">#{index + 1}</span>
+                      <span className="text-xs text-muted-foreground w-6 font-mono">#{index + 1}</span>
                       <span className="font-medium text-foreground">{name}</span>
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-muted-foreground font-mono">
                         {a.sessions.length} session{a.sessions.length !== 1 ? 's' : ''}
                       </span>
                     </div>
                     <div className="flex items-center gap-6 text-sm">
                       <div className="text-right">
-                        <div className="font-medium text-foreground">{formatCost(a.stats.totalCost)}</div>
-                        <div className="text-xs text-muted-foreground">{formatNumber(a.stats.totalTokens)} tokens</div>
+                        <div className="font-medium text-foreground font-mono">{formatCost(a.stats.totalCost)}</div>
+                        <div className="text-xs text-muted-foreground font-mono">{formatNumber(a.stats.totalTokens)} tokens</div>
                       </div>
                       <div className="text-right">
-                        <div className="text-muted-foreground">{a.stats.requestCount} reqs</div>
-                        <div className="text-xs text-muted-foreground">{formatCost(a.stats.avgCostPerRequest)} avg</div>
+                        <div className="text-muted-foreground font-mono">{a.stats.requestCount} reqs</div>
+                        <div className="text-xs text-muted-foreground font-mono">{formatCost(a.stats.avgCostPerRequest)} avg</div>
                       </div>
-                      <svg
+                      <ChevronDown
                         className={`w-4 h-4 text-muted-foreground transition-transform ${expandedAgent === name ? 'rotate-180' : ''}`}
-                        viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"
-                      >
-                        <polyline points="4,6 8,10 12,6" />
-                      </svg>
+                      />
                     </div>
                   </button>
 
@@ -281,8 +279,8 @@ export function AgentCostPanel() {
                               const displayName = model.split('/').pop() || model
                               return (
                                 <div key={model} className="flex items-center justify-between text-xs">
-                                  <span className="text-muted-foreground">{displayName}</span>
-                                  <div className="flex gap-4">
+                                  <span className="text-muted-foreground font-mono">{displayName}</span>
+                                  <div className="flex gap-4 font-mono">
                                     <span>{formatNumber(stats.totalTokens)} tokens</span>
                                     <span>{stats.requestCount} reqs</span>
                                     <span className="font-medium text-foreground">{formatCost(stats.totalCost)}</span>

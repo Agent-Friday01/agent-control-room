@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { useMissionControl, Conversation, Agent } from '@/store'
+import { useAgentControlRoom, Conversation, Agent } from '@/store'
 import { useSmartPoll } from '@/lib/use-smart-poll'
 import { createClientLogger } from '@/lib/client-logger'
+import { Plus, Search } from 'lucide-react'
 
 const log = createClientLogger('ConversationList')
 
@@ -16,7 +17,7 @@ function timeAgo(timestamp: number): string {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  busy: 'bg-green-500',
+  busy: 'bg-emerald-500',
   idle: 'bg-yellow-500',
   error: 'bg-red-500',
   offline: 'bg-muted-foreground/30',
@@ -34,7 +35,7 @@ export function ConversationList({ onNewConversation }: ConversationListProps) {
     setActiveConversation,
     agents,
     markConversationRead,
-  } = useMissionControl()
+  } = useAgentControlRoom()
   const [showNewChat, setShowNewChat] = useState(false)
   const [search, setSearch] = useState('')
 
@@ -99,29 +100,24 @@ export function ConversationList({ onNewConversation }: ConversationListProps) {
             className="w-6 h-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary transition-smooth"
             title="New conversation"
           >
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M8 3v10M3 8h10" />
-            </svg>
+            <Plus className="w-3 h-3" />
           </button>
         </div>
         <div className="relative">
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground/50">
-            <circle cx="7" cy="7" r="4" />
-            <path d="M14 14l-3-3" />
-          </svg>
+          <Search className="w-3 h-3 absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground/50" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search..."
-            className="w-full bg-surface-1 rounded-md pl-7 pr-2 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-primary/30"
+            className="w-full bg-secondary rounded-md pl-7 pr-2 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-violet-500/30"
           />
         </div>
       </div>
 
       {/* New chat agent picker */}
       {showNewChat && (
-        <div className="border-b border-border p-2 bg-surface-1 max-h-48 overflow-y-auto flex-shrink-0 fade-in">
+        <div className="border-b border-border p-2 bg-secondary max-h-48 overflow-y-auto flex-shrink-0 fade-in">
           <div className="text-[10px] text-muted-foreground/60 uppercase tracking-wider mb-1 px-1">Chat with agent</div>
           {agents.map((agent) => (
             <button
@@ -161,14 +157,14 @@ export function ConversationList({ onNewConversation }: ConversationListProps) {
                 onClick={() => handleSelect(conv.id)}
                 className={`w-full text-left px-3 py-2.5 transition-smooth ${
                   isActive
-                    ? 'bg-accent/60 border-l-2 border-primary'
-                    : 'hover:bg-surface-1 border-l-2 border-transparent'
+                    ? 'bg-accent/60 border-l-2 border-violet-500'
+                    : 'hover:bg-secondary border-l-2 border-transparent'
                 }`}
               >
                 <div className="flex items-center gap-2">
                   {/* Mini avatar */}
                   <div className="relative flex-shrink-0">
-                    <div className="w-7 h-7 rounded-full bg-surface-2 flex items-center justify-center text-[10px] font-bold text-muted-foreground">
+                    <div className="w-7 h-7 rounded-full bg-secondary flex items-center justify-center text-[10px] font-bold text-muted-foreground">
                       {agentName.charAt(0).toUpperCase()}
                     </div>
                     {agent && (
@@ -183,7 +179,7 @@ export function ConversationList({ onNewConversation }: ConversationListProps) {
                       </span>
                       <div className="flex items-center gap-1 flex-shrink-0 ml-1">
                         {conv.unreadCount > 0 && (
-                          <span className="bg-primary text-primary-foreground text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-medium">
+                          <span className="bg-violet-500 text-primary-foreground text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-medium">
                             {conv.unreadCount}
                           </span>
                         )}

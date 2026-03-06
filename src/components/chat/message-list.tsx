@@ -1,7 +1,8 @@
 'use client'
 
 import { useRef, useEffect } from 'react'
-import { useMissionControl, ChatMessage } from '@/store'
+import { useAgentControlRoom, ChatMessage } from '@/store'
+import { MessageSquare, MessagesSquare } from 'lucide-react'
 import { MessageBubble } from './message-bubble'
 
 function formatDateGroup(timestamp: number): string {
@@ -46,7 +47,7 @@ function isGroupedWithPrevious(messages: ChatMessage[], index: number): boolean 
 }
 
 export function MessageList() {
-  const { chatMessages, activeConversation, isSendingMessage, updatePendingMessage, removePendingMessage, addChatMessage } = useMissionControl()
+  const { chatMessages, activeConversation, isSendingMessage, updatePendingMessage, removePendingMessage, addChatMessage } = useAgentControlRoom()
   const bottomRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -103,11 +104,8 @@ export function MessageList() {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center px-6">
-          <div className="w-12 h-12 rounded-xl bg-surface-2 flex items-center justify-center mx-auto mb-3">
-            <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground/40">
-              <path d="M14 10c0 .37-.1.7-.28 1-.53.87-2.2 3-5.72 3-4.42 0-6-3-6-4V4a2 2 0 012-2h8a2 2 0 012 2v6z" />
-              <path d="M6 7h.01M10 7h.01" />
-            </svg>
+          <div className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center mx-auto mb-3">
+            <MessageSquare className="w-5 h-5 text-muted-foreground/40" />
           </div>
           <p className="text-sm text-muted-foreground">Select a conversation</p>
           <p className="text-xs text-muted-foreground/50 mt-1">or start a new one with an agent</p>
@@ -124,11 +122,8 @@ export function MessageList() {
     return (
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center px-6">
-          <div className="w-12 h-12 rounded-xl bg-surface-2 flex items-center justify-center mx-auto mb-3">
-            <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground/40">
-              <path d="M12 3H4a1 1 0 00-1 1v6l3-2h6a1 1 0 001-1V4a1 1 0 00-1-1z" />
-              <path d="M7 11v1a1 1 0 001 1h5l2 2v-6a1 1 0 00-1-1h-1" />
-            </svg>
+          <div className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center mx-auto mb-3">
+            <MessagesSquare className="w-5 h-5 text-muted-foreground/40" />
           </div>
           <p className="text-sm text-muted-foreground">No messages yet</p>
           <p className="text-xs text-muted-foreground/50 mt-1">Send a message to get started</p>
@@ -154,7 +149,7 @@ export function MessageList() {
             <div key={msg.id} className={msg.pendingStatus === 'sending' ? 'opacity-60' : ''}>
               {/* Failed message wrapper */}
               {msg.pendingStatus === 'failed' && (
-                <div className="border border-red-500/30 rounded-lg p-0.5 mb-1">
+                <div className="border border-red-500/30 rounded-xl p-0.5 mb-1">
                   <MessageBubble
                     message={msg}
                     isHuman={msg.from_agent === 'human'}
@@ -164,7 +159,7 @@ export function MessageList() {
                     <span className="text-[10px] text-red-400">Failed to send</span>
                     <button
                       onClick={() => handleRetry(msg)}
-                      className="text-[10px] text-primary hover:text-primary/80 font-medium transition-smooth"
+                      className="text-[10px] text-violet-600 dark:text-violet-400 hover:text-violet-500/80 font-medium transition-smooth"
                     >
                       Retry
                     </button>
@@ -194,14 +189,14 @@ export function MessageList() {
       {/* Typing indicator */}
       {isSendingMessage && (
         <div className="flex gap-2 mt-3">
-          <div className="w-7 h-7 rounded-full bg-surface-2 flex items-center justify-center flex-shrink-0">
+          <div className="w-7 h-7 rounded-full bg-card border border-border flex items-center justify-center flex-shrink-0">
             <div className="flex gap-0.5">
               <div className="w-1 h-1 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '0ms' }} />
               <div className="w-1 h-1 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '150ms' }} />
               <div className="w-1 h-1 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '300ms' }} />
             </div>
           </div>
-          <div className="bg-surface-2 rounded-xl rounded-tl-sm px-3 py-2">
+          <div className="bg-card border border-border rounded-xl rounded-tl-sm px-3 py-2">
             <div className="flex gap-1">
               <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0ms' }} />
               <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '150ms' }} />

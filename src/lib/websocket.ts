@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useRef, useEffect } from 'react'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 import { normalizeModel } from '@/lib/utils'
 import {
   getOrCreateDeviceIdentity,
@@ -73,7 +73,7 @@ export function useWebSocket() {
     addNotification,
     updateAgent,
     agents,
-  } = useMissionControl()
+  } = useAgentControlRoom()
 
   const isNonRetryableGatewayError = useCallback((message: string): boolean => {
     const normalized = message.toLowerCase()
@@ -93,7 +93,7 @@ export function useWebSocket() {
       return `Gateway rejected browser origin. Add ${origin} to gateway.controlUi.allowedOrigins on the gateway, then reconnect.`
     }
     if (normalized.includes('device identity required')) {
-      return 'Gateway requires device identity. Open Mission Control via HTTPS (or localhost), then reconnect so WebCrypto signing can run.'
+      return 'Gateway requires device identity. Open Agent Control Room via HTTPS (or localhost), then reconnect so WebCrypto signing can run.'
     }
     if (normalized.includes('device_auth_signature_invalid')) {
       return 'Gateway rejected device signature. Clear local device identity in the browser and reconnect.'
@@ -229,7 +229,7 @@ export function useWebSocket() {
         maxProtocol: PROTOCOL_VERSION,
         client: {
           id: clientId,
-          displayName: 'Mission Control',
+          displayName: 'Agent Control Room',
           version: APP_VERSION,
           platform: 'web',
           mode: clientMode,

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useSmartPoll } from '@/lib/use-smart-poll'
+import { RefreshCw, LogIn, XCircle, LogOut, Key, UserPen, UserPlus, UserCog, UserMinus, ShieldAlert, Archive, Trash2, FileText } from 'lucide-react'
 
 interface AuditEvent {
   id: number
@@ -31,31 +32,31 @@ const actionLabels: Record<string, string> = {
 }
 
 const actionColors: Record<string, string> = {
-  login: 'text-green-400',
+  login: 'text-emerald-400',
   login_failed: 'text-red-400',
   logout: 'text-muted-foreground',
   password_change: 'text-amber-400',
-  profile_update: 'text-blue-400',
+  profile_update: 'text-cyan-400',
   user_create: 'text-cyan-400',
   user_update: 'text-indigo-400',
   user_delete: 'text-red-400',
   role_denied: 'text-red-500',
-  backup_create: 'text-green-400',
+  backup_create: 'text-emerald-400',
   backup_delete: 'text-amber-400',
 }
 
-const actionIcons: Record<string, string> = {
-  login: '>',
-  login_failed: 'x',
-  logout: '<',
-  password_change: '*',
-  profile_update: '~',
-  user_create: '+',
-  user_update: '~',
-  user_delete: '-',
-  role_denied: '!',
-  backup_create: 'B',
-  backup_delete: 'B',
+const actionIcons: Record<string, React.ComponentType<{ className?: string }>> = {
+  login: LogIn,
+  login_failed: XCircle,
+  logout: LogOut,
+  password_change: Key,
+  profile_update: UserPen,
+  user_create: UserPlus,
+  user_update: UserCog,
+  user_delete: UserMinus,
+  role_denied: ShieldAlert,
+  backup_create: Archive,
+  backup_delete: Trash2,
 }
 
 export function AuditTrailPanel() {
@@ -123,7 +124,7 @@ export function AuditTrailPanel() {
   if (error) {
     return (
       <div className="p-6">
-        <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400">
+        <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400">
           {error}
         </div>
       </div>
@@ -131,17 +132,18 @@ export function AuditTrailPanel() {
   }
 
   return (
-    <div className="p-5 space-y-4">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-base font-semibold text-foreground">Audit Trail</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">{total} event{total !== 1 ? 's' : ''} logged</p>
+          <h2 className="text-lg font-semibold text-foreground">Audit Trail</h2>
+          <p className="text-sm text-muted-foreground">{total} event{total !== 1 ? 's' : ''} logged</p>
         </div>
         <button
           onClick={() => { setPage(0); fetchEvents() }}
-          className="h-7 px-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-smooth"
+          className="h-7 px-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary rounded-md transition-smooth flex items-center gap-1.5"
         >
+          <RefreshCw className="w-3 h-3" />
           Refresh
         </button>
       </div>
@@ -179,28 +181,27 @@ export function AuditTrailPanel() {
       {loading ? (
         <div className="space-y-2">
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="h-12 rounded-lg shimmer" />
+            <div key={i} className="h-12 rounded-xl shimmer" />
           ))}
         </div>
       ) : events.length === 0 ? (
         <div className="py-12 text-center">
-          <div className="text-2xl text-muted-foreground/30 mb-2">
-            <svg className="w-10 h-10 mx-auto" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round">
-              <rect x="2" y="1" width="12" height="14" rx="1.5" />
-              <path d="M5 4h6M5 7h6M5 10h3" />
-            </svg>
-          </div>
-          <p className="text-xs text-muted-foreground">No audit events found</p>
+          <FileText className="w-10 h-10 mx-auto text-muted-foreground/30 mb-2" />
+          <p className="text-sm font-medium text-foreground">No audit events found</p>
+          <p className="text-xs text-muted-foreground">Events will appear here once activity is recorded</p>
         </div>
       ) : (
         <div className="space-y-1">
           {events.map(event => {
             const detail = formatDetail(event)
             return (
-              <div key={event.id} className="flex items-start gap-3 px-3 py-2.5 rounded-lg hover:bg-secondary/50 transition-smooth group">
+              <div key={event.id} className="flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-secondary/50 transition-smooth group">
                 {/* Icon */}
-                <span className={`w-6 h-6 rounded-md bg-secondary flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5 ${actionColors[event.action] || 'text-muted-foreground'}`}>
-                  {actionIcons[event.action] || '?'}
+                <span className={`w-6 h-6 rounded-md bg-secondary flex items-center justify-center shrink-0 mt-0.5 ${actionColors[event.action] || 'text-muted-foreground'}`}>
+                  {(() => {
+                    const IconComponent = actionIcons[event.action]
+                    return IconComponent ? <IconComponent className="w-3.5 h-3.5" /> : <FileText className="w-3.5 h-3.5" />
+                  })()}
                 </span>
 
                 {/* Content */}
@@ -211,21 +212,21 @@ export function AuditTrailPanel() {
                       {actionLabels[event.action] || event.action}
                     </span>
                     {event.target_id && event.target_type === 'user' && (
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-muted-foreground font-mono">
                         user #{event.target_id}
                       </span>
                     )}
                   </div>
                   {detail && (
-                    <p className="text-xs text-muted-foreground mt-0.5 font-mono-tight">{detail}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 font-mono">{detail}</p>
                   )}
                 </div>
 
                 {/* Meta */}
                 <div className="text-right shrink-0">
-                  <p className="text-2xs text-muted-foreground font-mono-tight">{formatTime(event.created_at)}</p>
+                  <p className="text-2xs text-muted-foreground font-mono">{formatTime(event.created_at)}</p>
                   {event.ip_address && (
-                    <p className="text-2xs text-muted-foreground/60 font-mono-tight opacity-0 group-hover:opacity-100 transition-opacity">{event.ip_address}</p>
+                    <p className="text-2xs text-muted-foreground/60 font-mono opacity-0 group-hover:opacity-100 transition-opacity">{event.ip_address}</p>
                   )}
                 </div>
               </div>
@@ -244,7 +245,7 @@ export function AuditTrailPanel() {
           >
             Previous
           </button>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-muted-foreground font-mono">
             Page {page + 1} of {totalPages}
           </span>
           <button

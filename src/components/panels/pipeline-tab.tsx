@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { Pencil, X, ChevronUp, ChevronDown, ChevronRight } from 'lucide-react'
 
 interface WorkflowTemplate {
   id: number
@@ -67,9 +68,9 @@ export function PipelineTab() {
 
   const fetchData = useCallback(async () => {
     const [tRes, pRes, rRes] = await Promise.all([
-      fetch('/api/workflows').then(r => r.json()).catch(() => ({ templates: [] })),
-      fetch('/api/pipelines').then(r => r.json()).catch(() => ({ pipelines: [] })),
-      fetch('/api/pipelines/run?limit=10').then(r => r.json()).catch(() => ({ runs: [] })),
+      fetch('/api/workflows').then(r => r.ok ? r.json() : { templates: [] }).catch(() => ({ templates: [] })),
+      fetch('/api/pipelines').then(r => r.ok ? r.json() : { pipelines: [] }).catch(() => ({ pipelines: [] })),
+      fetch('/api/pipelines/run?limit=10').then(r => r.ok ? r.json() : { runs: [] }).catch(() => ({ runs: [] })),
     ])
     setTemplates(tRes.templates || [])
     setPipelines(pRes.pipelines || [])
@@ -205,7 +206,7 @@ export function PipelineTab() {
     <div className="space-y-3">
       {/* Result message */}
       {result && (
-        <div className={`text-xs px-2 py-1 rounded ${result.ok ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'}`}>
+        <div className={`text-xs px-2 py-1 rounded ${result.ok ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
           {result.text}
         </div>
       )}
@@ -224,7 +225,7 @@ export function PipelineTab() {
         <span className="text-xs text-muted-foreground">{pipelines.length} pipelines</span>
         <button
           onClick={() => formMode !== 'hidden' ? closeForm() : setFormMode('create')}
-          className="text-xs text-primary hover:underline"
+          className="text-xs text-violet-600 dark:text-violet-400 hover:underline"
         >
           {formMode !== 'hidden' ? 'Cancel' : '+ New Pipeline'}
         </button>
@@ -232,8 +233,8 @@ export function PipelineTab() {
 
       {/* Create/Edit form */}
       {formMode !== 'hidden' && (
-        <div className="p-3 rounded-lg bg-secondary/50 border border-border space-y-2">
-          <span className="text-xs font-medium">{formMode === 'edit' ? 'Edit Pipeline' : 'New Pipeline'}</span>
+        <div className="p-4 rounded-xl bg-card border border-border space-y-2">
+          <span className="text-sm font-semibold text-foreground">{formMode === 'edit' ? 'Edit Pipeline' : 'New Pipeline'}</span>
           <input
             value={formName}
             onChange={e => setFormName(e.target.value)}
@@ -252,7 +253,7 @@ export function PipelineTab() {
             <span className="text-2xs text-muted-foreground">Steps ({formSteps.length})</span>
             {formSteps.map((step, i) => (
               <div key={i} className="flex items-center gap-1.5 p-1.5 rounded bg-secondary/80 text-xs">
-                <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-2xs font-bold flex items-center justify-center shrink-0">
+                <span className="w-5 h-5 rounded-full bg-violet-500/20 text-violet-600 dark:text-violet-400 text-2xs font-bold flex items-center justify-center shrink-0">
                   {i + 1}
                 </span>
                 <span className="flex-1 truncate text-foreground">{step.template_name || `Template #${step.template_id}`}</span>
@@ -265,13 +266,13 @@ export function PipelineTab() {
                   <option value="continue">Continue on fail</option>
                 </select>
                 <button onClick={() => moveStep(i, -1)} className="text-muted-foreground hover:text-foreground" title="Move up">
-                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3"><path d="M8 3v10M4 7l4-4 4 4" /></svg>
+                  <ChevronUp className="w-3 h-3" />
                 </button>
                 <button onClick={() => moveStep(i, 1)} className="text-muted-foreground hover:text-foreground" title="Move down">
-                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" className="w-3 h-3"><path d="M8 13V3M4 9l4 4 4-4" /></svg>
+                  <ChevronDown className="w-3 h-3" />
                 </button>
                 <button onClick={() => removeStep(i)} className="text-red-400 hover:text-red-300">
-                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3 h-3"><path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" /></svg>
+                  <X className="w-3 h-3" />
                 </button>
               </div>
             ))}
@@ -293,7 +294,7 @@ export function PipelineTab() {
             <button
               onClick={savePipeline}
               disabled={!formName || formSteps.length < 2}
-              className="h-7 px-3 rounded-md bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50"
+              className="h-7 px-3 rounded-md bg-violet-500 text-primary-foreground text-xs font-medium disabled:opacity-50"
             >
               {formMode === 'edit' ? 'Update' : 'Save Pipeline'}
             </button>
@@ -310,7 +311,7 @@ export function PipelineTab() {
       ) : (
         <div className="space-y-1.5 max-h-64 overflow-y-auto">
           {pipelines.map(p => (
-            <div key={p.id} className="rounded-md bg-secondary/30 hover:bg-secondary/50 transition-smooth group">
+            <div key={p.id} className="rounded-xl bg-card border border-border hover:bg-secondary/50 transition-smooth group">
               <div className="flex items-center gap-2 p-2">
                 <button
                   onClick={() => setExpandedId(expandedId === p.id ? null : p.id)}
@@ -332,9 +333,7 @@ export function PipelineTab() {
                           {s.template_name}
                         </span>
                         {i < p.steps.length - 1 && (
-                          <svg viewBox="0 0 8 8" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-2.5 h-2.5 text-muted-foreground/50 shrink-0">
-                            <path d="M2 4h4M5 2l2 2-2 2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
+                          <ChevronRight className="w-2.5 h-2.5 text-muted-foreground/50 shrink-0" />
                         )}
                       </div>
                     ))}
@@ -344,19 +343,15 @@ export function PipelineTab() {
                   <button
                     onClick={() => runPipeline(p.id)}
                     disabled={spawning === p.id}
-                    className="h-7 px-2 rounded-md bg-primary text-primary-foreground text-xs font-medium disabled:opacity-50"
+                    className="h-7 px-2 rounded-md bg-violet-500 text-primary-foreground text-xs font-medium disabled:opacity-50"
                   >
                     {spawning === p.id ? '...' : 'Run'}
                   </button>
                   <button onClick={() => startEdit(p)} className="h-7 px-1.5 rounded-md bg-secondary text-foreground text-xs hover:bg-secondary/80" title="Edit">
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5">
-                      <path d="M11.5 1.5l3 3-9 9H2.5v-3z" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
+                    <Pencil className="w-3.5 h-3.5" />
                   </button>
                   <button onClick={() => deletePipeline(p.id)} className="h-7 px-1.5 rounded-md bg-destructive/20 text-destructive text-xs hover:bg-destructive/30" title="Delete">
-                    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="w-3.5 h-3.5">
-                      <path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" />
-                    </svg>
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               </div>
@@ -375,7 +370,7 @@ export function PipelineTab() {
                       Runs: {p.runs.total} total, {p.runs.completed} completed, {p.runs.failed} failed
                     </span>
                     {runs.filter(r => r.pipeline_id === p.id).slice(0, 3).map(run => (
-                      <div key={run.id} className="mt-1 p-2 rounded bg-secondary/50 text-xs">
+                      <div key={run.id} className="mt-1 p-2 rounded-xl bg-card border border-border text-xs">
                         <div className="flex items-center justify-between mb-1">
                           <span className="font-medium">Run #{run.id}</span>
                           <RunStatusBadge status={run.status} />
@@ -383,7 +378,7 @@ export function PipelineTab() {
                         <RunStepsViz steps={run.steps_snapshot} />
                         {run.status === 'running' && (
                           <div className="flex gap-1 mt-1.5">
-                            <button onClick={() => advanceRun(run.id, true)} className="h-6 px-2 rounded bg-green-500/20 text-green-400 text-2xs hover:bg-green-500/30">
+                            <button onClick={() => advanceRun(run.id, true)} className="h-6 px-2 rounded bg-emerald-500/20 text-emerald-400 text-2xs hover:bg-emerald-500/30">
                               Mark Step Done
                             </button>
                             <button onClick={() => advanceRun(run.id, false)} className="h-6 px-2 rounded bg-red-500/20 text-red-400 text-2xs hover:bg-red-500/30">
@@ -422,9 +417,7 @@ function PipelineViz({ steps }: { steps: PipelineStep[] }) {
             )}
           </div>
           {i < steps.length - 1 && (
-            <svg viewBox="0 0 20 12" fill="none" className="w-5 h-3 text-muted-foreground/60 shrink-0">
-              <path d="M0 6h16M13 2l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <ChevronRight className="w-5 h-3 text-muted-foreground/60 shrink-0" />
           )}
         </div>
       ))}
@@ -440,10 +433,10 @@ function RunStepsViz({ steps }: { steps: RunStepState[] }) {
         <div key={i} className="flex items-center gap-1 shrink-0">
           <div className="flex items-center gap-1">
             <span className={`w-2 h-2 rounded-full shrink-0 ${
-              s.status === 'completed' ? 'bg-green-500' :
+              s.status === 'completed' ? 'bg-emerald-500' :
               s.status === 'running' ? 'bg-amber-500 animate-pulse' :
               s.status === 'failed' ? 'bg-red-500' :
-              s.status === 'skipped' ? 'bg-gray-500' : 'bg-gray-600'
+              s.status === 'skipped' ? 'bg-muted-foreground/50' : 'bg-muted-foreground/30'
             }`} />
             <span className={`text-2xs whitespace-nowrap ${
               s.status === 'running' ? 'text-foreground font-medium' : 'text-muted-foreground'
@@ -452,9 +445,7 @@ function RunStepsViz({ steps }: { steps: RunStepState[] }) {
             </span>
           </div>
           {i < steps.length - 1 && (
-            <svg viewBox="0 0 8 8" className="w-2 h-2 text-muted-foreground/40 shrink-0">
-              <path d="M1 4h6M5 2l2 2-2 2" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            <ChevronRight className="w-2 h-2 text-muted-foreground/40 shrink-0" />
           )}
         </div>
       ))}
@@ -465,10 +456,10 @@ function RunStepsViz({ steps }: { steps: RunStepState[] }) {
 function RunStatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
     running: 'bg-amber-500/20 text-amber-400',
-    completed: 'bg-green-500/20 text-green-400',
+    completed: 'bg-emerald-500/20 text-emerald-400',
     failed: 'bg-red-500/20 text-red-400',
-    cancelled: 'bg-gray-500/20 text-gray-400',
-    pending: 'bg-blue-500/20 text-blue-400',
+    cancelled: 'bg-muted text-muted-foreground',
+    pending: 'bg-cyan-500/20 text-cyan-400',
   }
   return (
     <span className={`text-2xs px-1.5 py-0.5 rounded-full ${styles[status] || 'bg-secondary text-muted-foreground'}`}>
@@ -484,7 +475,7 @@ function ActiveRunCard({ run, onAdvance, onCancel }: {
   onCancel: (id: number) => void
 }) {
   return (
-    <div className="p-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5">
+    <div className="p-2.5 rounded-xl border border-amber-500/30 bg-amber-500/5">
       <div className="flex items-center justify-between mb-1.5">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
@@ -498,7 +489,7 @@ function ActiveRunCard({ run, onAdvance, onCancel }: {
       </div>
       <RunStepsViz steps={run.steps_snapshot} />
       <div className="flex gap-1 mt-2">
-        <button onClick={() => onAdvance(run.id, true)} className="h-6 px-2 rounded bg-green-500/20 text-green-400 text-2xs hover:bg-green-500/30">
+        <button onClick={() => onAdvance(run.id, true)} className="h-6 px-2 rounded bg-emerald-500/20 text-emerald-400 text-2xs hover:bg-emerald-500/30">
           Step Done
         </button>
         <button onClick={() => onAdvance(run.id, false)} className="h-6 px-2 rounded bg-red-500/20 text-red-400 text-2xs hover:bg-red-500/30">

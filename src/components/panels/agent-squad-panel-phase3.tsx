@@ -5,6 +5,12 @@ import { useSmartPoll } from '@/lib/use-smart-poll'
 import { createClientLogger } from '@/lib/client-logger'
 import { AgentAvatar } from '@/components/ui/agent-avatar'
 import {
+  Plus,
+  RefreshCw,
+  X,
+  UserRound,
+} from 'lucide-react'
+import {
   OverviewTab,
   SoulTab,
   MemoryTab,
@@ -59,8 +65,8 @@ interface SoulTemplate {
 }
 
 const statusColors: Record<string, string> = {
-  offline: 'bg-gray-500',
-  idle: 'bg-green-500',
+  offline: 'bg-slate-500',
+  idle: 'bg-emerald-500',
   busy: 'bg-yellow-500',
   error: 'bg-red-500',
 }
@@ -144,13 +150,13 @@ export function AgentSquadPanelPhase3() {
       })
 
       if (!response.ok) throw new Error('Failed to update agent status')
-      
+
       // Update local state
-      setAgents(prev => prev.map(agent => 
-        agent.name === agentName 
-          ? { 
-              ...agent, 
-              status, 
+      setAgents(prev => prev.map(agent =>
+        agent.name === agentName
+          ? {
+              ...agent,
+              status,
               last_activity: activity || `Status changed to ${status}`,
               last_seen: Math.floor(Date.now() / 1000),
               updated_at: Math.floor(Date.now() / 1000)
@@ -170,7 +176,7 @@ export function AgentSquadPanelPhase3() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: `🤖 **Wake Up Call**\n\nAgent ${agentName}, you have been manually woken up.\nCheck Mission Control for any pending tasks or notifications.\n\n⏰ ${new Date().toLocaleString()}`
+          message: `🤖 **Wake Up Call**\n\nAgent ${agentName}, you have been manually woken up.\nCheck Agent Control Room for any pending tasks or notifications.\n\n⏰ ${new Date().toLocaleString()}`
         })
       })
 
@@ -189,7 +195,7 @@ export function AgentSquadPanelPhase3() {
   // Format last seen time
   const formatLastSeen = (timestamp?: number) => {
     if (!timestamp) return 'Never'
-    
+
     const now = Date.now()
     const diffMs = now - (timestamp * 1000)
     const diffMinutes = Math.floor(diffMs / (1000 * 60))
@@ -200,7 +206,7 @@ export function AgentSquadPanelPhase3() {
     if (diffMinutes < 60) return `${diffMinutes}m ago`
     if (diffHours < 24) return `${diffHours}h ago`
     if (diffDays < 7) return `${diffDays}d ago`
-    
+
     return new Date(timestamp * 1000).toLocaleDateString()
   }
 
@@ -220,19 +226,20 @@ export function AgentSquadPanelPhase3() {
   if (loading && agents.length === 0) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-violet-500"></div>
         <span className="ml-2 text-muted-foreground">Loading agents...</span>
       </div>
     )
   }
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col p-4 md:p-6">
+      <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
       {/* Header */}
-      <div className="flex justify-between items-center p-4 border-b border-border flex-shrink-0">
+      <div className="flex justify-between items-center mb-6 flex-shrink-0">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl font-bold text-foreground">Agent Squad</h2>
-          
+          <h2 className="text-lg font-semibold text-foreground">Agent Squad</h2>
+
           {/* Status Summary */}
           <div className="flex gap-2 text-sm">
             {Object.entries(statusCounts).map(([status, count]) => (
@@ -251,13 +258,13 @@ export function AgentSquadPanelPhase3() {
             </span>
           </div>
         </div>
-        
+
         <div className="flex gap-2">
           <button
             onClick={() => setAutoRefresh(!autoRefresh)}
-            className={`px-3 py-1.5 text-sm rounded-md transition-smooth ${
+            className={`px-3 py-1.5 text-sm rounded-md transition-all duration-150 ${
               autoRefresh
-                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                 : 'bg-secondary text-muted-foreground'
             }`}
           >
@@ -266,20 +273,22 @@ export function AgentSquadPanelPhase3() {
           <button
             onClick={syncFromConfig}
             disabled={syncing}
-            className="px-3 py-2 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-md hover:bg-cyan-500/30 disabled:opacity-50 transition-smooth text-sm"
+            className="px-3 py-2 bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-md hover:bg-cyan-500/30 disabled:opacity-50 transition-all duration-150 text-sm"
           >
             {syncing ? 'Syncing...' : 'Sync from Config'}
           </button>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-smooth text-sm font-medium"
+            className="px-4 py-2 bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 transition-all duration-150 text-sm font-medium inline-flex items-center gap-1.5"
           >
-            + Add Agent
+            <Plus className="w-4 h-4" />
+            Add Agent
           </button>
           <button
             onClick={fetchAgents}
-            className="px-4 py-2 bg-secondary text-muted-foreground rounded-md hover:bg-surface-2 transition-smooth text-sm"
+            className="px-4 py-2 bg-secondary text-muted-foreground rounded-md hover:bg-surface-2 transition-all duration-150 text-sm inline-flex items-center gap-1.5"
           >
+            <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
         </div>
@@ -287,33 +296,30 @@ export function AgentSquadPanelPhase3() {
 
       {/* Sync Toast */}
       {syncToast && (
-        <div className={`p-3 m-4 rounded-lg text-sm ${syncToast.includes('failed') ? 'bg-red-500/10 border border-red-500/20 text-red-400' : 'bg-green-500/10 border border-green-500/20 text-green-400'}`}>
+        <div className={`p-3 m-4 rounded-xl text-sm ${syncToast.includes('failed') ? 'bg-red-500/10 border border-red-500/20 text-red-400' : 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'}`}>
           {syncToast}
         </div>
       )}
 
       {/* Error Display */}
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 m-4 rounded-lg text-sm flex items-center justify-between">
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 m-4 rounded-xl text-sm flex items-center justify-between">
           <span>{error}</span>
           <button
             onClick={() => setError(null)}
             className="text-red-400/60 hover:text-red-400 ml-2"
           >
-            ×
+            <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
       {/* Agent Grid */}
-      <div className="flex-1 p-4 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto">
         {agents.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground/50">
             <div className="w-12 h-12 rounded-full bg-surface-2 flex items-center justify-center mb-3">
-              <svg width="20" height="20" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                <circle cx="8" cy="5" r="3" />
-                <path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" />
-              </svg>
+              <UserRound className="w-5 h-5" />
             </div>
             <p className="text-sm font-medium">No agents found</p>
             <p className="text-xs mt-1">Add your first agent to get started</p>
@@ -323,8 +329,8 @@ export function AgentSquadPanelPhase3() {
             {agents.map(agent => (
               <div
                 key={agent.id}
-                className={`bg-card rounded-lg p-4 border-l-4 hover:bg-surface-1 transition-smooth cursor-pointer ${
-                  hasRecentHeartbeat(agent) ? 'border-cyan-400' : 'border-border'
+                className={`bg-card border border-border rounded-xl p-4 border-l-4 hover:bg-surface-1 transition-all duration-150 cursor-pointer ${
+                  hasRecentHeartbeat(agent) ? 'border-l-cyan-400' : ''
                 }`}
                 onClick={() => setSelectedAgent(agent)}
               >
@@ -333,11 +339,11 @@ export function AgentSquadPanelPhase3() {
                   <div className="flex items-center gap-2 min-w-0">
                     <AgentAvatar name={agent.name} size="md" />
                     <div className="min-w-0">
-                      <h3 className="font-semibold text-foreground text-lg truncate">{agent.name}</h3>
+                      <h3 className="text-sm font-semibold text-foreground truncate">{agent.name}</h3>
                       <p className="text-muted-foreground text-sm truncate">{agent.role}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-2">
                     {/* Heartbeat indicator */}
                     {hasRecentHeartbeat(agent) && (
@@ -356,7 +362,7 @@ export function AgentSquadPanelPhase3() {
                     </span>
                     {agent.session_key && (
                       <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-green-400"></div>
+                        <div className="w-2 h-2 rounded-full bg-emerald-400"></div>
                         <span>Active</span>
                       </div>
                     )}
@@ -367,11 +373,11 @@ export function AgentSquadPanelPhase3() {
                 {agent.taskStats && (
                   <div className="grid grid-cols-2 gap-2 mb-3">
                     <div className="bg-surface-1/50 rounded p-2 text-center">
-                      <div className="text-lg font-semibold text-foreground">{agent.taskStats.total}</div>
+                      <div className="text-2xl font-semibold font-mono text-foreground">{agent.taskStats.total}</div>
                       <div className="text-xs text-muted-foreground">Total Tasks</div>
                     </div>
                     <div className="bg-surface-1/50 rounded p-2 text-center">
-                      <div className="text-lg font-semibold text-yellow-400">{agent.taskStats.in_progress}</div>
+                      <div className="text-2xl font-semibold font-mono text-yellow-400">{agent.taskStats.in_progress}</div>
                       <div className="text-xs text-muted-foreground">In Progress</div>
                     </div>
                   </div>
@@ -397,7 +403,7 @@ export function AgentSquadPanelPhase3() {
                         e.stopPropagation()
                         wakeAgent(agent.name, agent.session_key!)
                       }}
-                      className="flex-1 px-2 py-1 text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-md hover:bg-cyan-500/30 transition-smooth"
+                      className="flex-1 px-2 py-1 text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-md hover:bg-cyan-500/30 transition-all duration-150"
                       title="Wake agent via session"
                     >
                       Wake Agent
@@ -409,7 +415,7 @@ export function AgentSquadPanelPhase3() {
                         updateAgentStatus(agent.name, 'idle', 'Manually activated')
                       }}
                       disabled={agent.status === 'idle'}
-                      className="flex-1 px-2 py-1 text-xs bg-green-500/20 text-green-400 border border-green-500/30 rounded-md hover:bg-green-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-smooth"
+                      className="flex-1 px-2 py-1 text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-md hover:bg-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                     >
                       Wake
                     </button>
@@ -420,7 +426,7 @@ export function AgentSquadPanelPhase3() {
                       updateAgentStatus(agent.name, 'busy', 'Manually set to busy')
                     }}
                     disabled={agent.status === 'busy'}
-                    className="flex-1 px-2 py-1 text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-md hover:bg-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-smooth"
+                    className="flex-1 px-2 py-1 text-xs bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-md hover:bg-yellow-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                   >
                     Busy
                   </button>
@@ -430,7 +436,7 @@ export function AgentSquadPanelPhase3() {
                       setSelectedAgent(agent)
                       setShowQuickSpawnModal(true)
                     }}
-                    className="flex-1 px-2 py-1 text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md hover:bg-blue-500/30 transition-smooth"
+                    className="flex-1 px-2 py-1 text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-md hover:bg-cyan-500/30 transition-all duration-150"
                   >
                     Spawn
                   </button>
@@ -441,6 +447,7 @@ export function AgentSquadPanelPhase3() {
         )}
       </div>
 
+      </div>
       {/* Agent Detail Modal */}
       {selectedAgent && (
         <AgentDetailModalPhase3
@@ -527,7 +534,7 @@ function AgentDetailModalPhase3({
         log.error('Failed to load SOUL templates:', error)
       }
     }
-    
+
     if (activeTab === 'soul') {
       loadTemplates()
     }
@@ -561,7 +568,7 @@ function AgentDetailModalPhase3({
       })
 
       if (!response.ok) throw new Error('Failed to update agent')
-      
+
       setEditing(false)
       onUpdate()
     } catch (error) {
@@ -581,7 +588,7 @@ function AgentDetailModalPhase3({
       })
 
       if (!response.ok) throw new Error('Failed to update SOUL')
-      
+
       setFormData(prev => ({ ...prev, soul_content: content }))
       onUpdate()
     } catch (error) {
@@ -601,7 +608,7 @@ function AgentDetailModalPhase3({
       })
 
       if (!response.ok) throw new Error('Failed to update memory')
-      
+
       const data = await response.json()
       setFormData(prev => ({ ...prev, working_memory: data.working_memory }))
       onUpdate()
@@ -634,7 +641,7 @@ function AgentDetailModalPhase3({
             <div className="flex items-start gap-3 min-w-0">
               <AgentAvatar name={agent.name} size="md" />
               <div className="min-w-0">
-                <h3 className="text-2xl font-bold text-foreground leading-tight truncate">{agent.name}</h3>
+                <h3 className="text-lg font-semibold text-foreground leading-tight truncate">{agent.name}</h3>
                 <p className="text-muted-foreground mt-0.5 truncate">{agent.role}</p>
                 <div className="flex flex-wrap items-center gap-2 mt-3">
                   <span className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full border ${statusBadgeStyles[agent.status]}`}>
@@ -656,9 +663,9 @@ function AgentDetailModalPhase3({
               <button
                 onClick={onClose}
                 aria-label="Close agent details"
-                className="h-9 w-9 inline-flex items-center justify-center rounded-md bg-secondary text-muted-foreground hover:bg-surface-2 hover:text-foreground transition-smooth"
+                className="h-9 w-9 inline-flex items-center justify-center rounded-md bg-secondary text-muted-foreground hover:bg-surface-2 hover:text-foreground transition-all duration-150"
               >
-                ×
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -669,9 +676,9 @@ function AgentDetailModalPhase3({
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`px-3.5 py-2 text-sm rounded-md border flex items-center gap-2 transition-smooth whitespace-nowrap ${
+                className={`px-3.5 py-2 text-sm rounded-md border flex items-center gap-2 transition-all duration-150 whitespace-nowrap ${
                   activeTab === tab.id
-                    ? 'bg-primary/90 text-primary-foreground border-primary/60 shadow-[0_0_0_1px_rgba(56,189,248,0.25)]'
+                    ? 'bg-violet-500/90 text-primary-foreground border-violet-500/60 shadow-[0_0_0_1px_rgba(56,189,248,0.25)]'
                     : 'bg-secondary/70 text-muted-foreground border-border/70 hover:bg-surface-2 hover:text-foreground'
                 }`}
               >
@@ -700,7 +707,7 @@ function AgentDetailModalPhase3({
               onPerformHeartbeat={performHeartbeat}
             />
           )}
-          
+
           {activeTab === 'soul' && (
             <SoulTab
               agent={agent}
@@ -709,7 +716,7 @@ function AgentDetailModalPhase3({
               onSave={handleSoulSave}
             />
           )}
-          
+
           {activeTab === 'memory' && (
             <MemoryTab
               agent={agent}
@@ -717,11 +724,11 @@ function AgentDetailModalPhase3({
               onSave={handleMemorySave}
             />
           )}
-          
+
           {activeTab === 'tasks' && (
             <TasksTab agent={agent} />
           )}
-          
+
           {activeTab === 'config' && (
             <ConfigTab agent={agent} onSave={onUpdate} />
           )}
@@ -785,7 +792,7 @@ function QuickSpawnModal({
       if (response.ok) {
         setSpawnResult(result)
         onSpawned()
-        
+
         // Auto-close after 2 seconds if successful
         setTimeout(() => {
           onClose()
@@ -803,17 +810,19 @@ function QuickSpawnModal({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-card border border-border rounded-lg max-w-md w-full p-6">
+      <div className="bg-card border border-border rounded-xl max-w-md w-full p-6">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-bold text-foreground">
+          <h3 className="text-lg font-semibold text-foreground">
             Quick Spawn for {agent.name}
           </h3>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground text-2xl transition-smooth">×</button>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-all duration-150">
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {spawnResult ? (
           <div className="space-y-4">
-            <div className="bg-green-500/10 border border-green-500/20 text-green-400 p-3 rounded-lg text-sm">
+            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 p-3 rounded-xl text-sm">
               Agent spawned successfully!
             </div>
             <div className="text-sm text-foreground/80">
@@ -833,7 +842,7 @@ function QuickSpawnModal({
                 value={spawnData.task}
                 onChange={(e) => setSpawnData(prev => ({ ...prev, task: e.target.value }))}
                 placeholder={`Delegate a subtask to ${agent.name}...`}
-                className="w-full h-24 px-3 py-2 bg-surface-1 border border-border rounded text-foreground placeholder-muted-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50 resize-none"
+                className="w-full h-24 px-3 py-2 bg-surface-1 border border-border rounded text-foreground placeholder-muted-foreground focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50 resize-none"
               />
             </div>
 
@@ -845,7 +854,7 @@ function QuickSpawnModal({
               <select
                 value={spawnData.model}
                 onChange={(e) => setSpawnData(prev => ({ ...prev, model: e.target.value }))}
-                className="w-full px-3 py-2 bg-surface-1 border border-border rounded text-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
+                className="w-full px-3 py-2 bg-surface-1 border border-border rounded text-foreground focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50"
               >
                 {models.map(model => (
                   <option key={model.id} value={model.id}>
@@ -864,7 +873,7 @@ function QuickSpawnModal({
                 type="text"
                 value={spawnData.label}
                 onChange={(e) => setSpawnData(prev => ({ ...prev, label: e.target.value }))}
-                className="w-full px-3 py-2 bg-surface-1 border border-border rounded text-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
+                className="w-full px-3 py-2 bg-surface-1 border border-border rounded text-foreground focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50"
               />
             </div>
 
@@ -879,7 +888,7 @@ function QuickSpawnModal({
                 onChange={(e) => setSpawnData(prev => ({ ...prev, timeoutSeconds: parseInt(e.target.value) }))}
                 min={30}
                 max={3600}
-                className="w-full px-3 py-2 bg-surface-1 border border-border rounded text-foreground focus:border-primary/50 focus:ring-1 focus:ring-primary/50"
+                className="w-full px-3 py-2 bg-surface-1 border border-border rounded text-foreground focus:border-violet-500/50 focus:ring-1 focus:ring-violet-500/50"
               />
             </div>
 
@@ -888,13 +897,13 @@ function QuickSpawnModal({
               <button
                 onClick={handleSpawn}
                 disabled={isSpawning || !spawnData.task.trim()}
-                className="flex-1 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-smooth"
+                className="flex-1 px-4 py-2 bg-violet-500 text-primary-foreground rounded-md hover:bg-violet-500/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
               >
                 {isSpawning ? 'Spawning...' : 'Spawn Agent'}
               </button>
               <button
                 onClick={onClose}
-                className="px-4 py-2 bg-secondary text-muted-foreground rounded-md hover:bg-surface-2 transition-smooth"
+                className="px-4 py-2 bg-secondary text-muted-foreground rounded-md hover:bg-surface-2 transition-all duration-150"
               >
                 Cancel
               </button>

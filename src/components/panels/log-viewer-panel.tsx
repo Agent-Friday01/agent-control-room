@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 import { useSmartPoll } from '@/lib/use-smart-poll'
 import { createClientLogger } from '@/lib/client-logger'
+import { ArrowDown, Trash2 } from 'lucide-react'
 
 const log = createClientLogger('LogViewer')
 
@@ -15,7 +16,7 @@ interface LogFilters {
 }
 
 export function LogViewerPanel() {
-  const { logs, logFilters, setLogFilters, clearLogs, addLog } = useMissionControl()
+  const { logs, logFilters, setLogFilters, clearLogs, addLog } = useAgentControlRoom()
   const [isAutoScroll, setIsAutoScroll] = useState(true)
   const [availableSources, setAvailableSources] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -58,6 +59,7 @@ export function LogViewerPanel() {
 
       log.debug(`Fetching /api/logs?${params}`)
       const response = await fetch(`/api/logs?${params}`)
+      if (!response.ok) return
       const data = await response.json()
 
       log.debug(`Received ${data.logs?.length || 0} logs from API`)
@@ -95,6 +97,7 @@ export function LogViewerPanel() {
   const loadSources = useCallback(async () => {
     try {
       const response = await fetch('/api/logs?action=sources')
+      if (!response.ok) return
       const data = await response.json()
       setAvailableSources(data.sources || [])
     } catch (error) {
@@ -141,7 +144,7 @@ export function LogViewerPanel() {
     switch (level.toLowerCase()) {
       case 'error': return 'text-red-400'
       case 'warn': return 'text-yellow-400'
-      case 'info': return 'text-blue-400'
+      case 'info': return 'text-cyan-400'
       case 'debug': return 'text-muted-foreground'
       default: return 'text-foreground'
     }
@@ -151,8 +154,8 @@ export function LogViewerPanel() {
     switch (level.toLowerCase()) {
       case 'error': return 'bg-red-500/10 border-red-500/20'
       case 'warn': return 'bg-yellow-500/10 border-yellow-500/20'
-      case 'info': return 'bg-blue-500/10 border-blue-500/20'
-      case 'debug': return 'bg-gray-500/10 border-gray-500/20'
+      case 'info': return 'bg-cyan-500/10 border-cyan-500/20'
+      case 'debug': return 'bg-secondary border-border'
       default: return 'bg-secondary border-border'
     }
   }
@@ -169,16 +172,19 @@ export function LogViewerPanel() {
   log.debug(`Store has ${logs.length} logs, filtered to ${filteredLogs.length}`)
 
   return (
-    <div className="flex flex-col h-full p-6 space-y-4">
-      <div className="border-b border-border pb-4">
-        <h1 className="text-3xl font-bold text-foreground">Log Viewer</h1>
-        <p className="text-muted-foreground mt-2">
-          Real-time streaming logs from ClawdBot gateway and system
-        </p>
+    <div className="flex flex-col h-full p-4 md:p-6 space-y-4">
+      <div className="max-w-7xl mx-auto w-full flex flex-col flex-1 space-y-4">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-lg font-semibold text-foreground">Log Viewer</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Real-time streaming logs from ClawdBot gateway and system
+          </p>
+        </div>
       </div>
 
       {/* Filters and Controls */}
-      <div className="bg-card border border-border rounded-lg p-4">
+      <div className="bg-card border border-border rounded-xl p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4">
           {/* Level Filter */}
           <div>
@@ -249,7 +255,7 @@ export function LogViewerPanel() {
               onClick={() => setIsAutoScroll(!isAutoScroll)}
               className={`px-3 py-2 text-sm rounded-md font-medium transition-colors ${
                 isAutoScroll
-                  ? 'bg-green-500/20 text-green-400 border border-green-500/30'
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                   : 'bg-secondary text-muted-foreground border border-border'
               }`}
             >
@@ -257,8 +263,9 @@ export function LogViewerPanel() {
             </button>
             <button
               onClick={handleScrollToBottom}
-              className="px-3 py-2 text-sm bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-md font-medium hover:bg-blue-500/30 transition-colors"
+              className="px-3 py-2 text-sm bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-md font-medium hover:bg-cyan-500/30 transition-colors flex items-center gap-1"
             >
+              <ArrowDown className="w-3.5 h-3.5" />
               Bottom
             </button>
           </div>
@@ -267,8 +274,9 @@ export function LogViewerPanel() {
           <div className="flex items-end">
             <button
               onClick={clearLogs}
-              className="px-3 py-2 text-sm bg-red-500/20 text-red-400 border border-red-500/30 rounded-md font-medium hover:bg-red-500/30 transition-colors"
+              className="px-3 py-2 text-sm bg-red-500/20 text-red-400 border border-red-500/30 rounded-md font-medium hover:bg-red-500/30 transition-colors flex items-center gap-1"
             >
+              <Trash2 className="w-3.5 h-3.5" />
               Clear
             </button>
           </div>
@@ -281,14 +289,14 @@ export function LogViewerPanel() {
           Showing {filteredLogs.length} of {logs.length} logs
         </div>
         <div>
-          Auto-scroll: {isAutoScroll ? 'ON' : 'OFF'} • 
+          Auto-scroll: {isAutoScroll ? 'ON' : 'OFF'} •
           Last updated: {logs.length > 0 ? new Date(logs[0]?.timestamp).toLocaleTimeString() : 'Never'}
         </div>
       </div>
 
       {/* Log Display */}
-      <div className="flex-1 bg-card border border-border rounded-lg overflow-hidden">
-        <div 
+      <div className="flex-1 bg-card border border-border rounded-xl overflow-hidden">
+        <div
           ref={logContainerRef}
           className="h-full overflow-auto p-4 space-y-2 font-mono text-sm"
         >
@@ -303,8 +311,8 @@ export function LogViewerPanel() {
             </div>
           ) : (
             filteredLogs.map((log) => (
-              <div 
-                key={log.id} 
+              <div
+                key={log.id}
                 className={`border-l-4 pl-4 py-2 rounded-r-md ${getLogLevelBg(log.level)}`}
               >
                 <div className="flex items-start justify-between">
@@ -344,6 +352,7 @@ export function LogViewerPanel() {
             ))
           )}
         </div>
+      </div>
       </div>
     </div>
   )

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { Eye, EyeOff, Pencil, X, Download, Save, Play } from 'lucide-react'
 
 interface EnvVarInfo {
   redacted: string
@@ -232,7 +233,7 @@ export function IntegrationsPanel() {
   if (error) {
     return (
       <div className="p-6">
-        <div className="bg-destructive/10 text-destructive rounded-lg p-4 text-sm">{error}</div>
+        <div className="bg-destructive/10 text-destructive rounded-xl p-4 text-sm">{error}</div>
       </div>
     )
   }
@@ -241,7 +242,7 @@ export function IntegrationsPanel() {
   const connectedCount = integrations.filter(i => i.status === 'connected').length
 
   return (
-    <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-6">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -254,8 +255,8 @@ export function IntegrationsPanel() {
         <div className="flex items-center gap-2">
           {opAvailable && (
             <>
-              <span className="text-2xs px-2 py-1 rounded bg-green-500/10 text-green-400 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+              <span className="text-2xs px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                 1P CLI
               </span>
               <button
@@ -267,10 +268,7 @@ export function IntegrationsPanel() {
                 {pullingAll ? (
                   <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M8 2v8M5 7l3 3 3-3" />
-                    <path d="M3 12v2h10v-2" />
-                  </svg>
+                  <Download className="w-3.5 h-3.5" />
                 )}
                 Pull All
               </button>
@@ -289,7 +287,7 @@ export function IntegrationsPanel() {
             disabled={!hasChanges || saving}
             className={`px-4 py-1.5 text-xs rounded-md font-medium transition-colors ${
               hasChanges
-                ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                ? 'bg-violet-500 text-primary-foreground hover:bg-violet-500/90'
                 : 'bg-muted text-muted-foreground cursor-not-allowed'
             }`}
           >
@@ -300,8 +298,8 @@ export function IntegrationsPanel() {
 
       {/* Feedback */}
       {feedback && (
-        <div className={`rounded-lg p-3 text-xs font-medium ${
-          feedback.ok ? 'bg-green-500/10 text-green-400' : 'bg-destructive/10 text-destructive'
+        <div className={`rounded-xl p-3 text-xs font-medium ${
+          feedback.ok ? 'bg-emerald-500/10 text-emerald-400' : 'bg-destructive/10 text-destructive'
         }`}>
           {feedback.text}
         </div>
@@ -324,7 +322,7 @@ export function IntegrationsPanel() {
             >
               {cat.label}
               {catConnected > 0 && (
-                <span className="ml-1.5 inline-flex items-center justify-center min-w-[16px] h-4 text-2xs rounded-full bg-green-500/15 text-green-400 px-1">
+                <span className="ml-1.5 inline-flex items-center justify-center min-w-[16px] h-4 text-2xs rounded-full bg-emerald-500/15 text-emerald-400 px-1">
                   {catConnected}
                 </span>
               )}
@@ -366,7 +364,7 @@ export function IntegrationsPanel() {
 
       {/* Unsaved changes bar */}
       {hasChanges && (
-        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-card border border-border rounded-lg shadow-lg px-4 py-2.5 flex items-center gap-3 z-40">
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 bg-card border border-border rounded-xl shadow-lg px-4 py-2.5 flex items-center gap-3 z-40">
           <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
           <span className="text-xs text-foreground">
             {Object.keys(edits).length} unsaved change{Object.keys(edits).length === 1 ? '' : 's'}
@@ -380,7 +378,7 @@ export function IntegrationsPanel() {
           <button
             onClick={handleSave}
             disabled={saving}
-            className="px-3 py-1 text-xs rounded-md bg-primary text-primary-foreground hover:bg-primary/90 font-medium"
+            className="px-3 py-1 text-xs rounded-md bg-violet-500 text-primary-foreground hover:bg-violet-500/90 font-medium"
           >
             {saving ? 'Saving...' : 'Save'}
           </button>
@@ -390,7 +388,7 @@ export function IntegrationsPanel() {
       {/* Remove confirmation dialog */}
       {confirmRemove && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-card border border-border rounded-lg shadow-xl p-5 max-w-sm mx-4 space-y-4">
+          <div className="bg-card border border-border rounded-xl shadow-xl p-5 max-w-sm mx-4 space-y-4">
             <h3 className="text-sm font-semibold text-foreground">Remove integration?</h3>
             <p className="text-xs text-muted-foreground">
               This will remove {confirmRemove.keys.length === 1 ? (
@@ -455,7 +453,7 @@ function IntegrationCard({
   onRemove: () => void
 }) {
   const statusColors = {
-    connected: 'bg-green-500',
+    connected: 'bg-emerald-500',
     partial: 'bg-amber-500',
     not_configured: 'bg-muted-foreground/30',
   }
@@ -470,14 +468,14 @@ function IntegrationCard({
   const hasSetVars = Object.values(integration.envVars).some(v => v.set)
 
   return (
-    <div className={`bg-card border rounded-lg p-4 transition-colors ${
+    <div className={`bg-card border rounded-xl p-4 transition-colors ${
       hasEdits ? 'border-primary/50' : 'border-border'
     }`}>
       {/* Card header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2.5">
           <span className={`w-2 h-2 rounded-full shrink-0 ${statusColors[integration.status]}`} />
-          <span className="text-sm font-medium text-foreground">{integration.name}</span>
+          <span className="text-sm font-semibold text-foreground">{integration.name}</span>
           <span className="text-2xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
             {statusLabels[integration.status]}
           </span>
@@ -495,10 +493,7 @@ function IntegrationCard({
               {pulling ? (
                 <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
               ) : (
-                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M8 2v8M5 7l3 3 3-3" />
-                  <path d="M3 12v2h10v-2" />
-                </svg>
+                <Download className="w-3 h-3" />
               )}
               1P
             </button>
@@ -515,11 +510,7 @@ function IntegrationCard({
               {testing ? (
                 <div className="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin" />
               ) : (
-                <svg className="w-3 h-3" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M13 3L6 14" />
-                  <polyline points="6,3 6,8 1,8" />
-                  <polyline points="10,8 15,8 15,13" />
-                </svg>
+                <Play className="w-3 h-3" />
               )}
               Test
             </button>
@@ -576,7 +567,7 @@ function IntegrationCard({
                     title={isRevealed ? 'Hide value' : 'Show value'}
                     className="p-1 text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    {isRevealed ? <EyeOffIcon /> : <EyeIcon />}
+                    {isRevealed ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                   </button>
                 )}
 
@@ -587,7 +578,7 @@ function IntegrationCard({
                     title="Edit value"
                     className="p-1 text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    <EditIcon />
+                    <Pencil className="w-3.5 h-3.5" />
                   </button>
                 )}
 
@@ -598,7 +589,7 @@ function IntegrationCard({
                     title="Cancel edit"
                     className="p-1 text-muted-foreground hover:text-destructive transition-colors"
                   >
-                    <XIcon />
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
@@ -610,42 +601,3 @@ function IntegrationCard({
   )
 }
 
-// ---------------------------------------------------------------------------
-// Inline SVG icons (matching nav-rail pattern: 16x16, stroke-based)
-// ---------------------------------------------------------------------------
-
-function EyeIcon() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M1 8s2.5-5 7-5 7 5 7 5-2.5 5-7 5-7-5-7-5z" />
-      <circle cx="8" cy="8" r="2" />
-    </svg>
-  )
-}
-
-function EyeOffIcon() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 2l12 12" />
-      <path d="M6.5 6.5a2 2 0 002.8 2.8" />
-      <path d="M4.2 4.2C2.5 5.5 1 8 1 8s2.5 5 7 5c1.3 0 2.4-.4 3.4-1" />
-      <path d="M11.8 11.8C13.5 10.5 15 8 15 8s-2.5-5-7-5c-.7 0-1.4.1-2 .3" />
-    </svg>
-  )
-}
-
-function EditIcon() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M11.5 1.5l3 3L5 14H2v-3l9.5-9.5z" />
-    </svg>
-  )
-}
-
-function XIcon() {
-  return (
-    <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 4l8 8M12 4l-8 8" />
-    </svg>
-  )
-}

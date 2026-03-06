@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
 import { useSmartPoll } from '@/lib/use-smart-poll'
 
 interface AgentActivity {
@@ -28,10 +28,10 @@ interface SessionInfo {
 
 const typeColors: Record<string, string> = {
   agent_status_change: 'text-yellow-400',
-  task_created: 'text-green-400',
-  task_updated: 'text-blue-400',
+  task_created: 'text-emerald-400',
+  task_updated: 'text-cyan-400',
   task_deleted: 'text-red-400',
-  comment_added: 'text-purple-400',
+  comment_added: 'text-violet-400',
   agent_created: 'text-cyan-400',
   standup_generated: 'text-orange-400',
   mention: 'text-pink-400',
@@ -51,7 +51,7 @@ const typeIcons: Record<string, string> = {
 }
 
 export function AgentHistoryPanel() {
-  const { agents } = useMissionControl()
+  const { agents } = useAgentControlRoom()
   const [selectedAgent, setSelectedAgent] = useState<string>('')
   const [activities, setActivities] = useState<AgentActivity[]>([])
   const [sessions, setSessions] = useState<SessionInfo[]>([])
@@ -129,12 +129,12 @@ export function AgentHistoryPanel() {
   }
 
   return (
-    <div className="p-5 space-y-4">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-base font-semibold text-foreground">Agent History</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <h2 className="text-lg font-semibold text-foreground">Agent History</h2>
+          <p className="text-sm text-muted-foreground">
             {total} event{total !== 1 ? 's' : ''} for {selectedAgent || 'no agent selected'}
           </p>
         </div>
@@ -148,12 +148,12 @@ export function AgentHistoryPanel() {
             onClick={() => { setSelectedAgent(a.name); setPage(0) }}
             className={`h-8 px-3 rounded-md text-xs font-medium transition-smooth flex items-center gap-1.5 ${
               selectedAgent === a.name
-                ? 'bg-primary text-primary-foreground'
+                ? 'bg-violet-500 text-primary-foreground'
                 : 'bg-secondary text-muted-foreground hover:text-foreground'
             }`}
           >
             <span className={`w-1.5 h-1.5 rounded-full ${
-              a.status === 'busy' ? 'bg-green-500' :
+              a.status === 'busy' ? 'bg-emerald-500' :
               a.status === 'idle' ? 'bg-yellow-500' :
               a.status === 'error' ? 'bg-red-500' :
               'bg-muted-foreground/30'
@@ -168,10 +168,10 @@ export function AgentHistoryPanel() {
           {/* Agent info card */}
           <div className="lg:col-span-1 space-y-3">
             {selectedAgentData && (
-              <div className="rounded-lg border border-border p-4 space-y-3">
+              <div className="bg-card border border-border rounded-xl p-4 space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                    <span className="text-sm font-bold text-primary">
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                    <span className="text-sm font-bold text-violet-600 dark:text-violet-400">
                       {selectedAgentData.name.slice(0, 2).toUpperCase()}
                     </span>
                   </div>
@@ -185,7 +185,7 @@ export function AgentHistoryPanel() {
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Status</span>
                     <span className={`font-medium ${
-                      selectedAgentData.status === 'busy' ? 'text-green-400' :
+                      selectedAgentData.status === 'busy' ? 'text-emerald-400' :
                       selectedAgentData.status === 'idle' ? 'text-yellow-400' :
                       selectedAgentData.status === 'error' ? 'text-red-400' :
                       'text-muted-foreground'
@@ -194,7 +194,7 @@ export function AgentHistoryPanel() {
                   {selectedAgentData.last_seen && (
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Last seen</span>
-                      <span className="text-foreground font-mono-tight">{formatRelative(selectedAgentData.last_seen)}</span>
+                      <span className="text-foreground font-mono">{formatRelative(selectedAgentData.last_seen)}</span>
                     </div>
                   )}
                   {selectedAgentData.last_activity && (
@@ -228,16 +228,16 @@ export function AgentHistoryPanel() {
 
             {/* Active sessions for this agent */}
             {agentSessions.length > 0 && (
-              <div className="rounded-lg border border-border p-4">
+              <div className="bg-card border border-border rounded-xl p-4">
                 <h4 className="text-xs font-semibold text-foreground mb-2">Active Sessions</h4>
                 <div className="space-y-2">
                   {agentSessions.map(s => (
                     <div key={s.id} className="text-xs space-y-0.5">
                       <div className="flex items-center gap-1.5">
-                        <span className={`w-1.5 h-1.5 rounded-full ${s.active ? 'bg-green-500' : 'bg-muted-foreground/30'}`} />
-                        <span className="font-mono-tight text-foreground truncate">{s.kind}</span>
+                        <span className={`w-1.5 h-1.5 rounded-full ${s.active ? 'bg-emerald-500' : 'bg-muted-foreground/30'}`} />
+                        <span className="font-mono text-foreground truncate">{s.kind}</span>
                       </div>
-                      <div className="flex gap-3 text-muted-foreground pl-3">
+                      <div className="flex gap-3 text-muted-foreground pl-3 font-mono">
                         <span>{s.model}</span>
                         <span>{s.tokens} tokens</span>
                         <span>{s.age}</span>
@@ -254,7 +254,7 @@ export function AgentHistoryPanel() {
             {loading ? (
               <div className="space-y-2">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-12 rounded-lg shimmer" />
+                  <div key={i} className="h-12 rounded-xl shimmer" />
                 ))}
               </div>
             ) : activities.length === 0 ? (
@@ -272,11 +272,11 @@ export function AgentHistoryPanel() {
                     </div>
                     <div className="space-y-1 pl-2 border-l-2 border-border/50">
                       {dayActivities.map(act => (
-                        <div key={act.id} className="flex items-start gap-2.5 pl-3 py-1.5 hover:bg-secondary/30 rounded-r-lg transition-smooth relative">
+                        <div key={act.id} className="flex items-start gap-2.5 pl-3 py-1.5 hover:bg-secondary/30 rounded-r-xl transition-smooth relative">
                           {/* Timeline dot */}
                           <span className={`absolute -left-[5px] top-3 w-2 h-2 rounded-full bg-card border-2 ${
                             act.type === 'agent_status_change' ? 'border-yellow-400' :
-                            act.type.startsWith('task') ? 'border-blue-400' :
+                            act.type.startsWith('task') ? 'border-cyan-400' :
                             'border-muted-foreground'
                           }`} />
 
@@ -296,7 +296,7 @@ export function AgentHistoryPanel() {
                           </div>
 
                           {/* Time */}
-                          <span className="text-2xs text-muted-foreground font-mono-tight shrink-0">
+                          <span className="text-2xs text-muted-foreground font-mono shrink-0">
                             {new Date(act.created_at * 1000).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
@@ -315,7 +315,7 @@ export function AgentHistoryPanel() {
                     >
                       Newer
                     </button>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground font-mono">
                       Page {page + 1} of {totalPages}
                     </span>
                     <button

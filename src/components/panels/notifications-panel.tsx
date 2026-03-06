@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useSmartPoll } from '@/lib/use-smart-poll'
+import { Bell, Check } from 'lucide-react'
 
 interface Notification {
   id: number
@@ -69,13 +70,15 @@ export function NotificationsPanel() {
   }
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex justify-between items-center p-4 border-b border-border flex-shrink-0">
-        <h2 className="text-xl font-bold text-foreground">Notifications</h2>
+    <div className="h-full flex flex-col p-4 md:p-6">
+      <div className="max-w-7xl mx-auto w-full flex flex-col flex-1">
+      <div className="flex justify-between items-center mb-6 flex-shrink-0">
+        <h2 className="text-lg font-semibold text-foreground">Notifications</h2>
         <button
           onClick={markAllRead}
-          className="px-3 py-1.5 bg-secondary text-foreground rounded-md text-sm hover:bg-secondary/80 transition-smooth"
+          className="px-3 py-1.5 bg-secondary text-foreground rounded-md text-sm hover:bg-secondary/80 transition-smooth flex items-center gap-1.5"
         >
+          <Check className="w-3.5 h-3.5" />
           Mark All Read
         </button>
       </div>
@@ -91,7 +94,7 @@ export function NotificationsPanel() {
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 m-4 rounded-lg text-sm">
+        <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 m-4 rounded-xl text-sm">
           {error}
         </div>
       )}
@@ -104,18 +107,16 @@ export function NotificationsPanel() {
           </div>
         ) : notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-32 text-muted-foreground/50">
-            <svg width="24" height="24" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" className="mb-2">
-              <path d="M12 5a4 4 0 00-8 0c0 4-2 5-2 5h12s-2-1-2-5" />
-              <path d="M9.15 14a1.25 1.25 0 01-2.3 0" />
-            </svg>
-            <span className="text-sm">No notifications</span>
+            <Bell className="w-10 h-10 mb-2" />
+            <span className="text-sm font-medium">No notifications</span>
+            <span className="text-xs text-muted-foreground mt-1">You&apos;re all caught up</span>
           </div>
         ) : (
           notifications.map((n) => (
             <div
               key={n.id}
-              className={`rounded-lg p-3 border transition-smooth ${
-                n.read_at ? 'border-border bg-card' : 'border-primary/30 bg-primary/5'
+              className={`bg-card border border-border rounded-xl p-4 transition-smooth ${
+                !n.read_at ? 'border-primary/30 bg-primary/5' : ''
               }`}
             >
               <div className="flex justify-between items-start">
@@ -126,7 +127,7 @@ export function NotificationsPanel() {
                 {!n.read_at && (
                   <button
                     onClick={() => markRead(n.id)}
-                    className="text-xs text-primary hover:text-primary/80 transition-smooth flex-shrink-0 ml-2"
+                    className="text-xs text-violet-600 dark:text-violet-400 hover:text-primary/80 transition-smooth flex-shrink-0 ml-2"
                   >
                     Mark read
                   </button>
@@ -139,6 +140,7 @@ export function NotificationsPanel() {
             </div>
           ))
         )}
+      </div>
       </div>
     </div>
   )

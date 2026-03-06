@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { ChevronRight, Save, X, Pencil } from 'lucide-react'
 
 interface ConfigNode {
   [key: string]: any
@@ -111,7 +112,7 @@ export function GatewayConfigPanel() {
   if (error) {
     return (
       <div className="p-6">
-        <div className="bg-destructive/10 text-destructive rounded-lg p-4 text-sm">{error}</div>
+        <div className="bg-destructive/10 text-destructive rounded-xl p-4 text-sm">{error}</div>
         <p className="text-xs text-muted-foreground mt-2">
           Ensure `OPENCLAW_CONFIG_PATH` (or `OPENCLAW_STATE_DIR`) is set and the config file exists.
         </p>
@@ -120,7 +121,7 @@ export function GatewayConfigPanel() {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-4">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-4">
       {/* Header */}
       <div>
         <h2 className="text-lg font-semibold text-foreground">Gateway Configuration</h2>
@@ -131,8 +132,8 @@ export function GatewayConfigPanel() {
 
       {/* Feedback */}
       {feedback && (
-        <div className={`rounded-lg p-3 text-xs font-medium ${
-          feedback.ok ? 'bg-green-500/10 text-green-400' : 'bg-destructive/10 text-destructive'
+        <div className={`rounded-xl p-3 text-xs font-medium ${
+          feedback.ok ? 'bg-emerald-500/10 text-emerald-400' : 'bg-destructive/10 text-destructive'
         }`}>
           {feedback.text}
         </div>
@@ -182,16 +183,14 @@ function ConfigSection({ sectionKey, value, dotPath, expanded, onToggle, editing
   if (isObject) {
     const childCount = Object.keys(value).length
     return (
-      <div className="bg-card border border-border rounded-lg overflow-hidden">
+      <div className="bg-card border border-border rounded-xl overflow-hidden">
         <button
           onClick={onToggle}
           className="w-full flex items-center justify-between px-4 py-3 hover:bg-secondary/50 transition-colors"
         >
           <div className="flex items-center gap-2">
-            <svg className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${expanded ? 'rotate-90' : ''}`} viewBox="0 0 16 16" fill="currentColor">
-              <path d="M6 3l5 5-5 5V3z" />
-            </svg>
-            <span className="text-sm font-medium text-foreground">{sectionKey}</span>
+            <ChevronRight className={`w-3.5 h-3.5 text-muted-foreground transition-transform ${expanded ? 'rotate-90' : ''}`} />
+            <span className="text-sm font-semibold text-foreground">{sectionKey}</span>
             <span className="text-2xs text-muted-foreground">({childCount} {childCount === 1 ? 'key' : 'keys'})</span>
           </div>
         </button>
@@ -272,9 +271,7 @@ function NestedObject({ label, value, dotPath, editingKey, editValue, onStartEdi
   return (
     <div className="ml-3 border-l border-border/50 pl-3">
       <button onClick={() => setOpen(!open)} className="flex items-center gap-1.5 py-1 text-sm hover:text-foreground transition-colors">
-        <svg className={`w-3 h-3 text-muted-foreground transition-transform ${open ? 'rotate-90' : ''}`} viewBox="0 0 16 16" fill="currentColor">
-          <path d="M6 3l5 5-5 5V3z" />
-        </svg>
+        <ChevronRight className={`w-3 h-3 text-muted-foreground transition-transform ${open ? 'rotate-90' : ''}`} />
         <span className="font-medium text-foreground">{label}</span>
         <span className="text-2xs text-muted-foreground">({entries.length})</span>
       </button>
@@ -335,8 +332,8 @@ function ConfigLeaf({ label, value, dotPath, editingKey, editValue, onStartEdit,
   const isArray = Array.isArray(value)
   const displayValue = isArray ? JSON.stringify(value) : String(value ?? 'null')
   const typeColor = typeof value === 'boolean'
-    ? value ? 'text-green-400' : 'text-red-400'
-    : typeof value === 'number' ? 'text-blue-400'
+    ? value ? 'text-emerald-400' : 'text-red-400'
+    : typeof value === 'number' ? 'text-cyan-400'
     : isRedacted ? 'text-muted-foreground/50 italic'
     : 'text-foreground'
 
@@ -366,8 +363,8 @@ function ConfigLeaf({ label, value, dotPath, editingKey, editValue, onStartEdit,
               autoFocus
             />
           )}
-          <button onClick={onSaveEdit} className="text-green-400 hover:text-green-300 text-xs">Save</button>
-          <button onClick={onCancelEdit} className="text-muted-foreground hover:text-foreground text-xs">Cancel</button>
+          <button onClick={onSaveEdit} className="text-emerald-400 hover:text-emerald-300 text-xs flex items-center gap-1"><Save className="w-3 h-3" />Save</button>
+          <button onClick={onCancelEdit} className="text-muted-foreground hover:text-foreground text-xs flex items-center gap-1"><X className="w-3 h-3" />Cancel</button>
         </div>
       ) : (
         <>
@@ -377,8 +374,9 @@ function ConfigLeaf({ label, value, dotPath, editingKey, editValue, onStartEdit,
           {!isRedacted && (
             <button
               onClick={() => onStartEdit(dotPath, value)}
-              className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-foreground transition-opacity"
+              className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-foreground transition-opacity flex items-center gap-1"
             >
+              <Pencil className="w-3 h-3" />
               Edit
             </button>
           )}

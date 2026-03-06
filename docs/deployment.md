@@ -51,13 +51,13 @@ PORT=3000 pnpm start
 ## Production (Docker)
 
 ```bash
-docker build -t mission-control .
+docker build -t agent-control-room .
 docker run -p 3000:3000 \
-  -v mission-control-data:/app/.data \
+  -v agent-control-room-data:/app/.data \
   -e AUTH_USER=admin \
   -e AUTH_PASS=your-secure-password \
   -e API_KEY=your-api-key \
-  mission-control
+  agent-control-room
 ```
 
 The Docker image:
@@ -130,7 +130,7 @@ Ensure only one instance is running against the same `.data/` directory. SQLite 
 
 ### "Gateway error: origin not allowed"
 
-Your gateway is rejecting the Mission Control browser origin. Add the Control UI origin
+Your gateway is rejecting the Agent Control Room browser origin. Add the Control UI origin
 to your gateway config allowlist, for example:
 
 ```json
@@ -143,9 +143,9 @@ to your gateway config allowlist, for example:
 }
 ```
 
-Then restart the gateway and reconnect from Mission Control.
+Then restart the gateway and reconnect from Agent Control Room.
 
 ### "Gateway error: device identity required"
 
 Device identity signing uses WebCrypto and requires a secure browser context.
-Open Mission Control over HTTPS (or localhost), then reconnect.
+Open Agent Control Room over HTTPS (or localhost), then reconnect.

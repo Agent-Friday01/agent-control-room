@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Mission Control are documented in this file.
+All notable changes to Agent Control Room are documented in this file.
 
 ## [1.3.0] - 2026-03-02
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { Search, Download } from 'lucide-react'
 
 interface GitHubLabel {
   name: string
@@ -212,24 +213,24 @@ export function GitHubSyncPanel() {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-6">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-lg font-semibold text-foreground">GitHub Issues Sync</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Import GitHub issues as Mission Control tasks
+            Import GitHub issues as Agent Control Room tasks
           </p>
         </div>
         {/* Connection status badge */}
         <div className="flex items-center gap-2">
           <span className={`text-2xs px-2 py-1 rounded flex items-center gap-1.5 ${
             tokenStatus?.connected
-              ? 'bg-green-500/10 text-green-400'
+              ? 'bg-emerald-500/10 text-emerald-400'
               : 'bg-destructive/10 text-destructive'
           }`}>
             <span className={`w-1.5 h-1.5 rounded-full ${
-              tokenStatus?.connected ? 'bg-green-500' : 'bg-destructive'
+              tokenStatus?.connected ? 'bg-emerald-500' : 'bg-destructive'
             }`} />
             {tokenStatus?.connected
               ? `GitHub: ${tokenStatus.user || 'connected'}`
@@ -240,8 +241,8 @@ export function GitHubSyncPanel() {
 
       {/* Feedback */}
       {feedback && (
-        <div className={`rounded-lg p-3 text-xs font-medium ${
-          feedback.ok ? 'bg-green-500/10 text-green-400' : 'bg-destructive/10 text-destructive'
+        <div className={`rounded-xl p-3 text-xs font-medium ${
+          feedback.ok ? 'bg-emerald-500/10 text-emerald-400' : 'bg-destructive/10 text-destructive'
         }`}>
           {feedback.text}
         </div>
@@ -249,7 +250,7 @@ export function GitHubSyncPanel() {
 
       {/* Sync result banner */}
       {syncResult && (
-        <div className="rounded-lg p-3 text-xs bg-blue-500/10 text-blue-400 flex items-center gap-4">
+        <div className="rounded-xl p-3 text-xs bg-cyan-500/10 text-cyan-400 flex items-center gap-4">
           <span>Imported: {syncResult.imported}</span>
           <span>Skipped: {syncResult.skipped}</span>
           {syncResult.errors > 0 && <span className="text-destructive">Errors: {syncResult.errors}</span>}
@@ -259,7 +260,7 @@ export function GitHubSyncPanel() {
       {/* Import Issues Form */}
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="px-4 py-3 border-b border-border">
-          <h3 className="text-sm font-medium text-foreground">Import Issues</h3>
+          <h3 className="text-sm font-semibold text-foreground">Import Issues</h3>
         </div>
         <div className="p-4 space-y-3">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -327,10 +328,7 @@ export function GitHubSyncPanel() {
               {previewing ? (
                 <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
               ) : (
-                <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="7" cy="7" r="5" />
-                  <path d="M11 11l3 3" />
-                </svg>
+                <Search className="w-3.5 h-3.5" />
               )}
               Preview
             </button>
@@ -339,17 +337,14 @@ export function GitHubSyncPanel() {
               disabled={syncing || !repo}
               className={`px-4 py-1.5 text-xs rounded-md font-medium transition-colors flex items-center gap-1.5 ${
                 repo
-                  ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                  ? 'bg-violet-500 text-primary-foreground hover:bg-violet-500/90'
                   : 'bg-muted text-muted-foreground cursor-not-allowed'
               }`}
             >
               {syncing ? (
                 <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
               ) : (
-                <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M8 2v8M5 7l3 3 3-3" />
-                  <path d="M3 12v2h10v-2" />
-                </svg>
+                <Download className="w-3.5 h-3.5" />
               )}
               Import
             </button>
@@ -361,19 +356,19 @@ export function GitHubSyncPanel() {
       {previewIssues.length > 0 && (
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-            <h3 className="text-sm font-medium text-foreground">
+            <h3 className="text-sm font-semibold text-foreground">
               Preview ({previewIssues.length} issues)
             </h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-border text-muted-foreground">
-                  <th className="text-left px-4 py-2 font-medium">#</th>
-                  <th className="text-left px-4 py-2 font-medium">Title</th>
-                  <th className="text-left px-4 py-2 font-medium">Labels</th>
-                  <th className="text-left px-4 py-2 font-medium">State</th>
-                  <th className="text-left px-4 py-2 font-medium">Created</th>
+                <tr className="border-b border-border">
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">#</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Title</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Labels</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">State</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Created</th>
                 </tr>
               </thead>
               <tbody>
@@ -405,8 +400,8 @@ export function GitHubSyncPanel() {
                     <td className="px-4 py-2">
                       <span className={`px-1.5 py-0.5 rounded text-2xs ${
                         issue.state === 'open'
-                          ? 'bg-green-500/10 text-green-400'
-                          : 'bg-purple-500/10 text-purple-400'
+                          ? 'bg-emerald-500/10 text-emerald-400'
+                          : 'bg-violet-500/10 text-violet-400'
                       }`}>
                         {issue.state}
                       </span>
@@ -426,16 +421,16 @@ export function GitHubSyncPanel() {
       {syncHistory.length > 0 && (
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="px-4 py-3 border-b border-border">
-            <h3 className="text-sm font-medium text-foreground">Sync History</h3>
+            <h3 className="text-sm font-semibold text-foreground">Sync History</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-border text-muted-foreground">
-                  <th className="text-left px-4 py-2 font-medium">Repo</th>
-                  <th className="text-left px-4 py-2 font-medium">Issues</th>
-                  <th className="text-left px-4 py-2 font-medium">Status</th>
-                  <th className="text-left px-4 py-2 font-medium">Synced At</th>
+                <tr className="border-b border-border">
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Repo</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Issues</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Synced At</th>
                 </tr>
               </thead>
               <tbody>
@@ -446,7 +441,7 @@ export function GitHubSyncPanel() {
                     <td className="px-4 py-2">
                       <span className={`px-1.5 py-0.5 rounded text-2xs ${
                         sync.status === 'success'
-                          ? 'bg-green-500/10 text-green-400'
+                          ? 'bg-emerald-500/10 text-emerald-400'
                           : sync.status === 'partial'
                           ? 'bg-yellow-500/10 text-yellow-400'
                           : 'bg-destructive/10 text-destructive'
@@ -469,19 +464,19 @@ export function GitHubSyncPanel() {
       {linkedTasks.length > 0 && (
         <div className="rounded-xl border border-border bg-card overflow-hidden">
           <div className="px-4 py-3 border-b border-border">
-            <h3 className="text-sm font-medium text-foreground">
+            <h3 className="text-sm font-semibold text-foreground">
               Linked Tasks ({linkedTasks.length})
             </h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="border-b border-border text-muted-foreground">
-                  <th className="text-left px-4 py-2 font-medium">Task</th>
-                  <th className="text-left px-4 py-2 font-medium">Status</th>
-                  <th className="text-left px-4 py-2 font-medium">Priority</th>
-                  <th className="text-left px-4 py-2 font-medium">GitHub</th>
-                  <th className="text-left px-4 py-2 font-medium">Synced</th>
+                <tr className="border-b border-border">
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Task</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Priority</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">GitHub</th>
+                  <th className="text-left px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">Synced</th>
                 </tr>
               </thead>
               <tbody>
@@ -497,7 +492,7 @@ export function GitHubSyncPanel() {
                       <span className={`px-1.5 py-0.5 rounded text-2xs ${
                         task.priority === 'critical' ? 'bg-red-500/10 text-red-400' :
                         task.priority === 'high' ? 'bg-orange-500/10 text-orange-400' :
-                        task.priority === 'low' ? 'bg-blue-500/10 text-blue-400' :
+                        task.priority === 'low' ? 'bg-cyan-500/10 text-cyan-400' :
                         'bg-secondary text-muted-foreground'
                       }`}>
                         {task.priority}
@@ -514,13 +509,13 @@ export function GitHubSyncPanel() {
                           {task.metadata.github_repo}#{task.metadata.github_issue_number}
                         </a>
                       ) : (
-                        <span className="text-muted-foreground">—</span>
+                        <span className="text-muted-foreground">--</span>
                       )}
                     </td>
                     <td className="px-4 py-2 text-muted-foreground">
                       {task.metadata.github_synced_at
                         ? new Date(task.metadata.github_synced_at).toLocaleDateString()
-                        : '—'}
+                        : '--'}
                     </td>
                   </tr>
                 ))}

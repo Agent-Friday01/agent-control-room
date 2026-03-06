@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Mission Control API",
+    "title": "Agent Control Room API",
     "version": "1.2.0",
     "description": "AI Agent Orchestration Platform API"
   },

@@ -1,7 +1,8 @@
 'use client'
 
 import { useRef, useEffect, useState, useCallback } from 'react'
-import { useMissionControl } from '@/store'
+import { useAgentControlRoom } from '@/store'
+import { Send } from 'lucide-react'
 
 interface ChatInputProps {
   onSend: (content: string) => void
@@ -10,7 +11,7 @@ interface ChatInputProps {
 }
 
 export function ChatInput({ onSend, disabled, agents = [] }: ChatInputProps) {
-  const { chatInput, setChatInput, isSendingMessage } = useMissionControl()
+  const { chatInput, setChatInput, isSendingMessage } = useAgentControlRoom()
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [showMentions, setShowMentions] = useState(false)
   const [mentionFilter, setMentionFilter] = useState('')
@@ -121,7 +122,7 @@ export function ChatInput({ onSend, disabled, agents = [] }: ChatInputProps) {
     <div className="relative border-t border-border bg-card/80 backdrop-blur-sm p-3 flex-shrink-0 safe-area-bottom">
       {/* Mention autocomplete dropdown */}
       {showMentions && filteredAgents.length > 0 && (
-        <div className="absolute bottom-full left-3 right-3 mb-1 bg-popover/95 backdrop-blur-lg border border-border rounded-lg shadow-xl overflow-hidden max-h-40 overflow-y-auto z-10">
+        <div className="absolute bottom-full left-3 right-3 mb-1 bg-popover/95 backdrop-blur-lg border border-border rounded-xl shadow-xl overflow-hidden max-h-40 overflow-y-auto z-10">
           {filteredAgents.map((agent, i) => (
             <button
               key={agent.name}
@@ -133,7 +134,7 @@ export function ChatInput({ onSend, disabled, agents = [] }: ChatInputProps) {
                 insertMention(agent.name)
               }}
             >
-              <div className="w-5 h-5 rounded-full bg-surface-2 flex items-center justify-center text-[9px] font-bold text-muted-foreground">
+              <div className="w-5 h-5 rounded-full bg-secondary flex items-center justify-center text-[9px] font-bold text-muted-foreground">
                 {agent.name.charAt(0).toUpperCase()}
               </div>
               <span className="font-medium text-foreground">@{agent.name}</span>
@@ -152,21 +153,18 @@ export function ChatInput({ onSend, disabled, agents = [] }: ChatInputProps) {
           placeholder={disabled ? 'Select a conversation...' : 'Message... (@ to mention, Enter to send)'}
           disabled={disabled || isSendingMessage}
           rows={1}
-          className="flex-1 resize-none bg-surface-1 rounded-lg px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-primary/50 disabled:opacity-40 transition-all"
+          className="flex-1 resize-none bg-secondary rounded-xl px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-violet-500/50 disabled:opacity-40 transition-all"
         />
         <button
           onClick={handleSend}
           disabled={!chatInput.trim() || disabled || isSendingMessage}
-          className="w-8 h-8 flex items-center justify-center bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-smooth flex-shrink-0"
+          className="w-8 h-8 flex items-center justify-center bg-violet-500 text-primary-foreground rounded-xl hover:bg-violet-500/90 disabled:opacity-30 disabled:cursor-not-allowed transition-smooth flex-shrink-0"
           title="Send message"
         >
           {isSendingMessage ? (
             <span className="inline-block w-3.5 h-3.5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
           ) : (
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2L7 9" />
-              <path d="M14 2l-5 12-2-5-5-2 12-5z" />
-            </svg>
+            <Send className="w-3.5 h-3.5" />
           )}
         </button>
       </div>

@@ -1,11 +1,12 @@
 'use client'
 
 import { ChatMessage } from '@/store'
+import { ChevronRight } from 'lucide-react'
 
 const AGENT_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  coordinator: { bg: 'bg-purple-500/10', text: 'text-purple-400', border: 'border-purple-500/20' },
+  coordinator: { bg: 'bg-violet-500/10', text: 'text-violet-400', border: 'border-violet-500/20' },
   aegis: { bg: 'bg-red-500/10', text: 'text-red-400', border: 'border-red-500/20' },
-  research: { bg: 'bg-green-500/10', text: 'text-green-400', border: 'border-green-500/20' },
+  research: { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/20' },
   design: { bg: 'bg-pink-500/10', text: 'text-pink-400', border: 'border-pink-500/20' },
   quant: { bg: 'bg-yellow-500/10', text: 'text-yellow-400', border: 'border-yellow-500/20' },
   ops: { bg: 'bg-orange-500/10', text: 'text-orange-400', border: 'border-orange-500/20' },
@@ -18,7 +19,7 @@ const AGENT_COLORS: Record<string, { bg: string; text: string; border: string }>
   'backend-dev': { bg: 'bg-emerald-500/10', text: 'text-emerald-400', border: 'border-emerald-500/20' },
   'solana-dev': { bg: 'bg-amber-500/10', text: 'text-amber-400', border: 'border-amber-500/20' },
   system: { bg: 'bg-muted/50', text: 'text-muted-foreground', border: 'border-border' },
-  human: { bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/20' },
+  human: { bg: 'bg-violet-500/10', text: 'text-violet-600 dark:text-violet-400', border: 'border-violet-500/20' },
 }
 
 function getAgentTheme(name: string) {
@@ -85,7 +86,7 @@ export function MessageBubble({ message, isHuman, isGrouped }: MessageBubbleProp
   if (isSystem) {
     return (
       <div className="flex justify-center my-3">
-        <div className="text-[11px] text-muted-foreground/70 bg-surface-1 px-3 py-1 rounded-full border border-border/30">
+        <div className="text-[11px] text-muted-foreground/70 bg-secondary px-3 py-1 rounded-full border border-border/30">
           {message.content}
         </div>
       </div>
@@ -96,9 +97,7 @@ export function MessageBubble({ message, isHuman, isGrouped }: MessageBubbleProp
     return (
       <div className="flex justify-center my-3">
         <div className="flex items-center gap-2 text-[11px] text-amber-400/80 bg-amber-500/5 px-3 py-1.5 rounded-full border border-amber-500/20">
-          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-            <path d="M5 3l6 5-6 5" />
-          </svg>
+          <ChevronRight className="w-3 h-3" />
           <span>{message.from_agent} handed off to {message.to_agent}</span>
         </div>
       </div>
@@ -126,9 +125,7 @@ export function MessageBubble({ message, isHuman, isGrouped }: MessageBubbleProp
             </span>
             {message.to_agent && (
               <span className="text-[10px] text-muted-foreground/50 flex items-center gap-0.5">
-                <svg width="8" height="8" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M5 3l6 5-6 5" />
-                </svg>
+                <ChevronRight className="w-2 h-2" />
                 {message.to_agent}
               </span>
             )}
@@ -141,10 +138,10 @@ export function MessageBubble({ message, isHuman, isGrouped }: MessageBubbleProp
         {/* Bubble */}
         <div className={`rounded-xl px-3 py-2 text-sm leading-relaxed ${
           isHuman
-            ? 'bg-primary text-primary-foreground rounded-tr-sm'
+            ? 'bg-violet-500 text-primary-foreground rounded-tr-sm'
             : isCommand
             ? `${theme.bg} border ${theme.border} font-mono text-xs rounded-tl-sm`
-            : `bg-surface-2 text-foreground ${isGrouped ? 'rounded-tl-sm' : 'rounded-tl-sm'}`
+            : `bg-secondary text-foreground ${isGrouped ? 'rounded-tl-sm' : 'rounded-tl-sm'}`
         }`}>
           {isCommand ? (
             <pre className="whitespace-pre-wrap">{message.content}</pre>

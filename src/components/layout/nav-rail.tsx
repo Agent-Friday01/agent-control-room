@@ -9,7 +9,7 @@ import {
   Clock, Rocket, Webhook, Bell, Github,
   UserCog, ShieldCheck, History, Server, Settings,
   Puzzle, Crown, ChevronLeft, ChevronRight, ChevronDown,
-  MoreHorizontal,
+  MoreHorizontal, Wand2,
 } from 'lucide-react'
 
 interface NavItem {
@@ -71,6 +71,7 @@ const navGroups: NavGroup[] = [
       { id: 'gateways', label: 'Gateways', icon: <Server size={ICON_SIZE} />, priority: false },
       { id: 'gateway-config', label: 'Config', icon: <Settings size={ICON_SIZE} />, priority: false, requiresGateway: true },
       { id: 'integrations', label: 'Integrations', icon: <Puzzle size={ICON_SIZE} />, priority: false },
+      { id: 'skills', label: 'Skills', icon: <Wand2 size={ICON_SIZE} />, priority: false },
       { id: 'workspaces', label: 'Workspaces', icon: <Crown size={ICON_SIZE} />, priority: false },
       { id: 'super-admin', label: 'Super Admin', icon: <Crown size={ICON_SIZE} />, priority: false },
       { id: 'settings', label: 'Settings', icon: <Settings size={ICON_SIZE} />, priority: false },

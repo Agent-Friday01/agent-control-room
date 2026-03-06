@@ -24,7 +24,7 @@ Manage agent fleets, track tasks, monitor costs, and orchestrate workflows — a
 
 Running AI agents at scale means juggling sessions, tasks, costs, and reliability across multiple models and channels. Agent Control Room gives you:
 
-- **28 panels** — Tasks, agents, logs, tokens, memory, cron, alerts, webhooks, pipelines, and more
+- **29 panels** — Tasks, agents, skills, logs, tokens, memory, cron, alerts, webhooks, pipelines, and more
 - **Real-time everything** — WebSocket + SSE push updates, smart polling that pauses when you're away
 - **Zero external dependencies** — SQLite database, single `pnpm start` to run, no Redis/Postgres/Docker required
 - **Role-based access** — Viewer, operator, and admin roles with session + API key auth
@@ -110,6 +110,9 @@ Define agent personality, capabilities, and behavioral guidelines via SOUL markd
 ### Agent Messaging
 Inter-agent communication via the comms API. Agents can send messages to each other, enabling coordinated multi-agent workflows.
 
+### Skills Management
+Centralized UI for managing Claude skills. Discover available skills from `.claude/skills/`, toggle them on/off, and search/filter by name or description. Skill state persists in OpenClaw configuration (`~/.openclaw/openclaw.json`). Admin-only feature with batch save/discard workflow.
+
 ### Integrations
 Outbound webhooks with delivery history, configurable alert rules with cooldowns, and multi-gateway connection management. Optional 1Password CLI integration for secret management.
 
@@ -129,7 +132,7 @@ agent-control-room/
 │   ├── components/
 │   │   ├── layout/            # NavRail, HeaderBar, LiveFeed
 │   │   ├── dashboard/         # Overview dashboard
-│   │   ├── panels/            # 28 feature panels
+│   │   ├── panels/            # 29 feature panels
 │   │   └── chat/              # Agent chat UI
 │   ├── lib/
 │   │   ├── auth.ts            # Session + API key auth, RBAC
@@ -241,6 +244,7 @@ All endpoints require authentication unless noted. Full reference below.
 | `GET/PUT` | `/api/settings` | admin | App settings |
 | `GET/PUT` | `/api/gateway-config` | admin | OpenClaw gateway config |
 | `GET/POST` | `/api/cron` | admin | Cron management |
+| `GET/PUT` | `/api/skills` | admin | Skills management (discover, enable/disable) |
 
 </details>
 

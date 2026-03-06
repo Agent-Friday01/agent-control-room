@@ -27,6 +27,7 @@ import { WebhookPanel } from '@/components/panels/webhook-panel'
 import { SettingsPanel } from '@/components/panels/settings-panel'
 import { GatewayConfigPanel } from '@/components/panels/gateway-config-panel'
 import { IntegrationsPanel } from '@/components/panels/integrations-panel'
+import { SkillsPanel } from '@/components/panels/skills-panel'
 import { AlertRulesPanel } from '@/components/panels/alert-rules-panel'
 import { MultiGatewayPanel } from '@/components/panels/multi-gateway-panel'
 import { SuperAdminPanel } from '@/components/panels/super-admin-panel'
@@ -253,6 +254,8 @@ function ContentRouter({ tab }: { tab: string }) {
       return <GatewayConfigPanel />
     case 'integrations':
       return <IntegrationsPanel />
+    case 'skills':
+      return <SkillsPanel />
     case 'settings':
       return <SettingsPanel />
     case 'github':
